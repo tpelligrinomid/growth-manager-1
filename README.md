@@ -64,3 +64,28 @@ The Growth Manager dashboard provides a comprehensive view of account performanc
 
 ## Purpose
 This application streamlines account management processes by providing a single source of truth for client relationships, helping teams maintain organized records and make data-driven decisions to optimize growth strategies.
+
+## Project Structure
+
+Key files in the project:
+
+### Client-side
+- `client/.gitignore` - Specifies which files Git should ignore
+- `client/src/App.tsx` - Main React application component with account table and modal
+- `client/tsconfig.app.json` - TypeScript configuration for the client
+- `client/src/components/AccountDetails.tsx` - Account details modal component
+- `client/package.json` - Client dependencies and scripts
+
+### Server-side
+- `server/src/types/index.ts` - TypeScript type definitions for the API
+- `server/prisma/seed.ts` - Database seeding script
+- `server/package.json` - Server dependencies and scripts
+
+### Setup and Configuration
+- `cleanup.ps1` - PowerShell setup script
+- `cleanup.sh` - Bash setup script
+
+Each file serves a specific purpose in the application:
+- The client-side files handle the UI and user interactions
+- The server-side files manage data and API endpoints
+- Setup scripts help initialize the project and maintain consistency
