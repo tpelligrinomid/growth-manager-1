@@ -89,3 +89,54 @@ Each file serves a specific purpose in the application:
 - The client-side files handle the UI and user interactions
 - The server-side files manage data and API endpoints
 - Setup scripts help initialize the project and maintain consistency
+
+## Development Process
+
+### Branch Strategy
+- `main` - Production branch, contains stable releases
+- `dev` - Development branch, where features are integrated
+- Feature branches - Where new features are developed
+
+### Branch Naming Convention
+- Feature branches: `feature/description`
+- Bug fixes: `bugfix/description`
+- Hot fixes: `hotfix/description`
+
+### Development Workflow
+1. Create a new branch from `dev`:
+   ```bash
+   git checkout dev
+   git pull origin dev
+   git checkout -b feature/your-feature-name
+   ```
+
+2. Make your changes and commit:
+   ```bash
+   git add .
+   git commit -m "feat: description of changes"
+   git push -u origin feature/your-feature-name
+   ```
+
+3. Create a Pull Request (PR):
+   - Go to GitHub repository
+   - Create PR from your feature branch to `dev`
+   - Fill out the PR template completely
+   - Request review from team members
+
+4. PR Review Process:
+   - Address reviewer comments
+   - Update code as needed
+   - Ensure all checks pass
+   - Get approval from reviewer
+
+5. Merging:
+   - PRs merge into `dev` first
+   - `dev` is merged into `main` for releases
+   - Delete feature branch after merge
+
+### Pull Request Guidelines
+- Keep PRs focused and small
+- Include screenshots for UI changes
+- Link related issues
+- Update documentation as needed
+- Ensure all tests pass
