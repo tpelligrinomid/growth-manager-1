@@ -1,0 +1,185 @@
+/* Reset body and html to ensure full width */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+#root {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+}
+
+.logo, .card, .read-the-docs {
+  display: none;
+}
+
+/* Updated color scheme to match newnorth.com exactly */
+:root {
+  --nn-dark-purple: #1E0B33;    /* Dark purple background */
+  --nn-purple: #6B46C1;         /* Bright purple accent */
+  --nn-bright-purple: #8B5CF6;  /* Button/highlight purple */
+  --nn-bg-gray: #f6f6f6;        /* Light background */
+  --nn-border: #e5e5e5;         /* Border color */
+  --nn-text: #FFFFFF;           /* Main text color */
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.app-header {
+  background-color: var(--nn-dark-purple);
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--nn-purple);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.app-content {
+  padding: 1rem 2rem;
+  background-color: var(--nn-bg-gray);
+  flex-grow: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.accounts-section {
+  width: 100%;
+}
+
+.accounts-section h2 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: var(--nn-purple);
+  padding: 0 0.5rem;
+}
+
+.accounts-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  table-layout: fixed;
+}
+
+.accounts-table th,
+.accounts-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--nn-border);
+  white-space: nowrap;
+}
+
+.accounts-table th {
+  background-color: var(--nn-dark-purple);
+  color: var(--nn-text);
+  font-weight: 500;
+}
+
+.accounts-table tr:hover {
+  background-color: var(--nn-bg-gray);
+}
+
+@media (max-width: 1024px) {
+  .app-content {
+    padding: 1rem;
+  }
+  
+  .accounts-table {
+    overflow-x: auto;
+    display: block;
+  }
+}
+
+.accounts-table td:nth-child(6) {
+  text-align: right;
+}
+
+.accounts-table td:nth-child(7),
+.accounts-table td:nth-child(8),
+.accounts-table td:nth-child(9),
+.accounts-table td:nth-child(10) {
+  text-align: right;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--nn-dark-purple);
+}
+
+.modal-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.detail-group {
+  margin-bottom: 1.5rem;
+}
+
+.detail-group h3 {
+  color: var(--nn-dark-purple);
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.detail-group p {
+  margin: 0.5rem 0;
+}
+
+/* Make table rows clickable */
+.accounts-table tbody tr {
+  cursor: pointer;
+}
+
+.accounts-table tbody tr:hover {
+  background-color: var(--nn-bg-gray);
+}
