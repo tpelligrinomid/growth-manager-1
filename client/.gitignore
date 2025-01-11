@@ -1,30 +1,27 @@
-# Create .gitignore
+# Create root .gitignore
 @'
 # Dependencies
 node_modules/
-.pnp
-.pnp.js
+*/node_modules/
 
-# Testing
-coverage/
-
-# Production
-build/
-dist/
-
-# Misc
-.DS_Store
+# Environment
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
 
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Build outputs
+dist/
+build/
 
 # IDE
-.idea/
 .vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# System Files
+.DS_Store
+Thumbs.db
 '@ | Out-File -Encoding UTF8 .gitignore
