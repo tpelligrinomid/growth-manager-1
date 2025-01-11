@@ -1,40 +1,58 @@
-export type Account = {
+export enum BusinessUnit {
+  NEW_NORTH = 'NEW_NORTH',
+  IDEOMETRY = 'IDEOMETRY',
+  MOTION = 'MOTION',
+  SPOKE = 'SPOKE'
+}
+
+export enum EngagementType {
+  STRATEGIC = 'STRATEGIC',
+  TACTICAL = 'TACTICAL'
+}
+
+export enum Priority {
+  TIER_1 = 'TIER_1',
+  TIER_2 = 'TIER_2',
+  TIER_3 = 'TIER_3',
+  TIER_4 = 'TIER_4'
+}
+
+export enum Service {
+  SOCIAL = 'SOCIAL',
+  WEBSITE = 'WEBSITE',
+  SEO = 'SEO',
+  PPC = 'PPC',
+  EMAIL = 'EMAIL',
+  CONTENT = 'CONTENT'
+}
+
+export interface AccountResponse {
   id: string;
   accountName: string;
-  businessUnit: 'NEW_NORTH' | 'IDEOMETRY' | 'MOTION' | 'SPOKE';
-  engagementType: 'STRATEGIC' | 'TACTICAL';
-  priority: 'TIER_1' | 'TIER_2' | 'TIER_3' | 'TIER_4';
+  businessUnit: BusinessUnit;
+  engagementType: EngagementType;
+  priority: Priority;
   accountManager: string;
   teamManager: string;
-  relationshipStartDate: Date;
-  contractStartDate: Date;
-  contractRenewalEnd: Date;
-  services: ('ABM' | 'PAID' | 'CONTENT' | 'SEO' | 'REPORTING' | 'SOCIAL' | 'WEBSITE')[];
+  relationshipStartDate: string;
+  contractStartDate: string;
+  contractRenewalEnd: string;
+  services: Service[];
   pointsPurchased: number;
   pointsDelivered: number;
+  pointsStrikingDistance: number;
   delivery: string;
   recurringPointsAllotment: number;
   mrr: number;
   growthInMrr: number;
   potentialMrr: number;
-  website: string | null;
-  linkedinProfile: string | null;
+  website?: string;
+  linkedinProfile?: string;
   industry: string;
   annualRevenue: number;
   employees: number;
-  goals: Goal[];
-};
-
-export interface Goal {
-  id: string;
-  description: string;
-  status: string;
-  dueDate: Date;
-  progress: number;
-}
-
-export interface AccountResponse extends Account {
-  clientTenure: number;
-  pointsBalance: number;
-  pointsStrikingDistance: number;
+  goals?: any[];
+  notes?: any[];
+  clientTenure?: number;
+  pointsBalance?: number;
 } 

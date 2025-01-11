@@ -36,6 +36,7 @@ model Account {
   goals                 Goal[]
   notes                 Note[]
   clientContacts        ClientContact[]
+  pointsStrikingDistance Int     @default(0)
 }
 
 model Goal {
