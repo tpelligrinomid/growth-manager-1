@@ -1,142 +1,193 @@
-import { Request, Response, NextFunction } from 'express';
-import prisma from '../lib/prisma';
+import { Request, Response } from 'express';
+import { PrismaClient } from '@prisma/client';
 import { 
-  ApiResponse, 
-  AccountResponse, 
-  CreateAccountDto, 
-  UpdateAccountDto,
-  AccountWithRelations 
-} from '../types';
-import { getCalculatedFields } from '../utils/calculations';
+  calculatePointsStrikingDistance, 
+  calculatePointsBalance,
+  calculatePotentialMrr,
+  determineDeliveryStatus,
+  calculateClientTenure
+} from '../utils/calculations';
 
-// Get single account
-export const getAccount = async (
-  req: Request,
-  res: Response<ApiResponse<AccountResponse>>,
-  next: NextFunction
-) => {
+const prisma = new PrismaClient();
+
+export const getAccounts = async (req: Request, res: Response) => {
+  try {
+    console.log('GET /accounts endpoint hit');
+    
+    // Add try/catch around the database query
+    let accounts;
+    try {
+      accounts = await prisma.account.findMany({
+        include: {
+          goals: true,
+          tasks: true,
+          clientContacts: true,
+        },
+      });
+      console.log('Database query successful');
+    } catch (dbError) {
+      console.error('Database error:', dbError);
+      throw new Error('Database query failed');
+    }
+
+    if (!accounts || !Array.isArray(accounts)) {
+      console.error('Invalid accounts data:', accounts);
+      return res.status(500).json({ 
+        error: 'Invalid data from database',
+        details: 'Accounts data is not in expected format'
+      });
+    }
+
+    console.log('Processing accounts data...');
+    const accountsWithCalculations = accounts.map(account => {
+      try {
+        const pointsStrikingDistance = calculatePointsStrikingDistance({
+          pointsPurchased: account.pointsPurchased,
+          pointsDelivered: account.pointsDelivered,
+          recurringPointsAllotment: account.recurringPointsAllotment
+        });
+
+        const pointsBalance = calculatePointsBalance({
+          pointsPurchased: account.pointsPurchased,
+          pointsDelivered: account.pointsDelivered
+        });
+
+        return {
+          ...account,
+          mrr: Number(account.mrr) || 0,
+          pointsPurchased: Number(account.pointsPurchased) || 0,
+          pointsDelivered: Number(account.pointsDelivered) || 0,
+          pointsStrikingDistance,
+          pointsBalance,
+          delivery: determineDeliveryStatus(pointsStrikingDistance),
+          clientTenure: calculateClientTenure(account.relationshipStartDate)
+        };
+      } catch (calcError) {
+        console.error('Calculation error for account:', account.accountName, calcError);
+        throw new Error(`Failed to process account ${account.accountName}`);
+      }
+    });
+
+    console.log('Successfully processed all accounts');
+    return res.json({ data: accountsWithCalculations });
+  } catch (error) {
+    console.error('Detailed server error:', error);
+    return res.status(500).json({ 
+      error: 'Failed to fetch accounts',
+      details: error instanceof Error ? error.message : 'Unknown error',
+      stack: process.env.NODE_ENV === 'development' ? (error as Error).stack : undefined
+    });
+  }
+};
+
+export const getAccountById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
     const account = await prisma.account.findUnique({
       where: { id },
       include: {
         goals: true,
-        notes: true,
+        tasks: true,
         clientContacts: true,
       },
-    }) as AccountWithRelations | null;
+    });
 
     if (!account) {
       return res.status(404).json({ error: 'Account not found' });
     }
 
-    res.json({
-      data: {
-        ...account,
-        website: account.website ?? null,
-        linkedinProfile: account.linkedinProfile ?? null,
-        ...getCalculatedFields(account)
-      }
-    });
+    res.json({ data: account });
   } catch (error) {
-    next(error);
+    console.error('Error fetching account:', error);
+    res.status(500).json({ error: 'Failed to fetch account' });
   }
 };
 
-// Get all accounts
-export const getAccounts = async (
-  req: Request,
-  res: Response<ApiResponse<AccountResponse[]>>,
-  next: NextFunction
-) => {
+export const createAccount = async (req: Request, res: Response) => {
   try {
-    const accounts = await prisma.account.findMany({
-      include: {
-        goals: true,
-        notes: true,
-        clientContacts: true,
-      },
-    }) as AccountWithRelations[];
-
-    const accountsWithCalculations = accounts.map((account: AccountWithRelations) => ({
-      ...account,
-      website: account.website ?? null,
-      linkedinProfile: account.linkedinProfile ?? null,
-      ...getCalculatedFields(account)
-    }));
-
-    res.json({ data: accountsWithCalculations });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Create account
-export const createAccount = async (
-  req: Request<{}, {}, CreateAccountDto>,
-  res: Response<ApiResponse<AccountResponse>>,
-  next: NextFunction
-) => {
-  try {
-    const accountData = {
-      ...req.body,
-      website: req.body.website ?? null,
-      linkedinProfile: req.body.linkedinProfile ?? null,
-    };
-
     const account = await prisma.account.create({
-      data: accountData,
+      data: {
+        ...req.body,
+        relationshipStartDate: new Date(req.body.relationshipStartDate),
+        contractStartDate: new Date(req.body.contractStartDate),
+        contractRenewalEnd: new Date(req.body.contractRenewalEnd),
+      },
       include: {
         goals: true,
-        notes: true,
+        tasks: true,
         clientContacts: true,
       },
-    }) as AccountWithRelations;
-
-    res.status(201).json({
-      data: {
-        ...account,
-        ...getCalculatedFields(account)
-      }
     });
+
+    res.status(201).json({ data: account });
   } catch (error) {
-    next(error);
+    console.error('Error creating account:', error);
+    res.status(500).json({ error: 'Failed to create account' });
   }
 };
 
-// Update account
-export const updateAccount = async (
-  req: Request<{ id: string }, {}, UpdateAccountDto>,
-  res: Response<ApiResponse<AccountResponse>>,
-  next: NextFunction
-) => {
+export const updateAccount = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     
-    const accountData = {
-      ...req.body,
-      website: req.body.website ?? null,
-      linkedinProfile: req.body.linkedinProfile ?? null,
+    // Get the existing account
+    const existingAccount = await prisma.account.findUnique({
+      where: { id },
+      include: {
+        goals: true,
+        tasks: true,
+        clientContacts: true,
+      },
+    });
+
+    if (!existingAccount) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    // Create update data
+    const updateData = {
+      ...existingAccount,  // Keep existing data
+      ...req.body,         // Override with updates
+      // Ensure dates are Date objects
+      relationshipStartDate: new Date(req.body.relationshipStartDate),
+      contractStartDate: new Date(req.body.contractStartDate),
+      contractRenewalEnd: new Date(req.body.contractRenewalEnd),
+      // Remove fields that shouldn't be updated
+      id: undefined,
+      goals: undefined,
+      tasks: undefined,
+      clientContacts: undefined,
+      createdAt: undefined,
+      updatedAt: undefined
     };
 
     const account = await prisma.account.update({
       where: { id },
-      data: accountData,
+      data: updateData,
       include: {
         goals: true,
-        notes: true,
+        tasks: true,
         clientContacts: true,
       },
-    }) as AccountWithRelations;
-
-    res.json({
-      data: {
-        ...account,
-        ...getCalculatedFields(account)
-      }
     });
+
+    res.json({ data: account });
   } catch (error) {
-    next(error);
+    console.error('Error updating account:', error);
+    res.status(500).json({ error: 'Failed to update account' });
+  }
+};
+
+export const deleteAccount = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await prisma.account.delete({
+      where: { id },
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    res.status(500).json({ error: 'Failed to delete account' });
   }
 };

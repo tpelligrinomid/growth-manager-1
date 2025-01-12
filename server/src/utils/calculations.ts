@@ -2,9 +2,10 @@ import { AccountWithRelations } from '../types';
 
 export const calculateClientTenure = (relationshipStartDate: Date): number => {
   const today = new Date();
-  const diffTime = Math.abs(today.getTime() - relationshipStartDate.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return Math.floor(diffDays / 30.44);
+  const startDate = new Date(relationshipStartDate);
+  const diffTime = Math.abs(today.getTime() - startDate.getTime());
+  const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30.44)); // Average days in a month
+  return diffMonths;
 };
 
 export const calculatePointsBalance = ({
@@ -54,10 +55,7 @@ export const calculatePotentialMrr = ({
 };
 
 export const determineDeliveryStatus = (pointsStrikingDistance: number): string => {
-  console.log('Determining delivery status for striking distance:', pointsStrikingDistance);
-  const status = pointsStrikingDistance <= 0 ? 'ON_TRACK' : 'OFF_TRACK';
-  console.log('Calculated status:', status);
-  return status;
+  return pointsStrikingDistance <= 0 ? 'ON_TRACK' : 'OFF_TRACK';
 };
 
 export const getCalculatedFields = (account: AccountWithRelations) => {
@@ -79,4 +77,8 @@ export const getCalculatedFields = (account: AccountWithRelations) => {
     pointsBalance,
     pointsStrikingDistance
   };
+};
+
+export const formatNumber = (num: number): string => {
+  return num.toLocaleString('en-US');
 };

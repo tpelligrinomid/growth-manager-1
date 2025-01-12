@@ -1,5 +1,4 @@
-import { BusinessUnit, EngagementType, Priority } from '../types';
-import { formatBusinessUnit, formatEngagementType, formatPriority, formatDelivery } from '../utils/formatters';
+import React from 'react';
 
 interface FiltersProps {
   businessUnit: string;
@@ -7,6 +6,7 @@ interface FiltersProps {
   priority: string;
   delivery: string;
   onFilterChange: (filterName: string, value: string) => void;
+  currentView: 'manager' | 'finance';
 }
 
 export const Filters: React.FC<FiltersProps> = ({
@@ -15,69 +15,63 @@ export const Filters: React.FC<FiltersProps> = ({
   priority,
   delivery,
   onFilterChange,
+  currentView
 }) => {
   return (
-    <div className="filters-container">
+    <div className="filters-group">
       <div className="filter-group">
-        <label htmlFor="businessUnit">Business Unit</label>
+        <label>Business Unit</label>
         <select
-          id="businessUnit"
           value={businessUnit}
           onChange={(e) => onFilterChange('businessUnit', e.target.value)}
         >
           <option value="">All</option>
-          {Object.values(BusinessUnit).map((unit) => (
-            <option key={unit} value={unit}>
-              {formatBusinessUnit(unit)}
-            </option>
-          ))}
+          <option value="NEW_NORTH">New North</option>
+          <option value="IDEOMETRY">Ideometry</option>
+          <option value="MOTION">Motion</option>
+          <option value="SPOKE">Spoke</option>
         </select>
       </div>
 
       <div className="filter-group">
-        <label htmlFor="engagementType">Engagement Type</label>
+        <label>Engagement Type</label>
         <select
-          id="engagementType"
           value={engagementType}
           onChange={(e) => onFilterChange('engagementType', e.target.value)}
         >
           <option value="">All</option>
-          {Object.values(EngagementType).map((type) => (
-            <option key={type} value={type}>
-              {formatEngagementType(type)}
-            </option>
-          ))}
+          <option value="STRATEGIC">Strategic</option>
+          <option value="TACTICAL">Tactical</option>
         </select>
       </div>
 
       <div className="filter-group">
-        <label htmlFor="priority">Priority</label>
+        <label>Priority</label>
         <select
-          id="priority"
           value={priority}
           onChange={(e) => onFilterChange('priority', e.target.value)}
         >
           <option value="">All</option>
-          {Object.values(Priority).map((p) => (
-            <option key={p} value={p}>
-              {formatPriority(p)}
-            </option>
-          ))}
+          <option value="TIER_1">Tier 1</option>
+          <option value="TIER_2">Tier 2</option>
+          <option value="TIER_3">Tier 3</option>
+          <option value="TIER_4">Tier 4</option>
         </select>
       </div>
 
-      <div className="filter-group">
-        <label htmlFor="delivery">Delivery Status</label>
-        <select
-          id="delivery"
-          value={delivery}
-          onChange={(e) => onFilterChange('delivery', e.target.value)}
-        >
-          <option value="">All</option>
-          <option value="ON_TRACK">{formatDelivery('ON_TRACK')}</option>
-          <option value="OFF_TRACK">{formatDelivery('OFF_TRACK')}</option>
-        </select>
-      </div>
+      {currentView === 'manager' && (
+        <div className="filter-group">
+          <label>Delivery Status</label>
+          <select
+            value={delivery}
+            onChange={(e) => onFilterChange('delivery', e.target.value)}
+          >
+            <option value="">All</option>
+            <option value="ON_TRACK">On Track</option>
+            <option value="OFF_TRACK">Off Track</option>
+          </select>
+        </div>
+      )}
     </div>
   );
 }; 

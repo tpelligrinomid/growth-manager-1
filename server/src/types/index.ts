@@ -68,3 +68,9 @@ export interface AccountResponse extends AccountWithRelations {
 
 export type CreateAccountDto = Omit<Account, 'id'>;
 export type UpdateAccountDto = Partial<CreateAccountDto>;
+
+export enum Role {
+  GROWTH_MANAGER = 'GROWTH_MANAGER',
+  ADMINISTRATOR = 'ADMINISTRATOR',
+  GROWTH_ADVISOR = 'GROWTH_ADVISOR'
+}

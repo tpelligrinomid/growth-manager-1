@@ -11,32 +11,45 @@ interface Props {
 }
 
 export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, onSubmit }) => {
-  const [formData, setFormData] = useState({
-    accountName: account.accountName,
-    businessUnit: account.businessUnit,
-    engagementType: account.engagementType,
-    priority: account.priority,
-    accountManager: account.accountManager,
-    teamManager: account.teamManager,
+  console.log('Initial account data:', account);
+
+  // Clean the numeric values by removing commas and converting to numbers
+  const cleanNumber = (value: any) => {
+    if (typeof value === 'string') {
+      return Number(value.replace(/,/g, ''));
+    }
+    return Number(value);
+  };
+
+  const [formData, setFormData] = useState(() => ({
+    ...account,
+    // Format dates
     relationshipStartDate: new Date(account.relationshipStartDate).toISOString().split('T')[0],
     contractStartDate: new Date(account.contractStartDate).toISOString().split('T')[0],
     contractRenewalEnd: new Date(account.contractRenewalEnd).toISOString().split('T')[0],
-    services: account.services,
-    pointsPurchased: account.pointsPurchased,
-    pointsDelivered: account.pointsDelivered,
-    recurringPointsAllotment: account.recurringPointsAllotment,
-    mrr: account.mrr,
-    growthInMrr: account.growthInMrr,
-    website: account.website || '',
-    linkedinProfile: account.linkedinProfile || '',
-    industry: account.industry,
-    annualRevenue: account.annualRevenue,
-    employees: account.employees
-  });
+    // Clean numeric values
+    mrr: cleanNumber(account.mrr),
+    growthInMrr: cleanNumber(account.growthInMrr),
+    pointsPurchased: cleanNumber(account.pointsPurchased),
+    pointsDelivered: cleanNumber(account.pointsDelivered),
+    recurringPointsAllotment: cleanNumber(account.recurringPointsAllotment),
+    employees: cleanNumber(account.employees),
+    annualRevenue: cleanNumber(account.annualRevenue),
+  }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ id: account.id, ...formData });
+    
+    const updateData = {
+      ...account,
+      ...formData,
+      relationshipStartDate: new Date(formData.relationshipStartDate),
+      contractStartDate: new Date(formData.contractStartDate),
+      contractRenewalEnd: new Date(formData.contractRenewalEnd),
+    };
+
+    onSubmit(updateData);
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -170,7 +183,10 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
                     type="number"
                     id="pointsPurchased"
                     value={formData.pointsPurchased}
-                    onChange={e => setFormData({...formData, pointsPurchased: Number(e.target.value)})}
+                    onChange={e => setFormData(prev => ({
+                      ...prev,
+                      pointsPurchased: e.target.value === '' ? 0 : Number(e.target.value)
+                    }))}
                   />
                 </div>
                 <div className="form-field">

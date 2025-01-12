@@ -26,6 +26,18 @@ export enum Service {
   CONTENT = 'CONTENT'
 }
 
+export interface Task {
+  id: string;
+  name: string;
+  description?: string;
+  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+  assignee?: string;
+  createdAt: string;
+  dueDate?: string;
+  completedAt?: string;
+  accountId: string;
+}
+
 export interface AccountResponse {
   id: string;
   accountName: string;
@@ -55,4 +67,5 @@ export interface AccountResponse {
   notes?: any[];
   clientTenure?: number;
   pointsBalance?: number;
+  tasks: Task[];
 } 

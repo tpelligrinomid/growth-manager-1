@@ -1,6 +1,8 @@
 export const formatBusinessUnit = (unit: string): string => {
-  const formatted = unit.replace('_', ' ').toLowerCase();
-  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  // Split by underscore and convert each word to title case
+  return unit.split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 };
 
 export const formatEngagementType = (type: string): string => {
