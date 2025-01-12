@@ -1,14 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response } from 'express';
 
-export const errorHandler = (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  console.error(err.stack);
-  res.status(500).json({
-    error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined
+export const handleError = (error: any, res: Response) => {
+  console.error('Error:', error);
+  res.status(500).json({ 
+    error: 'Internal server error',
+    details: error instanceof Error ? error.message : 'Unknown error'
   });
 }; 

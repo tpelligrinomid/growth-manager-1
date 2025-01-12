@@ -4,8 +4,11 @@ import {
   calculatePointsStrikingDistance, 
   calculatePointsBalance,
   calculatePotentialMrr,
-  determineDeliveryStatus 
+  determineDeliveryStatus,
+  calculateClientTenure,
+  formatNumber
 } from '../utils/calculations';
+import { handleError } from '../middleware/errorHandler';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -17,11 +20,15 @@ router.get('/', async (req, res) => {
     const accounts = await prisma.account.findMany({
       include: {
         goals: true,
-        notes: true,
+        tasks: true,
+        clientContacts: true,
       },
     });
 
-    // Calculate fields for each account
+    // Calculate averages first
+    const totalMrr = accounts.reduce((sum, account) => sum + account.mrr, 0);
+    const averageMrr = accounts.length > 0 ? totalMrr / accounts.length : 0;
+
     const accountsWithCalculations = accounts.map(account => {
       const pointsStrikingDistance = calculatePointsStrikingDistance({
         pointsPurchased: account.pointsPurchased,
@@ -29,18 +36,40 @@ router.get('/', async (req, res) => {
         recurringPointsAllotment: account.recurringPointsAllotment
       });
 
+      const pointsBalance = calculatePointsBalance({
+        pointsPurchased: account.pointsPurchased,
+        pointsDelivered: account.pointsDelivered
+      });
+
+      const potentialMrr = calculatePotentialMrr({
+        mrr: account.mrr,
+        growthInMrr: account.growthInMrr
+      });
+
       return {
         ...account,
-        pointsStrikingDistance,
-        delivery: determineDeliveryStatus(pointsStrikingDistance)
+        mrr: formatNumber(account.mrr),
+        pointsPurchased: formatNumber(account.pointsPurchased),
+        pointsDelivered: formatNumber(account.pointsDelivered),
+        recurringPointsAllotment: formatNumber(account.recurringPointsAllotment),
+        pointsStrikingDistance: formatNumber(pointsStrikingDistance),
+        pointsBalance: formatNumber(pointsBalance),
+        potentialMrr: formatNumber(potentialMrr),
+        annualRevenue: formatNumber(account.annualRevenue),
+        employees: formatNumber(account.employees),
+        delivery: determineDeliveryStatus(pointsStrikingDistance),
+        clientTenure: calculateClientTenure(account.relationshipStartDate),
+        averageMrr: formatNumber(averageMrr)
       };
     });
 
-    console.log('Found accounts:', accountsWithCalculations);
     res.json({ data: accountsWithCalculations });
   } catch (error) {
-    console.error('Error fetching accounts:', error);
-    res.status(500).json({ error: 'Error fetching accounts' });
+    console.error('Detailed error:', error);
+    res.status(500).json({ 
+      error: 'Error fetching accounts',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 

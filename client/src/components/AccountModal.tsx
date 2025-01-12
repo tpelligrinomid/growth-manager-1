@@ -90,6 +90,47 @@ export const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit
 
           <div className="detail-section">
             <div className="section-header">
+              <ChartBarIcon className="section-icon" />
+              <h3>Goals</h3>
+            </div>
+            <div className="section-content">
+              {account.goals && account.goals.length > 0 ? (
+                <table className="goals-table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Due Date</th>
+                      <th>Progress</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {account.goals.map((goal, index) => (
+                      <tr key={index}>
+                        <td>{goal.description}</td>
+                        <td>{new Date(goal.dueDate).toLocaleDateString()}</td>
+                        <td className="progress-cell">
+                          <div className="goal-progress">
+                            <div className="progress-bar">
+                              <div 
+                                className="progress-fill"
+                                style={{ width: `${goal.progress}%` }}
+                              />
+                            </div>
+                            <span className="progress-text">{goal.progress}%</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p>No goals set</p>
+              )}
+            </div>
+          </div>
+
+          <div className="detail-section">
+            <div className="section-header">
               <BuildingLibraryIcon className="section-icon" />
               <h3>Company Information</h3>
             </div>

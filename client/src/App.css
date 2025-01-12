@@ -492,39 +492,85 @@ html, body, #root {
 }
 
 .filters-container {
-  display: flex;
-  gap: 1rem;
   margin-bottom: 1.5rem;
   background: var(--nn-white);
-  padding: 1.5rem;
+  padding: 0.75rem 1rem;
   border-radius: 8px;
   box-shadow: 0 1px 3px var(--nn-shadow);
-  border: 3px solid var(--nn-primary);
+  border: 2px solid var(--nn-primary);
 }
 
-.filters-container:hover {
-  border-color: var(--nn-hover);
-  transition: border-color 0.2s ease;
+.filters-section {
+  display: flex;
+  align-items: center;
+}
+
+.view-controls {
+  display: flex;
+  gap: 0.5rem;
+  border-right: 1px solid var(--nn-border);
+  padding-right: 1.5rem;
+  margin-right: 1.5rem;
+}
+
+.view-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--nn-primary);
+  border-radius: 6px;
+  background: var(--nn-white);
+  color: var(--nn-primary);
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.view-button:hover {
+  background: var(--nn-light);
+}
+
+.view-button.active {
+  background: var(--nn-primary);
+  color: var(--nn-white);
+}
+
+.view-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.view-button span {
+  font-size: 1rem;
+}
+
+.filters-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .filter-group {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 0.5rem;
 }
 
 .filter-group label {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--nn-text);
+  white-space: nowrap;
 }
 
 .filter-group select {
-  padding: 0.5rem;
+  padding: 0.375rem 0.5rem;
   border: 1px solid var(--nn-border);
   border-radius: 4px;
-  min-width: 150px;
+  width: 120px;
   background-color: white;
+  font-size: 0.875rem;
 }
 
 /* Priority colors */
@@ -573,6 +619,22 @@ html, body, #root {
   padding-right: 1.5rem;
 }
 
+/* Default sort indicator (only show when not sorted) */
+.sortable-header:not(.sort-active)::after {
+  content: '▲▼';
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.6rem;
+  opacity: 0.3;
+}
+
+.sortable-header:hover:not(.sort-active)::after {
+  opacity: 0.5;
+}
+
+/* Active sort arrow */
 .sort-arrow {
   position: absolute;
   right: 0.5rem;
@@ -586,22 +648,166 @@ html, body, #root {
   opacity: 1;
 }
 
-/* Default sort indicator */
-.sortable-header::after {
-  content: '▲▼';
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.6rem;
-  opacity: 0.3;
-}
-
-.sortable-header:hover::after {
-  opacity: 0.5;
-}
-
 /* Hide default indicator when column is sorted */
 .sort-active::after {
   display: none;
+}
+
+.metrics-summary {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;  /* Increased spacing below cards */
+  flex-wrap: wrap;  /* Allow cards to wrap on smaller screens */
+}
+
+.filters-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;  /* Push filters to the right */
+}
+
+/* Adjust metric cards to be more compact within the filters container */
+.metric-card {
+  background: var(--nn-white);  /* Changed to white background */
+  padding: 1.25rem;
+  border-radius: 8px;
+  min-width: 200px;
+  border-left: 4px solid transparent;
+  box-shadow: 0 1px 3px var(--nn-shadow);
+  flex: 1;  /* Allow cards to grow evenly */
+  transition: all 0.3s ease;
+}
+
+.metric-card.warning {
+  border-left: 4px solid #ef4444;  /* Red for off track */
+}
+
+.metric-card.priority {
+  border-left: 4px solid #f59e0b;  /* Orange for Tier 1 */
+}
+
+.metric-label {
+  font-size: 0.875rem;
+  color: var(--nn-text);
+  margin-bottom: 0.5rem;
+}
+
+.metric-value {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Base style for all metric values */
+.metric-value {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Style for ALL metric values (both regular numbers and percentages) */
+.metric-value > div,
+.metric-value > span {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--nn-primary);
+}
+
+/* Specific adjustment for percentage values to prevent jumping */
+.metric-value > span {
+  min-width: 4.5rem;
+}
+
+/* Remove animation from text */
+.metric-value.changed > div,
+.metric-value.changed > span {
+  animation: none;
+}
+
+/* Only animate the pie chart */
+.metric-value.changed .pie-chart {
+  animation: pulse 0.3s ease;
+}
+
+.metric-value .pie-chart {
+  transition: transform 0.3s ease;
+}
+
+.pie-chart {
+  transition: transform 0.3s ease;
+  background: white;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+}
+
+.percentage-fill {
+  transition: all 0.6s ease;
+  opacity: 0.8;  /* Makes it slightly softer */
+}
+
+/* Add animation for metric value changes */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.metric-value.changed {
+  animation: pulse 0.3s ease;
+}
+
+/* Right justify number columns */
+.number-cell {
+  text-align: right;
+}
+
+/* Goals table styles */
+.goals-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+.goals-table th,
+.goals-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--nn-border);
+}
+
+.goals-table th {
+  font-weight: 500;
+  color: var(--nn-text);
+  background-color: #f8fafc;
+}
+
+.progress-cell {
+  width: 200px;
+}
+
+.goal-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-bar {
+  flex-grow: 1;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--nn-primary);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  min-width: 40px;
+  font-size: 0.875rem;
+  color: var(--nn-text);
 }
