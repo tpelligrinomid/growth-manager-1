@@ -24,7 +24,7 @@ Growth Manager is a business tool that enables account managers to track client 
   - Recurring points per month    
 
 ### Goal Tracking
-- Set and monitor account-specific goals
+- Set and monitor account-specific goalsG
 - Track progress and due dates
 - Maintain status updates
 
