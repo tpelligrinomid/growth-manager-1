@@ -1,0 +1,16 @@
+[build]
+builder = "nixpacks"
+buildCommand = """
+rm -rf node_modules/.cache || true
+npm ci && \
+npm run build && \
+npx prisma generate && \
+npx prisma db push && \
+npx prisma db seed
+"""
+startCommand = "npm start"
+
+[deploy]
+healthcheckPath = "/api/test"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure" 
