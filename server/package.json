@@ -6,11 +6,12 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "node build/index.js",
     "dev": "set PORT=3002 && ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "prisma:seed": "ts-node prisma/seed.ts",
-    "test:connection": "ts-node src/test-connection.ts"
+    "test:connection": "ts-node src/test-connection.ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.2.1",
