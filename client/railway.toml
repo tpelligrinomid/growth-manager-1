@@ -1,9 +1,10 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm install"
-startCommand = "npm run preview -- --host 0.0.0.0"
+buildCommand = "npm ci"
+startCommand = "npm run preview"
 
 [deploy]
+startCommand = "npm run preview"
+restartPolicyType = "on_failure"
 healthcheckPath = "/"
 healthcheckTimeout = 100
-restartPolicyType = "on_failure"
