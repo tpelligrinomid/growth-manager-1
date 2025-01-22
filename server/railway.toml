@@ -3,9 +3,9 @@ builder = "nixpacks"
 buildCommand = """
 npm install --no-cache && \
 npm run build && \
-npx prisma generate && \
-npx prisma db push && \
-npx prisma db seed
+npx --no-install prisma generate && \
+npx --no-install prisma db push && \
+npx --no-install prisma db seed
 """
 startCommand = "npm start"
 
