@@ -6,23 +6,25 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "node build/index.js",
     "dev": "set PORT=3002 && ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
-    "prisma:seed": "ts-node prisma/seed.ts"
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "test:connection": "ts-node src/test-connection.ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@prisma/client": "^5.8.0",
+    "@prisma/client": "^6.2.1",
     "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "prisma": "^6.2.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
-    "@types/node": "^20.17.12",
-    "prisma": "^5.8.0",
+    "@types/node": "^20.17.14",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.7.3"
   }
 }

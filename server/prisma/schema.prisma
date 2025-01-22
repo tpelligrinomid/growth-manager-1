@@ -2,61 +2,13 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-model Account {
-  id                      String          @id @default(uuid())
-  accountName            String
-  businessUnit           BusinessUnit
-  engagementType         EngagementType
-  priority               Priority
-  accountManager         String
-  teamManager            String
-  relationshipStartDate  DateTime
-  contractStartDate      DateTime
-  contractRenewalEnd     DateTime
-  services               Service[]
-  pointsPurchased        Int
-  pointsDelivered        Int
-  delivery               String
-  recurringPointsAllotment Int
-  mrr                    Int
-  growthInMrr            Int
-  potentialMrr           Int
-  website               String?
-  linkedinProfile       String?
-  industry              String
-  annualRevenue         Int
-  employees             Int
-  goals                 Goal[]
-  tasks                 Task[]
-  clientContacts        ClientContact[]
-  pointsStrikingDistance Int     @default(0)
-}
-
-model Goal {
-  id          String    @id @default(uuid())
-  account     Account   @relation(fields: [accountId], references: [id])
-  accountId   String
-  description String
-  status      String
-  dueDate     DateTime
-  progress    Int
-}
-
-model ClientContact {
-  id          String    @id @default(uuid())
-  account     Account   @relation(fields: [accountId], references: [id])
-  accountId   String
-  firstName   String
-  lastName    String
-  title       String
-  email       String
+  directUrl = env("DATABASE_URL")
 }
 
 enum BusinessUnit {
@@ -79,13 +31,85 @@ enum Priority {
 }
 
 enum Service {
-  ABM
-  PAID
-  CONTENT
-  SEO
-  REPORTING
   SOCIAL
   WEBSITE
+  SEO
+  PPC
+  EMAIL
+  CONTENT
+}
+
+model Account {
+  id                     String   @id @default(uuid())
+  accountName            String
+  businessUnit           BusinessUnit
+  engagementType         EngagementType
+  priority               Priority
+  accountManager         String
+  teamManager            String
+  relationshipStartDate  DateTime
+  contractStartDate      DateTime
+  contractRenewalEnd     DateTime
+  services               Service[]
+  pointsPurchased        Float
+  pointsDelivered        Float
+  pointsStrikingDistance Float
+  delivery               String
+  recurringPointsAllotment Float
+  mrr                    Float
+  growthInMrr            Float
+  potentialMrr           Float
+  website                String?
+  linkedinProfile        String?
+  industry               String
+  annualRevenue          Float
+  employees              Int
+  tasks                  Task[]
+  goals                  Goal[]
+  notes                  Note[]
+  clientContacts         ClientContact[]
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  status      String
+  assignee    String?
+  createdAt   DateTime  @default(now())
+  dueDate     DateTime?
+  completedAt DateTime?
+  account     Account   @relation(fields: [accountId], references: [id])
+  accountId   String
+}
+
+model Goal {
+  id          String   @id @default(uuid())
+  description String
+  status      String
+  dueDate     DateTime
+  progress    Int
+  account     Account  @relation(fields: [accountId], references: [id])
+  accountId   String
+}
+
+model Note {
+  id          String   @id @default(uuid())
+  description String
+  createdBy   String
+  createdAt   DateTime @default(now())
+  account     Account  @relation(fields: [accountId], references: [id])
+  accountId   String
+}
+
+model ClientContact {
+  id        String  @id @default(uuid())
+  firstName String
+  lastName  String
+  title     String
+  email     String
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId String
 }
 
 enum Role {
@@ -102,23 +126,4 @@ model User {
   role          Role      @default(GROWTH_ADVISOR)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-}
-
-model Task {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  status      TaskStatus
-  assignee    String?
-  createdAt   DateTime  @default(now())
-  dueDate     DateTime?
-  completedAt DateTime?
-  account     Account   @relation(fields: [accountId], references: [id])
-  accountId   String
-}
-
-enum TaskStatus {
-  NOT_STARTED
-  IN_PROGRESS
-  COMPLETED
 } 
