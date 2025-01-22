@@ -1,12 +1,13 @@
 [build]
 builder = "nixpacks"
 buildCommand = """
+pwd && \
 npm install --include=dev && \
 npm run build && \
 npm run prisma:generate && \
 npm run prisma:push
 """
-startCommand = "npm start"
+startCommand = "pwd && npm start"
 
 [deploy]
 healthcheckPath = "/api/test"
