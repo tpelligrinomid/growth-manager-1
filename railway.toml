@@ -2,14 +2,10 @@
 builder = "nixpacks"
 buildCommand = """
 cd server && \
-export DATABASE_PASSWORD=$DATABASE_PASSWORD && \
-export DATABASE_HOST=$DATABASE_HOST && \
-export DATABASE_PORT=$DATABASE_PORT && \
-export DATABASE_NAME=$DATABASE_NAME && \
-npm ci && \
-npx prisma generate && \
-npx ts-node src/test-connection.ts && \
-npx prisma db push
+DATABASE_URL=$DATABASE_PUBLIC_URL npm ci && \
+DATABASE_URL=$DATABASE_PUBLIC_URL npx prisma generate && \
+DATABASE_URL=$DATABASE_PUBLIC_URL npx ts-node src/test-connection.ts && \
+DATABASE_URL=$DATABASE_PUBLIC_URL npx prisma db push
 """
 
 [deploy]
