@@ -3,7 +3,7 @@ builder = "nixpacks"
 buildCommand = """
 cd server && \
 npm install && \
-npm run build:clean
+npm run build:prod
 """
 
 [deploy]
