@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
@@ -30,7 +31,7 @@ async function main() {
         recurringPointsAllotment: 100,
         mrr: 10000,
         growthInMrr: 1000,
-        potentialMrr: 11000,
+        potentialMrr: 15000,
         website: "https://techinnovators.com",
         linkedinProfile: "https://linkedin.com/company/techinnovators",
         industry: "Technology",
@@ -100,10 +101,11 @@ async function main() {
   console.log('Seed data created:', accounts)
 }
 
+// ONLY THIS ONE main() call
 main()
   .catch((e) => {
     console.error(e)
-    process.exit(1)
+    throw e
   })
   .finally(async () => {
     await prisma.$disconnect()
