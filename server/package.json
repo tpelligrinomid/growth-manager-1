@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node build/index.js",
     "dev": "set PORT=3002 && ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc",
+    "build": "npx tsc",
     "prisma:seed": "ts-node prisma/seed.ts",
     "test:connection": "ts-node src/test-connection.ts",
     "postinstall": "prisma generate"
