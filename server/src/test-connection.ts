@@ -1,10 +1,15 @@
 import { PrismaClient } from '@prisma/client'
 
 async function main() {
-  console.log('DATABASE_URL:', process.env.DATABASE_URL)
+  console.log('DATABASE_URL:', process.env.DATABASE_URL?.replace(/:[^:@]+@/, ':****@'))
   
   const prisma = new PrismaClient({
-    log: ['query', 'info', 'warn', 'error']
+    log: ['query', 'info', 'warn', 'error'],
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL
+      }
+    }
   })
 
   try {
