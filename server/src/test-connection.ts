@@ -1,13 +1,15 @@
 import { PrismaClient } from '@prisma/client'
 
 async function main() {
-  console.log('DATABASE_URL:', process.env.DATABASE_URL?.replace(/:[^:@]+@/, ':****@'))
+  // Force the external URL if it exists
+  const externalUrl = process.env.EXTERNAL_DATABASE_URL || process.env.DATABASE_URL
+  
+  console.log('Using Database URL:', externalUrl?.replace(/:[^:@]+@/, ':****@'))
   
   const prisma = new PrismaClient({
-    log: ['query', 'info', 'warn', 'error'],
     datasources: {
       db: {
-        url: process.env.DATABASE_URL
+        url: externalUrl
       }
     }
   })
