@@ -1,8 +1,9 @@
 [build]
 builder = "nixpacks"
 buildCommand = """
-npm install && \
-npm run build && \
+npm install --include=dev && \
+npx tsc && \
+npx prisma generate && \
 npx prisma db push
 """
 startCommand = "npm start"
