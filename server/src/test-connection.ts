@@ -1,17 +1,21 @@
 import { PrismaClient } from '@prisma/client'
 
 async function main() {
-  // Log all relevant environment variables
+  // Log all environment variables
   console.log('Environment variables:')
-  console.log('PGHOST:', process.env.PGHOST)
-  console.log('PGPORT:', process.env.PGPORT)
-  console.log('PGDATABASE:', process.env.PGDATABASE)
-  console.log('DATABASE_URL:', process.env.DATABASE_URL?.replace(/:[^:@]+@/, ':****@'))
+  console.log('DATABASE_PASSWORD:', process.env.DATABASE_PASSWORD)
+  console.log('DATABASE_HOST:', process.env.DATABASE_HOST)
+  console.log('DATABASE_PORT:', process.env.DATABASE_PORT)
+  console.log('DATABASE_NAME:', process.env.DATABASE_NAME)
+  
+  // Construct the URL
+  const url = `postgresql://postgres:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`
+  console.log('Constructed URL:', url.replace(/:[^:@]+@/, ':****@'))
   
   const prisma = new PrismaClient({
     datasources: {
       db: {
-        url: process.env.DATABASE_URL
+        url: url
       }
     }
   })
