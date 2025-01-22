@@ -2,11 +2,10 @@
 builder = "nixpacks"
 buildCommand = """
 cd server && \
-export DATABASE_URL=$(railway variables get DATABASE_URL) && \
-npm ci && \
-npx prisma generate && \
-npx ts-node src/test-connection.ts && \
-npx prisma db push
+DATABASE_URL=${DATABASE_URL} npm ci && \
+DATABASE_URL=${DATABASE_URL} npx prisma generate && \
+DATABASE_URL=${DATABASE_URL} npx ts-node src/test-connection.ts && \
+DATABASE_URL=${DATABASE_URL} npx prisma db push
 """
 
 [deploy]
