@@ -7,9 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("RAILWAY_POSTGRESQL_URL")
-  // or try this if above doesn't work
-  // url = env("POSTGRES_URL")
+  url      = env("DATABASE_URL")
 }
 
 enum BusinessUnit {
