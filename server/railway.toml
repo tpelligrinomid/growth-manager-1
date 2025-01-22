@@ -1,6 +1,12 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm ci && npm run build && npx prisma generate && npx prisma db push && npx prisma db seed"
+buildCommand = """
+npm install --no-cache && \
+npm run build && \
+npx prisma generate && \
+npx prisma db push && \
+npx prisma db seed
+"""
 startCommand = "npm start"
 
 [deploy]
