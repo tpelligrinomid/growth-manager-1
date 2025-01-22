@@ -2,6 +2,7 @@
 builder = "nixpacks"
 buildCommand = """
 cd server && \
+export DATABASE_URL=$(railway variables get DATABASE_URL) && \
 npm ci && \
 npx prisma generate && \
 npx ts-node src/test-connection.ts && \
