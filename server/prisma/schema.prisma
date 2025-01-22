@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = "postgresql://postgres:${env:PGPASSWORD}@${env:PGHOST}:${env:PGPORT}/${env:PGDATABASE}"
+  url      = env("DATABASE_URL")
 }
 
 enum BusinessUnit {
