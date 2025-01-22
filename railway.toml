@@ -2,10 +2,12 @@
 builder = "nixpacks"
 buildCommand = """
 cd server && \
-DATABASE_URL=$DATABASE_PUBLIC_URL npm ci && \
-DATABASE_URL=$DATABASE_PUBLIC_URL npx prisma generate && \
-DATABASE_URL=$DATABASE_PUBLIC_URL npx ts-node src/test-connection.ts && \
-DATABASE_URL=$DATABASE_PUBLIC_URL npx prisma db push
+echo "DATABASE_URL=$DATABASE_PUBLIC_URL" > .env && \
+cat .env && \
+npm ci && \
+npx prisma generate && \
+npx ts-node src/test-connection.ts && \
+npx prisma db push
 """
 
 [deploy]
