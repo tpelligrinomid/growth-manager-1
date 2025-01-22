@@ -4,6 +4,7 @@ buildCommand = """
 cd server && \
 npm ci && \
 npx prisma generate && \
+node src/test-connection.js && \
 npx prisma db push
 """
 
