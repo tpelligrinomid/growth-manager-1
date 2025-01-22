@@ -2,7 +2,10 @@
 builder = "nixpacks"
 buildCommand = """
 cd server && \
-echo "DATABASE_URL=$RAILWAY_PUBLIC_DATABASE_URL" > .env && \
+export DATABASE_PASSWORD=$DATABASE_PASSWORD && \
+export DATABASE_HOST=$DATABASE_HOST && \
+export DATABASE_PORT=$DATABASE_PORT && \
+export DATABASE_NAME=$DATABASE_NAME && \
 npm ci && \
 npx prisma generate && \
 npx ts-node src/test-connection.ts && \
