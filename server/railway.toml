@@ -2,9 +2,9 @@
 builder = "nixpacks"
 buildCommand = """
 npm install --include=dev && \
-npx tsc && \
-npx prisma generate && \
-npx prisma db push
+npm run build && \
+npm run prisma:generate && \
+npm run prisma:push
 """
 startCommand = "npm start"
 
