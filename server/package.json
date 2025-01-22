@@ -8,11 +8,13 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "set PORT=3002 && ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "npx tsc && npx prisma generate",
+    "build": "tsc -p tsconfig.json",
     "build:clean": "rm -rf build && mkdir build && npx tsc",
     "prisma:seed": "npx ts-node prisma/seed.ts",
     "test:connection": "npx ts-node src/test-connection.ts",
-    "build:prod": "IF exist build rmdir /s /q build && mkdir build && npx tsc"
+    "build:prod": "IF exist build rmdir /s /q build && mkdir build && npx tsc",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push"
   },
   "dependencies": {
     "@prisma/client": "^6.2.1",
