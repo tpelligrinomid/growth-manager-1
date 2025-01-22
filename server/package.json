@@ -12,7 +12,8 @@
     "build:clean": "rm -rf build && mkdir build && npx tsc",
     "prisma:seed": "ts-node prisma/seed.ts",
     "test:connection": "ts-node src/test-connection.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "build:prod": "IF exist build rmdir /s /q build && mkdir build && npx tsc"
   },
   "dependencies": {
     "@prisma/client": "^6.2.1",
