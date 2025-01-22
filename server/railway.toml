@@ -1,13 +1,12 @@
 [build]
 builder = "nixpacks"
 buildCommand = """
-npm install --no-cache && \
+npm install --production=false && \
 npm run build && \
-npx --no-install prisma generate && \
-npx --no-install prisma db push && \
-npx --no-install prisma db seed
+npx prisma generate && \
+npx prisma db push
 """
-startCommand = "npm start"
+startCommand = "node dist/index.js"
 
 [deploy]
 healthcheckPath = "/api/test"

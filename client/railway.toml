@@ -1,7 +1,7 @@
 [build]
 builder = "nixpacks"
 buildCommand = "npm install --no-cache && npm run build"
-startCommand = "npm run preview -- --host"
+startCommand = "npm run preview -- --host 0.0.0.0"
 
 [deploy]
 healthcheckPath = "/"
