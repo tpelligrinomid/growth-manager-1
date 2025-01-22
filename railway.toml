@@ -6,4 +6,4 @@ buildCommand = "cd server && npm install"
 startCommand = "cd server && npm start"
 healthcheckPath = "/api/test"
 healthcheckTimeout = 100
-restartPolicyType = "on_failure" 
+restartPolicyType = "on_failure"
