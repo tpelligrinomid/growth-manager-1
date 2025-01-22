@@ -1,7 +1,12 @@
 [build]
-builder = "nixpacks"
-buildCommand = "pwd && npm install && npm run build"
-startCommand = "pwd && npm run preview -- --host 0.0.0.0"
+builder = "ubuntu"
+buildCommand = """
+curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+apt-get install -y nodejs && \
+npm install && \
+npm run build
+"""
+startCommand = "npm run preview -- --host 0.0.0.0"
 
 [deploy]
 healthcheckPath = "/"
