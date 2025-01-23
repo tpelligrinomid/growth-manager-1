@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AccountResponse } from '../types';
 import {
   BuildingOfficeIcon,
@@ -27,16 +27,22 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onEdit: () => void;
+  onUpdate?: (updatedAccount: AccountResponse) => void;
 }
 
-const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => {
+const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpdate }) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [currentAccount, setCurrentAccount] = useState(account);
+
+  useEffect(() => {
+    setCurrentAccount(account);
+  }, [account]);
 
   if (!isOpen) return null;
 
   const handleSync = async () => {
-    const folderId = account.clientFolderId;
+    const folderId = currentAccount.clientFolderId;
     if (!folderId) {
       setSyncError('No ClickUp Folder ID available');
       return;
@@ -57,24 +63,24 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
       
       // 2. Prepare update data - with validation
       const updateData = {
-        accountName: data.clientData?.[0]?.client_name || account.accountName,
+        accountName: data.clientData?.[0]?.client_name || currentAccount.accountName,
         businessUnit: 'NEW_NORTH' as const, // Force type as const
-        accountManager: data.clientData?.[0]?.assignee || account.accountManager,
-        teamManager: data.clientData?.[0]?.team_lead || account.teamManager,
+        accountManager: data.clientData?.[0]?.assignee || currentAccount.accountManager,
+        teamManager: data.clientData?.[0]?.team_lead || currentAccount.teamManager,
         relationshipStartDate: data.clientData?.[0]?.original_contract_start_date ? 
-          new Date(data.clientData[0].original_contract_start_date.replace('/', '-')) : account.relationshipStartDate,
+          new Date(data.clientData[0].original_contract_start_date.replace('/', '-')) : currentAccount.relationshipStartDate,
         contractStartDate: data.clientData?.[0]?.points_mrr_start_date ? 
-          new Date(data.clientData[0].points_mrr_start_date.replace('/', '-')) : account.contractStartDate,
+          new Date(data.clientData[0].points_mrr_start_date.replace('/', '-')) : currentAccount.contractStartDate,
         contractRenewalEnd: data.clientData?.[0]?.contract_renewal_end ? 
-          new Date(data.clientData[0].contract_renewal_end.replace('/', '-')) : account.contractRenewalEnd,
+          new Date(data.clientData[0].contract_renewal_end.replace('/', '-')) : currentAccount.contractRenewalEnd,
         pointsPurchased: data.points?.[0]?.points_purchased ? 
-          Number(data.points[0].points_purchased.replace(/,/g, '')) : account.pointsPurchased,
+          Number(data.points[0].points_purchased.replace(/,/g, '')) : currentAccount.pointsPurchased,
         pointsDelivered: data.points?.[0]?.points_delivered ? 
-          Number(data.points[0].points_delivered.replace(/,/g, '')) : account.pointsDelivered,
+          Number(data.points[0].points_delivered.replace(/,/g, '')) : currentAccount.pointsDelivered,
         recurringPointsAllotment: data.clientData?.[0]?.recurring_points_allotment ? 
-          Number(data.clientData[0].recurring_points_allotment.replace(/,/g, '')) : account.recurringPointsAllotment,
+          Number(data.clientData[0].recurring_points_allotment.replace(/,/g, '')) : currentAccount.recurringPointsAllotment,
         mrr: data.clientData?.[0]?.mrr ? 
-          Number(data.clientData[0].mrr.replace(/,/g, '')) : account.mrr
+          Number(data.clientData[0].mrr.replace(/,/g, '')) : currentAccount.mrr
       };
       
       // Remove these fields as they're not in our Prisma schema
@@ -90,7 +96,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
       console.log('3. Update data prepared:', updateData);
 
       // 3. Update account
-      const updateResponse = await fetch(`${API_URL}/api/accounts/${account.id}`, {
+      const updateResponse = await fetch(`${API_URL}/api/accounts/${currentAccount.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData)
@@ -102,10 +108,16 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
         throw new Error(errorData.details || 'Failed to update account');
       }
 
-      const updatedData = await updateResponse.json();
-      console.log('Update successful:', updatedData);
+      const { data: updatedAccount } = await updateResponse.json();
+      console.log('Update successful:', updatedAccount);
 
-      window.location.reload();
+      // Update local state
+      setCurrentAccount(updatedAccount);
+      
+      // Notify parent component
+      if (onUpdate) {
+        onUpdate(updatedAccount);
+      }
     } catch (error) {
       console.error('Sync error:', error);
       setSyncError(error instanceof Error ? error.message : 'Failed to sync');
@@ -114,11 +126,18 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
     }
   };
 
+  const calculateClientTenure = (relationshipStartDate: string): number => {
+    const startDate = new Date(relationshipStartDate);
+    const endDate = new Date();
+    const tenure = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
+    return tenure;
+  };
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h2>{account.accountName}</h2>
+          <h2>{currentAccount.accountName}</h2>
           <div className="modal-actions">
             <button 
               onClick={handleSync} 
@@ -144,12 +163,12 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
               <h3>Basic Information</h3>
             </div>
             <div className="section-content">
-              <p><strong>Business Unit:</strong> {account.businessUnit}</p>
-              <p><strong>Engagement Type:</strong> {formatEngagementType(account.engagementType)}</p>
-              <p><strong>Priority:</strong> {formatPriority(account.priority)}</p>
-              <p><strong>Account Manager:</strong> {account.accountManager}</p>
-              <p><strong>Team Manager:</strong> {account.teamManager}</p>
-              <p><strong>Services:</strong> {account.services.join(', ')}</p>
+              <p><strong>Business Unit:</strong> {currentAccount.businessUnit}</p>
+              <p><strong>Engagement Type:</strong> {formatEngagementType(currentAccount.engagementType)}</p>
+              <p><strong>Priority:</strong> {formatPriority(currentAccount.priority)}</p>
+              <p><strong>Account Manager:</strong> {currentAccount.accountManager}</p>
+              <p><strong>Team Manager:</strong> {currentAccount.teamManager}</p>
+              <p><strong>Services:</strong> {currentAccount.services.join(', ')}</p>
             </div>
           </div>
 
@@ -159,10 +178,10 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
               <h3>Contract Details</h3>
             </div>
             <div className="section-content">
-              <p><strong>Relationship Start:</strong> {new Date(account.relationshipStartDate).toLocaleDateString()}</p>
-              <p><strong>Contract Start:</strong> {new Date(account.contractStartDate).toLocaleDateString()}</p>
-              <p><strong>Contract Renewal:</strong> {new Date(account.contractRenewalEnd).toLocaleDateString()}</p>
-              <p><strong>Client Tenure:</strong> {account.clientTenure} months</p>
+              <p><strong>Relationship Start:</strong> {new Date(currentAccount.relationshipStartDate).toLocaleDateString()}</p>
+              <p><strong>Contract Start:</strong> {new Date(currentAccount.contractStartDate).toLocaleDateString()}</p>
+              <p><strong>Contract Renewal:</strong> {new Date(currentAccount.contractRenewalEnd).toLocaleDateString()}</p>
+              <p><strong>Client Tenure:</strong> {calculateClientTenure(currentAccount.relationshipStartDate)} months</p>
             </div>
           </div>
 
@@ -172,9 +191,9 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
               <h3>Financial Information</h3>
             </div>
             <div className="section-content">
-              <p><strong>MRR:</strong> ${account.mrr.toLocaleString()}</p>
-              <p><strong>Growth in MRR:</strong> ${account.growthInMrr.toLocaleString()}</p>
-              <p><strong>Potential MRR:</strong> ${account.potentialMrr.toLocaleString()}</p>
+              <p><strong>MRR:</strong> ${currentAccount.mrr.toLocaleString()}</p>
+              <p><strong>Growth in MRR:</strong> ${currentAccount.growthInMrr.toLocaleString()}</p>
+              <p><strong>Potential MRR:</strong> ${currentAccount.potentialMrr.toLocaleString()}</p>
             </div>
           </div>
 
@@ -184,11 +203,11 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
               <h3>Points & Delivery</h3>
             </div>
             <div className="section-content">
-              <p><strong>Points Purchased:</strong> {account.pointsPurchased}</p>
-              <p><strong>Points Delivered:</strong> {account.pointsDelivered}</p>
-              <p><strong>Recurring Points:</strong> {account.recurringPointsAllotment}</p>
-              <p><strong>Points Striking Distance:</strong> {account.pointsStrikingDistance}</p>
-              <p><strong>Delivery Status:</strong> {determineDeliveryStatus(account.pointsStrikingDistance)}</p>
+              <p><strong>Points Purchased:</strong> {currentAccount.pointsPurchased}</p>
+              <p><strong>Points Delivered:</strong> {currentAccount.pointsDelivered}</p>
+              <p><strong>Recurring Points:</strong> {currentAccount.recurringPointsAllotment}</p>
+              <p><strong>Points Striking Distance:</strong> {currentAccount.pointsStrikingDistance}</p>
+              <p><strong>Delivery Status:</strong> {determineDeliveryStatus(currentAccount.pointsStrikingDistance)}</p>
             </div>
           </div>
 
@@ -198,7 +217,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
               <h3>Goals</h3>
             </div>
             <div className="section-content">
-              {account.goals && account.goals.length > 0 ? (
+              {currentAccount.goals && currentAccount.goals.length > 0 ? (
                 <table className="goals-table">
                   <thead>
                     <tr>
@@ -208,7 +227,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
                     </tr>
                   </thead>
                   <tbody>
-                    {account.goals.map((goal: Goal, index: number) => (
+                    {currentAccount.goals.map((goal: Goal, index: number) => (
                       <tr key={index}>
                         <td>{goal.description}</td>
                         <td>{new Date(goal.dueDate).toLocaleDateString()}</td>
@@ -239,11 +258,11 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
               <h3>Company Information</h3>
             </div>
             <div className="section-content">
-              <p><strong>Industry:</strong> {account.industry}</p>
-              <p><strong>Annual Revenue:</strong> ${account.annualRevenue.toLocaleString()}</p>
-              <p><strong>Employees:</strong> {account.employees}</p>
-              {account.website && <p><strong>Website:</strong> <a href={account.website} target="_blank" rel="noopener noreferrer">{account.website}</a></p>}
-              {account.linkedinProfile && <p><strong>LinkedIn:</strong> <a href={account.linkedinProfile} target="_blank" rel="noopener noreferrer">View Profile</a></p>}
+              <p><strong>Industry:</strong> {currentAccount.industry}</p>
+              <p><strong>Annual Revenue:</strong> ${currentAccount.annualRevenue.toLocaleString()}</p>
+              <p><strong>Employees:</strong> {currentAccount.employees}</p>
+              {currentAccount.website && <p><strong>Website:</strong> <a href={currentAccount.website} target="_blank" rel="noopener noreferrer">{currentAccount.website}</a></p>}
+              {currentAccount.linkedinProfile && <p><strong>LinkedIn:</strong> <a href={currentAccount.linkedinProfile} target="_blank" rel="noopener noreferrer">View Profile</a></p>}
             </div>
           </div>
         </div>
@@ -252,4 +271,4 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
   );
 };
 
-export { AccountModal }; 
+export default AccountModal; 

@@ -1,3 +1,10 @@
+export enum BusinessUnit {
+  NEW_NORTH = 'NEW_NORTH',
+  IDEOMETRY = 'IDEOMETRY',
+  MOTION = 'MOTION',
+  SPOKE = 'SPOKE'
+}
+
 export enum EngagementType {
   STRATEGIC = 'STRATEGIC',
   TACTICAL = 'TACTICAL'
@@ -20,4 +27,39 @@ export enum Service {
   WEBSITE = 'WEBSITE'
 }
 
-export type { AccountResponse } from './types/index'; 
+export interface Goal {
+  id: string;
+  description: string;
+  dueDate: string;
+  progress: number;
+}
+
+export interface AccountResponse {
+  id: string;
+  accountName: string;
+  businessUnit: BusinessUnit;
+  engagementType: EngagementType;
+  priority: Priority;
+  industry: string;
+  annualRevenue: number;
+  employees: number;
+  website?: string;
+  linkedinProfile?: string;
+  clientFolderId: string;
+  clientListTaskId: string;
+  growthInMrr: number;
+  services: string[];
+  accountManager: string;
+  teamManager: string;
+  relationshipStartDate: string;
+  contractStartDate: string;
+  contractRenewalEnd: string;
+  pointsPurchased: number;
+  pointsDelivered: number;
+  recurringPointsAllotment: number;
+  mrr: number;
+  pointsStrikingDistance: number;
+  potentialMrr: number;
+  delivery: string;
+  goals?: Goal[];
+} 

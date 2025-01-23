@@ -194,9 +194,22 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
     console.log('Attempting to update account:', id);
     console.log('Update data:', updateData);
 
+    // Convert string numbers to floats/ints
+    const sanitizedData = {
+      ...updateData,
+      pointsPurchased: updateData.pointsPurchased ? parseFloat(updateData.pointsPurchased.toString()) : undefined,
+      pointsDelivered: updateData.pointsDelivered ? parseFloat(updateData.pointsDelivered.toString()) : undefined,
+      recurringPointsAllotment: updateData.recurringPointsAllotment ? parseFloat(updateData.recurringPointsAllotment.toString()) : undefined,
+      mrr: updateData.mrr ? parseFloat(updateData.mrr.toString()) : undefined,
+      // Convert dates if they're strings
+      relationshipStartDate: updateData.relationshipStartDate ? new Date(updateData.relationshipStartDate) : undefined,
+      contractStartDate: updateData.contractStartDate ? new Date(updateData.contractStartDate) : undefined,
+      contractRenewalEnd: updateData.contractRenewalEnd ? new Date(updateData.contractRenewalEnd) : undefined,
+    };
+
     // Validate the data
-    if (updateData.businessUnit && !Object.values(BusinessUnit).includes(updateData.businessUnit as BusinessUnit)) {
-      console.error('Invalid business unit:', updateData.businessUnit);
+    if (sanitizedData.businessUnit && !Object.values(BusinessUnit).includes(sanitizedData.businessUnit as BusinessUnit)) {
+      console.error('Invalid business unit:', sanitizedData.businessUnit);
       return res.status(400).json({ 
         error: 'Invalid business unit',
         details: `Business unit must be one of: ${Object.values(BusinessUnit).join(', ')}`
@@ -205,7 +218,7 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
 
     const account = await prisma.account.update({
       where: { id },
-      data: updateData
+      data: sanitizedData
     });
 
     console.log('Account updated successfully:', account);
