@@ -71,3 +71,62 @@ model Account {
   clientFolderId         String?    @unique  // ClickUp Folder ID
   clientListTaskId       String?    @unique  // ClickUp Client List Task ID
 }
+
+model Task {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  status      String
+  assignee    String?
+  createdAt   DateTime  @default(now())
+  dueDate     DateTime?
+  completedAt DateTime?
+  account     Account   @relation(fields: [accountId], references: [id])
+  accountId   String
+  lastSyncedAt DateTime @default(now())
+}
+
+model Goal {
+  id          String   @id @default(uuid())
+  description String
+  status      String
+  dueDate     DateTime
+  progress    Int
+  account     Account  @relation(fields: [accountId], references: [id])
+  accountId   String
+}
+
+model Note {
+  id          String   @id @default(uuid())
+  description String
+  createdBy   String
+  createdAt   DateTime @default(now())
+  account     Account  @relation(fields: [accountId], references: [id])
+  accountId   String
+}
+
+model ClientContact {
+  id        String  @id @default(uuid())
+  firstName String
+  lastName  String
+  title     String
+  email     String
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId String
+}
+
+enum Role {
+  GROWTH_MANAGER
+  ADMINISTRATOR
+  GROWTH_ADVISOR
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  googleId      String    @unique
+  role          Role      @default(GROWTH_ADVISOR)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
