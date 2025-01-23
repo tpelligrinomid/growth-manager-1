@@ -1,55 +1,91 @@
 import { BigQuery } from '@google-cloud/bigquery';
 
-export async function fetchPointsData() {
+// Helper function to execute queries
+async function executeQuery(query: string, params: any = {}) {
   try {
-    // Parse credentials from environment variable
     const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS || '{}');
-    
     const bigquery = new BigQuery({
       credentials,
       projectId: credentials.project_id
     });
     
-    const query = `
-      SELECT 
-        client_folder_id,
-        client_name,
-        points_purchased,
-        points_delivered
-      FROM \`clickup-data-448517.ClickupData.points\`
-    `;
-    
-    const [rows] = await bigquery.query({ query });
-    console.log('Fetched points data:', rows);
+    const [rows] = await bigquery.query({ 
+      query,
+      params
+    });
     return rows;
-    
   } catch (error) {
-    console.error('Error fetching from BigQuery:', error);
+    console.error('BigQuery error:', error);
     throw error;
   }
 }
 
-export async function fetchAllAccountData() {
-  const bigquery = new BigQuery({/*...*/});
-  
-  // Fetch points
-  const pointsQuery = `
+export async function fetchPointsForAccount(clientFolderId: string) {
+  if (clientFolderId === '') {
+    throw new Error('Client folder ID is required');
+  }
+  const query = `
     SELECT 
-      client_folder_id,
       points_purchased,
       points_delivered
     FROM \`clickup-data-448517.ClickupData.points\`
+    WHERE client_folder_id = @clientFolderId
   `;
   
-  // Fetch tasks
-  const tasksQuery = `
+  return executeQuery(query, { clientFolderId });
+}
+
+export async function fetchGrowthTasksForAccount(clientFolderId: string) {
+  const query = `
     SELECT 
-      client_folder_id,
+      task_id,
       task_name,
       status,
-      due_date
+      assignee,
+      created_date,
+      due_date,
+      date_done
     FROM \`clickup-data-448517.ClickupData.tasks\`
+    WHERE client_folder_id = @clientFolderId
+    AND growth_task = true
   `;
   
-  // ... other queries
+  return executeQuery(query, { clientFolderId });
+}
+
+export async function fetchGoalsForAccount(clientFolderId: string) {
+  const query = `
+    SELECT 
+      task_id,
+      task_name as description,
+      status,
+      due_date,
+      progress
+    FROM \`clickup-data-448517.ClickupData.tasks\`
+    WHERE client_folder_id = @clientFolderId
+    AND list_name = 'Goals'
+  `;
+  
+  return executeQuery(query, { clientFolderId });
+}
+
+export async function fetchClientListData(clientListTaskId: string) {
+  if (clientListTaskId === '') {
+    throw new Error('Client list task ID is required');
+  }
+  const query = `
+    SELECT 
+      assignee,
+      team_lead,
+      status,
+      mrr,
+      contract_start_date,
+      contract_renewal_end,
+      recurring_points_allotment,
+      business_unit
+    FROM \`clickup-data-448517.ClickupData.client_list\`
+    WHERE task_id = @clientListTaskId
+  `;
+  
+  return executeQuery(query, { clientListTaskId });
 } 

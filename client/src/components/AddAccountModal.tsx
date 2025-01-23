@@ -8,32 +8,60 @@ interface Props {
   onSubmit: (accountData: any) => void;
 }
 
+interface FormData {
+  accountName: string;
+  businessUnit: string;
+  engagementType: string;
+  priority: string;
+  accountManager: string;
+  teamManager: string;
+  relationshipStartDate: string;
+  contractStartDate: string;
+  contractRenewalEnd: string;
+  services: string[];
+  pointsPurchased: number;
+  pointsDelivered: number;
+  recurringPointsAllotment: number;
+  mrr: number;
+  growthInMrr: number;
+  potentialMrr: number;
+  website: string;
+  linkedinProfile: string;
+  industry: string;
+  annualRevenue: number;
+  employees: number;
+  clientFolderId: string;
+  clientListTaskId: string;
+}
+
+const initialFormData: FormData = {
+  accountName: '',
+  businessUnit: 'NEW_NORTH',
+  engagementType: 'STRATEGIC',
+  priority: 'TIER_1',
+  accountManager: '',
+  teamManager: '',
+  relationshipStartDate: '',
+  contractStartDate: '',
+  contractRenewalEnd: '',
+  services: [],
+  pointsPurchased: 0,
+  pointsDelivered: 0,
+  recurringPointsAllotment: 0,
+  mrr: 0,
+  growthInMrr: 0,
+  potentialMrr: 0,
+  website: '',
+  linkedinProfile: '',
+  industry: '',
+  annualRevenue: 0,
+  employees: 0,
+  clientFolderId: '',
+  clientListTaskId: '',
+};
+
 export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) => {
-  const [formData, setFormData] = useState({
-    accountName: '',
-    businessUnit: 'NEW_NORTH',
-    engagementType: 'STRATEGIC',
-    priority: 'TIER_1',
-    accountManager: '',
-    teamManager: '',
-    relationshipStartDate: '',
-    contractStartDate: '',
-    contractRenewalEnd: '',
-    services: [] as string[],
-    pointsPurchased: 0,
-    pointsDelivered: 0,
-    recurringPointsAllotment: 0,
-    mrr: 0,
-    growthInMrr: 0,
-    potentialMrr: 0,
-    website: '',
-    linkedinProfile: '',
-    industry: '',
-    annualRevenue: 0,
-    employees: 0,
-    clientFolderId: '',
-    clientListTaskId: '',
-  });
+  const [formData, setFormData] = useState<FormData>(initialFormData);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +71,11 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          clientFolderId: formData.clientFolderId || '',
+          clientListTaskId: formData.clientListTaskId || '',
+        }),
       });
 
       if (!response.ok) {

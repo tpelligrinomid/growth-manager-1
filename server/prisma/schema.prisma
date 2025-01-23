@@ -68,8 +68,8 @@ model Account {
   goals                  Goal[]
   notes                  Note[]
   clientContacts         ClientContact[]
-  clientFolderId         String?    @unique  // ClickUp Folder ID
-  clientListTaskId       String?    @unique  // ClickUp Client List Task ID
+  clientFolderId         String @default("")
+  clientListTaskId       String @default("")
 }
 
 model Task {

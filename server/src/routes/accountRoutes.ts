@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { Router, Request, Response } from 'express';
+import { PrismaClient, BusinessUnit, EngagementType, Priority, Service, Prisma } from '@prisma/client';
 import { 
   calculatePointsStrikingDistance, 
   calculatePointsBalance,
@@ -75,8 +75,36 @@ router.get('/', async (req, res) => {
   }
 });
 
+interface AccountCreateBody {
+  accountName: string;
+  businessUnit: BusinessUnit;
+  engagementType: EngagementType;
+  priority: Priority;
+  accountManager: string;
+  teamManager: string;
+  relationshipStartDate: string;
+  contractStartDate: string;
+  contractRenewalEnd: string;
+  services: Service[];
+  pointsPurchased: number;
+  pointsDelivered: number;
+  recurringPointsAllotment: number;
+  mrr: number;
+  growthInMrr: number;
+  website?: string;
+  linkedinProfile?: string;
+  industry: string;
+  annualRevenue: number;
+  employees: number;
+  clientFolderId: string;
+  clientListTaskId: string;
+}
+
 // Create new account
-router.post('/', async (req, res) => {
+router.post('/', async (
+  req: Request<Record<string, never>, unknown, AccountCreateBody>, 
+  res: Response
+) => {
   try {
     console.log('Received account data:', req.body);
     const {
@@ -100,6 +128,8 @@ router.post('/', async (req, res) => {
       industry,
       annualRevenue,
       employees,
+      clientFolderId,
+      clientListTaskId,
     } = req.body;
 
     // Use the calculation function from utils
@@ -119,32 +149,36 @@ router.post('/', async (req, res) => {
     const delivery = determineDeliveryStatus(pointsStrikingDistance);
     const potentialMrr = calculatePotentialMrr({ mrr, growthInMrr });
 
+    const accountData = {
+      accountName,
+      businessUnit,
+      engagementType,
+      priority,
+      accountManager,
+      teamManager,
+      relationshipStartDate: new Date(relationshipStartDate),
+      contractStartDate: new Date(contractStartDate),
+      contractRenewalEnd: new Date(contractRenewalEnd),
+      services,
+      pointsPurchased,
+      pointsDelivered,
+      pointsStrikingDistance,
+      delivery,
+      recurringPointsAllotment,
+      mrr,
+      growthInMrr,
+      potentialMrr,
+      website,
+      linkedinProfile,
+      industry,
+      annualRevenue,
+      employees,
+      clientFolderId: clientFolderId || '',
+      clientListTaskId: clientListTaskId || ''
+    } as const;
+
     const account = await prisma.account.create({
-      data: {
-        accountName,
-        businessUnit,
-        engagementType,
-        priority,
-        accountManager,
-        teamManager,
-        relationshipStartDate: new Date(relationshipStartDate),
-        contractStartDate: new Date(contractStartDate),
-        contractRenewalEnd: new Date(contractRenewalEnd),
-        services,
-        pointsPurchased,
-        pointsDelivered,
-        pointsStrikingDistance,
-        delivery,
-        recurringPointsAllotment,
-        mrr,
-        growthInMrr,
-        potentialMrr,
-        website,
-        linkedinProfile,
-        industry,
-        annualRevenue,
-        employees,
-      },
+      data: accountData as Prisma.AccountCreateInput
     });
 
     res.status(201).json({ data: account });
