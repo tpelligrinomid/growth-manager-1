@@ -8,60 +8,36 @@ interface Props {
   onSubmit: (accountData: any) => void;
 }
 
-interface FormData {
-  accountName: string;
-  businessUnit: string;
+interface AddAccountForm {
+  // Only manual fields matching EditAccountForm
   engagementType: string;
   priority: string;
-  accountManager: string;
-  teamManager: string;
-  relationshipStartDate: string;
-  contractStartDate: string;
-  contractRenewalEnd: string;
-  services: string[];
-  pointsPurchased: number;
-  pointsDelivered: number;
-  recurringPointsAllotment: number;
-  mrr: number;
-  growthInMrr: number;
-  potentialMrr: number;
-  website: string;
-  linkedinProfile: string;
   industry: string;
   annualRevenue: number;
   employees: number;
+  website?: string;
+  linkedinProfile?: string;
   clientFolderId: string;
   clientListTaskId: string;
+  growthInMrr: number;
 }
 
-const initialFormData: FormData = {
-  accountName: '',
-  businessUnit: 'NEW_NORTH',
-  engagementType: 'STRATEGIC',
-  priority: 'TIER_1',
-  accountManager: '',
-  teamManager: '',
-  relationshipStartDate: '',
-  contractStartDate: '',
-  contractRenewalEnd: '',
-  services: [],
-  pointsPurchased: 0,
-  pointsDelivered: 0,
-  recurringPointsAllotment: 0,
-  mrr: 0,
-  growthInMrr: 0,
-  potentialMrr: 0,
-  website: '',
-  linkedinProfile: '',
+// Initial form state
+const initialFormData: AddAccountForm = {
+  engagementType: 'TACTICAL',
+  priority: 'TIER_4',
   industry: '',
   annualRevenue: 0,
   employees: 0,
+  website: '',
+  linkedinProfile: '',
   clientFolderId: '',
   clientListTaskId: '',
+  growthInMrr: 0
 };
 
 export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) => {
-  const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [formData, setFormData] = useState<AddAccountForm>(initialFormData);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,30 +83,6 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
               <h3>Basic Information</h3>
               <div className="form-grid">
                 <div className="form-field">
-                  <label htmlFor="accountName">Account Name</label>
-                  <input
-                    type="text"
-                    id="accountName"
-                    value={formData.accountName}
-                    onChange={e => setFormData({...formData, accountName: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="businessUnit">Business Unit</label>
-                  <select
-                    id="businessUnit"
-                    value={formData.businessUnit}
-                    onChange={e => setFormData({...formData, businessUnit: e.target.value})}
-                    required
-                  >
-                    <option value="NEW_NORTH">New North</option>
-                    <option value="IDEOMETRY">Ideometry</option>
-                    <option value="MOTION">Motion</option>
-                    <option value="SPOKE">Spoke</option>
-                  </select>
-                </div>
-                <div className="form-field">
                   <label htmlFor="engagementType">Engagement Type</label>
                   <select
                     id="engagementType"
@@ -155,152 +107,6 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                     <option value="TIER_3">Tier 3</option>
                     <option value="TIER_4">Tier 4</option>
                   </select>
-                </div>
-                <div className="form-field">
-                  <label htmlFor="accountManager">Account Manager</label>
-                  <input
-                    type="text"
-                    id="accountManager"
-                    value={formData.accountManager}
-                    onChange={e => setFormData({...formData, accountManager: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="teamManager">Team Manager</label>
-                  <input
-                    type="text"
-                    id="teamManager"
-                    value={formData.teamManager}
-                    onChange={e => setFormData({...formData, teamManager: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="relationshipStartDate">Relationship Start Date</label>
-                  <input
-                    type="date"
-                    id="relationshipStartDate"
-                    value={formData.relationshipStartDate}
-                    onChange={e => setFormData({...formData, relationshipStartDate: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="contractStartDate">Contract Start Date</label>
-                  <input
-                    type="date"
-                    id="contractStartDate"
-                    value={formData.contractStartDate}
-                    onChange={e => setFormData({...formData, contractStartDate: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="contractRenewalEnd">Contract Renewal End</label>
-                  <input
-                    type="date"
-                    id="contractRenewalEnd"
-                    value={formData.contractRenewalEnd}
-                    onChange={e => setFormData({...formData, contractRenewalEnd: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="services">Services</label>
-                  <select
-                    id="services"
-                    multiple
-                    value={formData.services}
-                    onChange={e => setFormData({...formData, services: Array.from(e.target.selectedOptions, option => option.value)})}
-                  >
-                    <option value="SOCIAL">Social</option>
-                    <option value="WEBSITE">Website</option>
-                    <option value="SEO">SEO</option>
-                    <option value="PPC">PPC</option>
-                    <option value="EMAIL">Email</option>
-                    <option value="CONTENT">Content</option>
-                  </select>
-                </div>
-                <div className="form-field">
-                  <label htmlFor="pointsPurchased">Points Purchased</label>
-                  <input
-                    type="number"
-                    id="pointsPurchased"
-                    value={formData.pointsPurchased}
-                    onChange={e => setFormData({...formData, pointsPurchased: Number(e.target.value)})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="pointsDelivered">Points Delivered</label>
-                  <input
-                    type="number"
-                    id="pointsDelivered"
-                    value={formData.pointsDelivered}
-                    onChange={e => setFormData({...formData, pointsDelivered: Number(e.target.value)})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="recurringPointsAllotment">Recurring Points Allotment</label>
-                  <input
-                    type="number"
-                    id="recurringPointsAllotment"
-                    value={formData.recurringPointsAllotment}
-                    onChange={e => setFormData({...formData, recurringPointsAllotment: Number(e.target.value)})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="mrr">MRR</label>
-                  <input
-                    type="number"
-                    id="mrr"
-                    value={formData.mrr}
-                    onChange={e => setFormData({...formData, mrr: Number(e.target.value)})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="growthInMrr">Growth in MRR</label>
-                  <input
-                    type="number"
-                    id="growthInMrr"
-                    value={formData.growthInMrr}
-                    onChange={e => setFormData({...formData, growthInMrr: Number(e.target.value)})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="potentialMrr">Potential MRR</label>
-                  <input
-                    type="number"
-                    id="potentialMrr"
-                    value={formData.potentialMrr}
-                    onChange={e => setFormData({...formData, potentialMrr: Number(e.target.value)})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="website">Website</label>
-                  <input
-                    type="url"
-                    id="website"
-                    value={formData.website}
-                    onChange={e => setFormData({...formData, website: e.target.value})}
-                    placeholder="https://"
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="linkedinProfile">LinkedIn Profile</label>
-                  <input
-                    type="url"
-                    id="linkedinProfile"
-                    value={formData.linkedinProfile}
-                    onChange={e => setFormData({...formData, linkedinProfile: e.target.value})}
-                    placeholder="https://linkedin.com/company/"
-                  />
                 </div>
                 <div className="form-field">
                   <label htmlFor="industry">Industry</label>
@@ -329,6 +135,36 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                     id="employees"
                     value={formData.employees}
                     onChange={e => setFormData({...formData, employees: Number(e.target.value)})}
+                    required
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="website">Website</label>
+                  <input
+                    type="url"
+                    id="website"
+                    value={formData.website}
+                    onChange={e => setFormData({...formData, website: e.target.value})}
+                    placeholder="https://"
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="linkedinProfile">LinkedIn Profile</label>
+                  <input
+                    type="url"
+                    id="linkedinProfile"
+                    value={formData.linkedinProfile}
+                    onChange={e => setFormData({...formData, linkedinProfile: e.target.value})}
+                    placeholder="https://linkedin.com/company/"
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="growthInMrr">Growth in MRR</label>
+                  <input
+                    type="number"
+                    id="growthInMrr"
+                    value={formData.growthInMrr}
+                    onChange={e => setFormData({...formData, growthInMrr: Number(e.target.value)})}
                     required
                   />
                 </div>
