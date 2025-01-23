@@ -2,7 +2,13 @@ import { BigQuery } from '@google-cloud/bigquery';
 
 export async function fetchPointsData() {
   try {
-    const bigquery = new BigQuery();
+    // Parse credentials from environment variable
+    const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS || '{}');
+    
+    const bigquery = new BigQuery({
+      credentials,
+      projectId: credentials.project_id
+    });
     
     const query = `
       SELECT 
