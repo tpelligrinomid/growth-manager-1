@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient, BusinessUnit, EngagementType, Priority, Service, Prisma } from '@prisma/client';
+import { PrismaClient, EngagementType, Priority, Service, Prisma } from '@prisma/client';
 import { 
   calculatePointsStrikingDistance, 
   calculatePointsBalance,
@@ -77,7 +77,7 @@ router.get('/', async (req, res) => {
 
 interface AccountCreateBody {
   accountName: string;
-  businessUnit: BusinessUnit;
+  businessUnit: string;
   engagementType: EngagementType;
   priority: Priority;
   accountManager: string;
