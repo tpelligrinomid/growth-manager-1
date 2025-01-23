@@ -11,13 +11,6 @@ datasource db {
 }
 
 // Keep these enum definitions at the top
-enum BusinessUnit {
-  NEW_NORTH
-  IDEOMETRY
-  MOTION
-  SPOKE
-}
-
 enum EngagementType {
   STRATEGIC
   TACTICAL
@@ -56,7 +49,7 @@ model Account {
   growthInMrr           Float    @default(0)
   services              Service[]
 
-  // BigQuery Sourced Fields (with defaults)
+  // BigQuery Sourced Fields
   accountName            String   @default("")
   businessUnit           String   @default("")
   accountManager         String   @default("")
@@ -70,7 +63,7 @@ model Account {
   recurringPointsAllotment Float  @default(0)
   mrr                    Float    @default(0)
 
-  // Calculated Fields (handled in application logic)
+  // Calculated Fields
   clientTenure          Int      @default(0)
   pointsStrikingDistance Float   @default(0)
   potentialMrr          Float    @default(0)
@@ -78,7 +71,6 @@ model Account {
   // Relations
   tasks                  Task[]
   goals                  Goal[]
-  notes                  Note[]
   clientContacts         ClientContact[]
 }
 
@@ -102,15 +94,6 @@ model Goal {
   status      String
   dueDate     DateTime
   progress    Int
-  account     Account  @relation(fields: [accountId], references: [id])
-  accountId   String
-}
-
-model Note {
-  id          String   @id @default(uuid())
-  description String
-  createdBy   String
-  createdAt   DateTime @default(now())
   account     Account  @relation(fields: [accountId], references: [id])
   accountId   String
 }

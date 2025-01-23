@@ -1,10 +1,3 @@
-export enum BusinessUnit {
-  NEW_NORTH = 'NEW_NORTH',
-  IDEOMETRY = 'IDEOMETRY',
-  MOTION = 'MOTION',
-  SPOKE = 'SPOKE'
-}
-
 export enum EngagementType {
   STRATEGIC = 'STRATEGIC',
   TACTICAL = 'TACTICAL'
@@ -41,36 +34,35 @@ export interface Task {
 
 export interface AccountResponse {
   id: string;
-  accountName: string;
-  businessUnit: string;
+  // Manual Entry Fields
   engagementType: string;
   priority: string;
-  accountManager: string;
-  teamManager: string;
-  relationshipStartDate: string;
-  contractStartDate: string;
-  contractRenewalEnd: string;
-  services: string[];
-  pointsPurchased: number;
-  pointsDelivered: number;
-  pointsStrikingDistance: number;
-  delivery: string;
-  recurringPointsAllotment: number;
-  mrr: number;
-  growthInMrr: number;
-  potentialMrr: number;
-  website?: string;
-  linkedinProfile?: string;
   industry: string;
   annualRevenue: number;
   employees: number;
+  website?: string;
+  linkedinProfile?: string;
   clientFolderId: string;
   clientListTaskId: string;
-  clientTenure: number;
-  pointsBalance: number;
-  points?: any[];
-  growthTasks?: any[];
-  goals?: any[];
-  clientData?: any | null;
+  growthInMrr: number;
+  services: Service[];
+
+  // BigQuery Sourced Fields
+  accountName: string;
+  businessUnit: string;
+  accountManager: string;
+  teamManager: string;
   status: string;
+  relationshipStartDate: string;
+  contractStartDate: string;
+  contractRenewalEnd: string;
+  pointsPurchased: number;
+  pointsDelivered: number;
+  recurringPointsAllotment: number;
+  mrr: number;
+
+  // Calculated Fields
+  clientTenure: number;
+  pointsStrikingDistance: number;
+  potentialMrr: number;
 } 

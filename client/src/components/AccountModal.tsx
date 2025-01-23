@@ -12,6 +12,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { formatBusinessUnit, formatEngagementType, formatPriority } from '../utils/formatters';
 import { API_URL } from '../config/api';
+import { determineDeliveryStatus } from '../utils/calculations';
 
 interface Props {
   account: AccountResponse;
@@ -42,35 +43,29 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
       
       const data = await response.json();
       
-      // Update account with BigQuery data
+      // Update account with BigQuery data only
       const updatedAccount = {
         ...account,
-        // Basic Information
+        // BigQuery Sourced Fields
         accountName: data.clientData[0]?.client_name || account.accountName,
         businessUnit: data.clientData[0]?.business_unit || account.businessUnit,
         accountManager: data.clientData[0]?.assignee || account.accountManager,
         teamManager: data.clientData[0]?.team_lead || account.teamManager,
         status: data.clientData[0]?.status || account.status,
-
-        // Contract Details
         relationshipStartDate: data.clientData[0]?.original_contract_start_date || account.relationshipStartDate,
         contractStartDate: data.clientData[0]?.points_mrr_start_date || account.contractStartDate,
         contractRenewalEnd: data.clientData[0]?.contract_renewal_end || account.contractRenewalEnd,
-
-        // Financial/Points
         pointsPurchased: data.points[0]?.points_purchased || 0,
         pointsDelivered: data.points[0]?.points_delivered || 0,
         recurringPointsAllotment: data.clientData[0]?.recurring_points_allotment || 0,
         mrr: data.clientData[0]?.mrr || 0,
       };
 
-      // Call API to update account in database
       await fetch(`${API_URL}/api/accounts/${account.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedAccount)
       });
-      
     } catch (error) {
       console.error('Error syncing:', error);
       setSyncError(error instanceof Error ? error.message : 'Failed to sync');
@@ -109,11 +104,12 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
               <h3>Basic Information</h3>
             </div>
             <div className="section-content">
-              <p><strong>Business Unit:</strong> {formatBusinessUnit(account.businessUnit)}</p>
+              <p><strong>Business Unit:</strong> {account.businessUnit}</p>
               <p><strong>Engagement Type:</strong> {formatEngagementType(account.engagementType)}</p>
               <p><strong>Priority:</strong> {formatPriority(account.priority)}</p>
               <p><strong>Account Manager:</strong> {account.accountManager}</p>
               <p><strong>Team Manager:</strong> {account.teamManager}</p>
+              <p><strong>Services:</strong> {account.services.join(', ')}</p>
             </div>
           </div>
 
@@ -150,9 +146,9 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
             <div className="section-content">
               <p><strong>Points Purchased:</strong> {account.pointsPurchased}</p>
               <p><strong>Points Delivered:</strong> {account.pointsDelivered}</p>
-              <p><strong>Points Balance:</strong> {account.pointsPurchased - account.pointsDelivered}</p>
               <p><strong>Recurring Points:</strong> {account.recurringPointsAllotment}</p>
-              <p><strong>Delivery Status:</strong> {account.delivery}</p>
+              <p><strong>Points Striking Distance:</strong> {account.pointsStrikingDistance}</p>
+              <p><strong>Delivery Status:</strong> {determineDeliveryStatus(account.pointsStrikingDistance)}</p>
             </div>
           </div>
 
