@@ -81,13 +81,16 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
 
       if (!updateResponse.ok) {
         const errorData = await updateResponse.json();
+        console.error('Update failed:', errorData);
         throw new Error(errorData.details || 'Failed to update account');
       }
 
-      console.log('4. Account updated successfully');
+      const updatedData = await updateResponse.json();
+      console.log('Update successful:', updatedData);
+
       window.location.reload();
     } catch (error) {
-      console.error('Error syncing:', error);
+      console.error('Sync error:', error);
       setSyncError(error instanceof Error ? error.message : 'Failed to sync');
     } finally {
       setIsSyncing(false);
