@@ -822,11 +822,25 @@ html, body, #root {
 
 .sync-button:hover:not(:disabled) {
   background-color: var(--nn-hover);
+  color: white;
 }
 
 .sync-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.sync-button.syncing {
+  background-color: var(--nn-light);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
 .error-message {
