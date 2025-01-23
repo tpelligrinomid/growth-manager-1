@@ -65,10 +65,10 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
         relationshipStartDate: data.clientData?.[0]?.original_contract_start_date || account.relationshipStartDate,
         contractStartDate: data.clientData?.[0]?.points_mrr_start_date || account.contractStartDate,
         contractRenewalEnd: data.clientData?.[0]?.contract_renewal_end || account.contractRenewalEnd,
-        pointsPurchased: data.points?.[0]?.points_purchased || account.pointsPurchased,
-        pointsDelivered: data.points?.[0]?.points_delivered || account.pointsDelivered,
-        recurringPointsAllotment: data.clientData?.[0]?.recurring_points_allotment || account.recurringPointsAllotment,
-        mrr: data.clientData?.[0]?.mrr || account.mrr,
+        pointsPurchased: parseInt(data.points?.[0]?.points_purchased) || account.pointsPurchased,
+        pointsDelivered: parseInt(data.points?.[0]?.points_delivered) || account.pointsDelivered,
+        recurringPointsAllotment: parseInt(data.clientData?.[0]?.recurring_points_allotment) || account.recurringPointsAllotment,
+        mrr: parseInt(data.clientData?.[0]?.mrr) || account.mrr,
       };
 
       console.log('Updating account with:', updatedAccount);
