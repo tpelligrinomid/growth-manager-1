@@ -95,10 +95,7 @@ router.post('/', async (req: Request<{}, {}, AccountCreateBody>, res: Response) 
   try {
     const account = await prisma.account.create({
       data: {
-        // Manual fields from request
         ...req.body,
-        
-        // Default values for BigQuery fields
         accountName: '',
         businessUnit: 'NEW_NORTH' as BusinessUnit,
         accountManager: '',
