@@ -1,3 +1,4 @@
+// This is your Prisma schema file
 generator client {
   provider        = "prisma-client-js"
   binaryTargets   = ["native", "debian-openssl-3.0.x"]
@@ -9,14 +10,64 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Keep these enum definitions at the top
+enum BusinessUnit {
+  NEW_NORTH
+  IDEOMETRY
+  MOTION
+  SPOKE
+}
+
+enum EngagementType {
+  STRATEGIC
+  TACTICAL
+}
+
+enum Priority {
+  TIER_1
+  TIER_2
+  TIER_3
+  TIER_4
+}
+
+enum Service {
+  SOCIAL
+  WEBSITE
+  SEO
+  PPC
+  EMAIL
+  CONTENT
+}
+
 model Account {
   id                     String   @id @default(uuid())
   accountName            String
   businessUnit           BusinessUnit
   engagementType         EngagementType
-  // ... existing fields ...
-
-  // Add these new fields
+  priority               Priority
+  accountManager         String
+  teamManager            String
+  relationshipStartDate  DateTime
+  contractStartDate      DateTime
+  contractRenewalEnd     DateTime
+  services               Service[]
+  pointsPurchased        Float
+  pointsDelivered        Float
+  pointsStrikingDistance Float
+  delivery               String
+  recurringPointsAllotment Float
+  mrr                    Float
+  growthInMrr            Float
+  potentialMrr           Float
+  website                String?
+  linkedinProfile        String?
+  industry               String
+  annualRevenue          Float
+  employees              Int
+  tasks                  Task[]
+  goals                  Goal[]
+  notes                  Note[]
+  clientContacts         ClientContact[]
   clientFolderId         String?    @unique  // ClickUp Folder ID
   clientListTaskId       String?    @unique  // ClickUp Client List Task ID
 }
