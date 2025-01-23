@@ -39,10 +39,16 @@ interface BigQueryResponse {
   clientData: any | null;
 }
 
+// Define error response interface
+interface ErrorResponse {
+  error: string;
+  details?: string;
+}
+
 // Fetch all BigQuery data for a specific account
 router.get<AccountParams>('/account/:clientFolderId', async (
   req: Request<AccountParams>, 
-  res: Response<BigQueryResponse | { error: string }>
+  res: Response<BigQueryResponse | ErrorResponse>
 ) => {
   const { clientFolderId } = req.params;
   
@@ -52,13 +58,13 @@ router.get<AccountParams>('/account/:clientFolderId', async (
   }
   
   try {
-    // Fetch points data
+    // Add more detailed logging
+    console.log('Attempting to fetch BigQuery data for folder:', clientFolderId);
+    
     const pointsData = await fetchPointsForAccount(clientFolderId);
+    console.log('Points data:', pointsData);
     
-    // Fetch growth tasks (tasks with growth_task = true)
     const growthTasks = await fetchGrowthTasksForAccount(clientFolderId);
-    
-    // Fetch goals from the Goals list
     const goals = await fetchGoalsForAccount(clientFolderId);
     
     // Fetch client list data using clientListTaskId
@@ -77,9 +83,10 @@ router.get<AccountParams>('/account/:clientFolderId', async (
       goals,
       clientData
     });
-  } catch (error) {
-    console.error('Error fetching BigQuery data:', error);
-    res.status(500).json({ error: 'Failed to fetch BigQuery data' });
+  } catch (error: unknown) {
+    console.error('Detailed BigQuery error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: 'Failed to fetch BigQuery data', details: errorMessage });
   }
 });
 

@@ -46,9 +46,9 @@ export interface AccountResponse {
   priority: string;
   accountManager: string;
   teamManager: string;
-  relationshipStartDate: Date;
-  contractStartDate: Date;
-  contractRenewalEnd: Date;
+  relationshipStartDate: string;
+  contractStartDate: string;
+  contractRenewalEnd: string;
   services: string[];
   pointsPurchased: number;
   pointsDelivered: number;
