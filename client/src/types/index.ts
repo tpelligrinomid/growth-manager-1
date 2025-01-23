@@ -18,12 +18,13 @@ export enum Priority {
 }
 
 export enum Service {
-  SOCIAL = 'SOCIAL',
-  WEBSITE = 'WEBSITE',
+  ABM = 'ABM',
+  PAID_MEDIA = 'PAID_MEDIA',
   SEO = 'SEO',
-  PPC = 'PPC',
-  EMAIL = 'EMAIL',
-  CONTENT = 'CONTENT'
+  CONTENT = 'CONTENT',
+  REPORTING = 'REPORTING',
+  SOCIAL = 'SOCIAL',
+  WEBSITE = 'WEBSITE'
 }
 
 export interface Task {
@@ -71,4 +72,5 @@ export interface AccountResponse {
   growthTasks?: any[];
   goals?: any[];
   clientData?: any | null;
+  status: string;
 } 

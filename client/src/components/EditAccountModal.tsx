@@ -1,13 +1,27 @@
 import { useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { AccountResponse, BusinessUnit, EngagementType, Priority } from '../types';
-import { formatBusinessUnit, formatEngagementType, formatPriority } from '../utils/formatters';
+import { AccountResponse, EngagementType, Priority } from '../types';
+import { formatEngagementType, formatPriority } from '../utils/formatters';
 
 interface Props {
   account: AccountResponse;
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (accountData: any) => void;
+}
+
+interface EditAccountForm {
+  // Only manual fields
+  engagementType: string;
+  priority: string;
+  industry: string;
+  annualRevenue: number;
+  employees: number;
+  website?: string;
+  linkedinProfile?: string;
+  clientFolderId: string;
+  clientListTaskId: string;
+  growthInMrr: number;
 }
 
 export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, onSubmit }) => {
@@ -21,20 +35,18 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
     return Number(value);
   };
 
-  const [formData, setFormData] = useState(() => ({
-    ...account,
-    // Format dates
-    relationshipStartDate: new Date(account.relationshipStartDate).toISOString().split('T')[0],
-    contractStartDate: new Date(account.contractStartDate).toISOString().split('T')[0],
-    contractRenewalEnd: new Date(account.contractRenewalEnd).toISOString().split('T')[0],
-    // Clean numeric values
-    mrr: cleanNumber(account.mrr),
-    growthInMrr: cleanNumber(account.growthInMrr),
-    pointsPurchased: cleanNumber(account.pointsPurchased),
-    pointsDelivered: cleanNumber(account.pointsDelivered),
-    recurringPointsAllotment: cleanNumber(account.recurringPointsAllotment),
-    employees: cleanNumber(account.employees),
+  const [formData, setFormData] = useState<EditAccountForm>(() => ({
+    // Only include fields from EditAccountForm interface
+    engagementType: account.engagementType,
+    priority: account.priority,
+    industry: account.industry,
     annualRevenue: cleanNumber(account.annualRevenue),
+    employees: cleanNumber(account.employees),
+    website: account.website,
+    linkedinProfile: account.linkedinProfile,
+    clientFolderId: account.clientFolderId,
+    clientListTaskId: account.clientListTaskId,
+    growthInMrr: cleanNumber(account.growthInMrr)
   }));
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -43,9 +55,7 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
     const updateData = {
       ...account,
       ...formData,
-      relationshipStartDate: new Date(formData.relationshipStartDate),
-      contractStartDate: new Date(formData.contractStartDate),
-      contractRenewalEnd: new Date(formData.contractRenewalEnd),
+      // Remove all date handling since it comes from BigQuery
     };
 
     onSubmit(updateData);
@@ -72,29 +82,6 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
               <h3>Basic Information</h3>
               <div className="form-grid">
                 <div className="form-field">
-                  <label htmlFor="accountName">Account Name</label>
-                  <input
-                    type="text"
-                    id="accountName"
-                    value={formData.accountName}
-                    onChange={e => setFormData({...formData, accountName: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="businessUnit">Business Unit</label>
-                  <select
-                    id="businessUnit"
-                    value={formData.businessUnit}
-                    onChange={e => setFormData({...formData, businessUnit: e.target.value as BusinessUnit})}
-                  >
-                    <option value={BusinessUnit.NEW_NORTH}>{formatBusinessUnit(BusinessUnit.NEW_NORTH)}</option>
-                    <option value={BusinessUnit.IDEOMETRY}>{formatBusinessUnit(BusinessUnit.IDEOMETRY)}</option>
-                    <option value={BusinessUnit.MOTION}>{formatBusinessUnit(BusinessUnit.MOTION)}</option>
-                    <option value={BusinessUnit.SPOKE}>{formatBusinessUnit(BusinessUnit.SPOKE)}</option>
-                  </select>
-                </div>
-                <div className="form-field">
                   <label htmlFor="engagementType">Engagement Type</label>
                   <select
                     id="engagementType"
@@ -118,127 +105,6 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
                     <option value={Priority.TIER_4}>{formatPriority(Priority.TIER_4)}</option>
                   </select>
                 </div>
-                <div className="form-field">
-                  <label htmlFor="accountManager">Account Manager</label>
-                  <input
-                    type="text"
-                    id="accountManager"
-                    value={formData.accountManager}
-                    onChange={e => setFormData({...formData, accountManager: e.target.value})}
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="teamManager">Team Manager</label>
-                  <input
-                    type="text"
-                    id="teamManager"
-                    value={formData.teamManager}
-                    onChange={e => setFormData({...formData, teamManager: e.target.value})}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Contract Details */}
-            <div className="form-section">
-              <h3>Contract Details</h3>
-              <div className="form-grid">
-                <div className="form-field">
-                  <label htmlFor="relationshipStartDate">Relationship Start Date</label>
-                  <input
-                    type="date"
-                    id="relationshipStartDate"
-                    value={formData.relationshipStartDate}
-                    onChange={e => setFormData({...formData, relationshipStartDate: e.target.value})}
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="contractStartDate">Contract Start Date</label>
-                  <input
-                    type="date"
-                    id="contractStartDate"
-                    value={formData.contractStartDate}
-                    onChange={e => setFormData({...formData, contractStartDate: e.target.value})}
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="contractRenewalEnd">Contract Renewal End</label>
-                  <input
-                    type="date"
-                    id="contractRenewalEnd"
-                    value={formData.contractRenewalEnd}
-                    onChange={e => setFormData({...formData, contractRenewalEnd: e.target.value})}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Points & Delivery */}
-            <div className="form-section">
-              <h3>Points & Delivery</h3>
-              <div className="form-grid">
-                <div className="form-field">
-                  <label htmlFor="pointsPurchased">Points Purchased</label>
-                  <input
-                    type="number"
-                    id="pointsPurchased"
-                    value={formData.pointsPurchased}
-                    onChange={e => setFormData(prev => ({
-                      ...prev,
-                      pointsPurchased: e.target.value === '' ? 0 : Number(e.target.value)
-                    }))}
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="pointsDelivered">Points Delivered</label>
-                  <input
-                    type="number"
-                    id="pointsDelivered"
-                    value={formData.pointsDelivered}
-                    onChange={e => setFormData({...formData, pointsDelivered: Number(e.target.value)})}
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="recurringPointsAllotment">Recurring Points</label>
-                  <input
-                    type="number"
-                    id="recurringPointsAllotment"
-                    value={formData.recurringPointsAllotment}
-                    onChange={e => setFormData({...formData, recurringPointsAllotment: Number(e.target.value)})}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Financial Information */}
-            <div className="form-section">
-              <h3>Financial Information</h3>
-              <div className="form-grid">
-                <div className="form-field">
-                  <label htmlFor="mrr">MRR</label>
-                  <input
-                    type="number"
-                    id="mrr"
-                    value={formData.mrr}
-                    onChange={e => setFormData({...formData, mrr: Number(e.target.value)})}
-                  />
-                </div>
-                <div className="form-field">
-                  <label htmlFor="growthInMrr">Growth in MRR</label>
-                  <input
-                    type="number"
-                    id="growthInMrr"
-                    value={formData.growthInMrr}
-                    onChange={e => setFormData({...formData, growthInMrr: Number(e.target.value)})}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Company Information */}
-            <div className="form-section">
-              <h3>Company Information</h3>
-              <div className="form-grid">
                 <div className="form-field">
                   <label htmlFor="industry">Industry</label>
                   <input
@@ -282,6 +148,47 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
                     id="linkedinProfile"
                     value={formData.linkedinProfile}
                     onChange={e => setFormData({...formData, linkedinProfile: e.target.value})}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Financial Information */}
+            <div className="form-section">
+              <h3>Financial Information</h3>
+              <div className="form-grid">
+                <div className="form-field">
+                  <label htmlFor="growthInMrr">Growth in MRR</label>
+                  <input
+                    type="number"
+                    id="growthInMrr"
+                    value={formData.growthInMrr}
+                    onChange={e => setFormData({...formData, growthInMrr: Number(e.target.value)})}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Company Information */}
+            <div className="form-section">
+              <h3>Company Information</h3>
+              <div className="form-grid">
+                <div className="form-field">
+                  <label htmlFor="clientFolderId">Client Folder ID</label>
+                  <input
+                    type="text"
+                    id="clientFolderId"
+                    value={formData.clientFolderId}
+                    onChange={e => setFormData({...formData, clientFolderId: e.target.value})}
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="clientListTaskId">Client List Task ID</label>
+                  <input
+                    type="text"
+                    id="clientListTaskId"
+                    value={formData.clientListTaskId}
+                    onChange={e => setFormData({...formData, clientListTaskId: e.target.value})}
                   />
                 </div>
               </div>

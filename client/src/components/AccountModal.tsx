@@ -37,12 +37,39 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
     setSyncError(null);
     try {
       const response = await fetch(`${API_URL}/api/bigquery/account/${folderId}`);
+      
+      if (!response.ok) throw new Error(response.statusText);
+      
       const data = await response.json();
       
-      if (!response.ok) throw new Error(data.error || 'Failed to sync');
-      
-      console.log('Synced data:', data);
-      // TODO: Update account data with synced info
+      // Update account with BigQuery data
+      const updatedAccount = {
+        ...account,
+        // Basic Information
+        accountName: data.clientData[0]?.client_name || account.accountName,
+        businessUnit: data.clientData[0]?.business_unit || account.businessUnit,
+        accountManager: data.clientData[0]?.assignee || account.accountManager,
+        teamManager: data.clientData[0]?.team_lead || account.teamManager,
+        status: data.clientData[0]?.status || account.status,
+
+        // Contract Details
+        relationshipStartDate: data.clientData[0]?.original_contract_start_date || account.relationshipStartDate,
+        contractStartDate: data.clientData[0]?.points_mrr_start_date || account.contractStartDate,
+        contractRenewalEnd: data.clientData[0]?.contract_renewal_end || account.contractRenewalEnd,
+
+        // Financial/Points
+        pointsPurchased: data.points[0]?.points_purchased || 0,
+        pointsDelivered: data.points[0]?.points_delivered || 0,
+        recurringPointsAllotment: data.clientData[0]?.recurring_points_allotment || 0,
+        mrr: data.clientData[0]?.mrr || 0,
+      };
+
+      // Call API to update account in database
+      await fetch(`${API_URL}/api/accounts/${account.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedAccount)
+      });
       
     } catch (error) {
       console.error('Error syncing:', error);
