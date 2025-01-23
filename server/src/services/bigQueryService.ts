@@ -28,44 +28,52 @@ export async function fetchPointsForAccount(clientFolderId: string) {
   }
   const query = `
     SELECT 
+      client_folder_id,
+      client_name,
       points_purchased,
       points_delivered
     FROM \`clickup-data-448517.ClickupData.points\`
     WHERE client_folder_id = @clientFolderId
   `;
-  
   return executeQuery(query, { clientFolderId });
 }
 
 export async function fetchGrowthTasksForAccount(clientFolderId: string) {
   const query = `
     SELECT 
-      task_id,
+      id,
+      client_folder_id,
       task_name,
+      task_description,
       status,
       assignee,
       created_date,
       due_date,
-      date_done
+      date_done,
+      created_by
     FROM \`clickup-data-448517.ClickupData.growth_tasks\`
     WHERE client_folder_id = @clientFolderId
   `;
-  
   return executeQuery(query, { clientFolderId });
 }
 
 export async function fetchGoalsForAccount(clientFolderId: string) {
   const query = `
     SELECT 
-      task_id,
-      task_name as description,
+      id,
+      client_folder_id,
+      task_name,
+      task_description,
       status,
+      progress,
+      assignee,
+      created_date,
       due_date,
-      progress
+      date_done,
+      created_by
     FROM \`clickup-data-448517.ClickupData.goals\`
     WHERE client_folder_id = @clientFolderId
   `;
-  
   return executeQuery(query, { clientFolderId });
 }
 
@@ -75,17 +83,20 @@ export async function fetchClientListData(clientListTaskId: string) {
   }
   const query = `
     SELECT 
+      id,
+      client_name,
       assignee,
       team_lead,
       status,
       mrr,
-      contract_start_date,
+      original_contract_start_date,
+      points_mrr_start_date,
       contract_renewal_end,
+      next_strategy_approval,
       recurring_points_allotment,
       business_unit
     FROM \`clickup-data-448517.ClickupData.clients_list\`
-    WHERE task_id = @clientListTaskId
+    WHERE id = @clientListTaskId
   `;
-  
   return executeQuery(query, { clientListTaskId });
 } 
