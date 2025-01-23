@@ -10,6 +10,7 @@ import { Filters } from './components/Filters';
 import { PieChart } from './components/PieChart';
 import { ClipboardDocumentListIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 import { GoalProgress } from './components/GoalProgress';
+import { API_URL } from './config/api';
 
 // Fix the type definition
 type ViewType = 'manager' | 'finance';
@@ -39,19 +40,22 @@ function App() {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
+        console.log('API URL:', API_URL); // Log the API URL being used
         console.log('Fetching accounts...');
-        const response = await fetch('/api/accounts');
+        const response = await fetch(`${API_URL}/api/accounts`);
         
         if (!response.ok) {
+          console.error('Response not OK:', response.status, response.statusText);
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const text = await response.text(); // Get the raw response text first
+        const text = await response.text();
         console.log('Raw response:', text);
         
         let data;
         try {
-          data = JSON.parse(text); // Try to parse it
+          data = JSON.parse(text);
+          console.log('Parsed data:', data);
         } catch (e) {
           console.error('JSON parse error:', e);
           throw new Error('Invalid JSON response from server');
