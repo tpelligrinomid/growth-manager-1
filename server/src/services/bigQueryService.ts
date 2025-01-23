@@ -3,6 +3,8 @@ import { BigQuery } from '@google-cloud/bigquery';
 // Helper function to execute queries
 async function executeQuery(query: string, params: any = {}) {
   try {
+    console.log('BigQuery params:', params);
+    console.log('BigQuery query:', query);
     const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS || '{}');
     const bigquery = new BigQuery({
       credentials,
@@ -15,7 +17,7 @@ async function executeQuery(query: string, params: any = {}) {
     });
     return rows;
   } catch (error) {
-    console.error('BigQuery error:', error);
+    console.error('BigQuery execution error:', error);
     throw error;
   }
 }
