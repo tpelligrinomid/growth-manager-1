@@ -190,11 +190,25 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
   try {
     const { id } = req.params;
     const updateData = req.body;
+    
+    console.log('Attempting to update account:', id);
+    console.log('Update data:', updateData);
+
+    // Validate the data
+    if (updateData.businessUnit && !Object.values(BusinessUnit).includes(updateData.businessUnit as BusinessUnit)) {
+      console.error('Invalid business unit:', updateData.businessUnit);
+      return res.status(400).json({ 
+        error: 'Invalid business unit',
+        details: `Business unit must be one of: ${Object.values(BusinessUnit).join(', ')}`
+      });
+    }
 
     const account = await prisma.account.update({
       where: { id },
       data: updateData
     });
+
+    console.log('Account updated successfully:', account);
 
     res.json({ 
       data: { 
@@ -203,7 +217,7 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
       } 
     });
   } catch (error) {
-    console.error('Detailed error:', error);
+    console.error('Detailed update error:', error);
     res.status(500).json({ 
       error: 'Error updating account',
       details: error instanceof Error ? error.message : 'Unknown error'

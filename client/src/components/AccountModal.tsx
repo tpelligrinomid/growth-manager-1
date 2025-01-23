@@ -46,44 +46,58 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
     setSyncError(null);
     
     try {
-      console.log('Fetching BigQuery data for folder:', folderId);
+      // 1. Fetch BigQuery data
+      console.log('1. Fetching BigQuery data for folder:', folderId);
       const response = await fetch(`${API_URL}/api/bigquery/account/${folderId}`);
       
       if (!response.ok) throw new Error(response.statusText);
       
       const data = await response.json();
-      console.log('BigQuery data received:', data);
+      console.log('2. BigQuery data received:', data);
       
-      // Update account with BigQuery data
-      const updatedAccount = {
-        ...account,
+      // 2. Prepare update data - with validation
+      const updateData = {
         accountName: data.clientData?.[0]?.client_name || account.accountName,
-        businessUnit: data.clientData?.[0]?.business_unit || account.businessUnit,
+        businessUnit: 'NEW_NORTH', // Force NEW_NORTH since that's what we support
         accountManager: data.clientData?.[0]?.assignee || account.accountManager,
         teamManager: data.clientData?.[0]?.team_lead || account.teamManager,
-        status: data.clientData?.[0]?.status || account.status,
-        relationshipStartDate: data.clientData?.[0]?.original_contract_start_date || account.relationshipStartDate,
-        contractStartDate: data.clientData?.[0]?.points_mrr_start_date || account.contractStartDate,
-        contractRenewalEnd: data.clientData?.[0]?.contract_renewal_end || account.contractRenewalEnd,
-        pointsPurchased: parseInt(data.points?.[0]?.points_purchased) || account.pointsPurchased,
-        pointsDelivered: parseInt(data.points?.[0]?.points_delivered) || account.pointsDelivered,
-        recurringPointsAllotment: parseInt(data.clientData?.[0]?.recurring_points_allotment) || account.recurringPointsAllotment,
-        mrr: parseInt(data.clientData?.[0]?.mrr) || account.mrr,
+        relationshipStartDate: data.clientData?.[0]?.original_contract_start_date ? 
+          new Date(data.clientData[0].original_contract_start_date) : account.relationshipStartDate,
+        contractStartDate: data.clientData?.[0]?.points_mrr_start_date ? 
+          new Date(data.clientData[0].points_mrr_start_date) : account.contractStartDate,
+        contractRenewalEnd: data.clientData?.[0]?.contract_renewal_end ? 
+          new Date(data.clientData[0].contract_renewal_end) : account.contractRenewalEnd,
+        pointsPurchased: data.points?.[0]?.points_purchased ? 
+          Number(data.points[0].points_purchased) : account.pointsPurchased,
+        pointsDelivered: data.points?.[0]?.points_delivered ? 
+          Number(data.points[0].points_delivered) : account.pointsDelivered,
+        recurringPointsAllotment: data.clientData?.[0]?.recurring_points_allotment ? 
+          Number(data.clientData[0].recurring_points_allotment) : account.recurringPointsAllotment,
+        mrr: data.clientData?.[0]?.mrr ? 
+          Number(data.clientData[0].mrr) : account.mrr
       };
+      
+      console.log('3. Update data prepared:', updateData);
 
-      console.log('Updating account with:', updatedAccount);
-
+      // 3. Update account
       const updateResponse = await fetch(`${API_URL}/api/accounts/${account.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedAccount)
+        body: JSON.stringify(updateData)
       });
 
-      if (!updateResponse.ok) throw new Error('Failed to update account');
+      if (!updateResponse.ok) {
+        const errorData = await updateResponse.json();
+        console.error('Update failed:', errorData);
+        throw new Error(errorData.details || 'Failed to update account');
+      }
 
-      window.location.reload(); // Refresh to show updated data
+      const updatedData = await updateResponse.json();
+      console.log('Update successful:', updatedData);
+
+      window.location.reload();
     } catch (error) {
-      console.error('Error syncing:', error);
+      console.error('Sync error:', error);
       setSyncError(error instanceof Error ? error.message : 'Failed to sync');
     } finally {
       setIsSyncing(false);
@@ -102,7 +116,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
               disabled={isSyncing}
               title="Sync with ClickUp"
             >
-              <ArrowPathIcon className="h-5 w-5" />
+              <ArrowPathIcon className={`h-5 w-5 ${isSyncing ? 'animate-spin' : ''}`} />
             </button>
             {syncError && <div className="error-message">{syncError}</div>}
             <button onClick={onEdit} className="edit-button" title="Edit Account">
