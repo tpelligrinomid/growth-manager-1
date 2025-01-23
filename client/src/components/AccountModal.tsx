@@ -10,12 +10,20 @@ import {
   PencilIcon,
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
-import { formatBusinessUnit, formatEngagementType, formatPriority } from '../utils/formatters';
+import { formatEngagementType, formatPriority } from '../utils/formatters';
 import { API_URL } from '../config/api';
 import { determineDeliveryStatus } from '../utils/calculations';
 
+interface Goal {
+  description: string;
+  dueDate: string;
+  progress: number;
+}
+
 interface Props {
-  account: AccountResponse;
+  account: AccountResponse & {
+    goals?: Goal[];
+  };
   isOpen: boolean;
   onClose: () => void;
   onEdit: () => void;
@@ -28,44 +36,52 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
   if (!isOpen) return null;
 
   const handleSync = async () => {
-    const folderId = account.clientFolderId || '';
-    if (folderId === '') {
+    const folderId = account.clientFolderId;
+    if (!folderId) {
       setSyncError('No ClickUp Folder ID available');
       return;
     }
 
     setIsSyncing(true);
     setSyncError(null);
+    
     try {
+      console.log('Fetching BigQuery data for folder:', folderId);
       const response = await fetch(`${API_URL}/api/bigquery/account/${folderId}`);
       
       if (!response.ok) throw new Error(response.statusText);
       
       const data = await response.json();
+      console.log('BigQuery data received:', data);
       
-      // Update account with BigQuery data only
+      // Update account with BigQuery data
       const updatedAccount = {
         ...account,
-        // BigQuery Sourced Fields
-        accountName: data.clientData[0]?.client_name || account.accountName,
-        businessUnit: data.clientData[0]?.business_unit || account.businessUnit,
-        accountManager: data.clientData[0]?.assignee || account.accountManager,
-        teamManager: data.clientData[0]?.team_lead || account.teamManager,
-        status: data.clientData[0]?.status || account.status,
-        relationshipStartDate: data.clientData[0]?.original_contract_start_date || account.relationshipStartDate,
-        contractStartDate: data.clientData[0]?.points_mrr_start_date || account.contractStartDate,
-        contractRenewalEnd: data.clientData[0]?.contract_renewal_end || account.contractRenewalEnd,
-        pointsPurchased: data.points[0]?.points_purchased || 0,
-        pointsDelivered: data.points[0]?.points_delivered || 0,
-        recurringPointsAllotment: data.clientData[0]?.recurring_points_allotment || 0,
-        mrr: data.clientData[0]?.mrr || 0,
+        accountName: data.clientData?.[0]?.client_name || account.accountName,
+        businessUnit: data.clientData?.[0]?.business_unit || account.businessUnit,
+        accountManager: data.clientData?.[0]?.assignee || account.accountManager,
+        teamManager: data.clientData?.[0]?.team_lead || account.teamManager,
+        status: data.clientData?.[0]?.status || account.status,
+        relationshipStartDate: data.clientData?.[0]?.original_contract_start_date || account.relationshipStartDate,
+        contractStartDate: data.clientData?.[0]?.points_mrr_start_date || account.contractStartDate,
+        contractRenewalEnd: data.clientData?.[0]?.contract_renewal_end || account.contractRenewalEnd,
+        pointsPurchased: data.points?.[0]?.points_purchased || account.pointsPurchased,
+        pointsDelivered: data.points?.[0]?.points_delivered || account.pointsDelivered,
+        recurringPointsAllotment: data.clientData?.[0]?.recurring_points_allotment || account.recurringPointsAllotment,
+        mrr: data.clientData?.[0]?.mrr || account.mrr,
       };
 
-      await fetch(`${API_URL}/api/accounts/${account.id}`, {
+      console.log('Updating account with:', updatedAccount);
+
+      const updateResponse = await fetch(`${API_URL}/api/accounts/${account.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedAccount)
       });
+
+      if (!updateResponse.ok) throw new Error('Failed to update account');
+
+      window.location.reload(); // Refresh to show updated data
     } catch (error) {
       console.error('Error syncing:', error);
       setSyncError(error instanceof Error ? error.message : 'Failed to sync');
@@ -168,7 +184,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
                     </tr>
                   </thead>
                   <tbody>
-                    {account.goals.map((goal, index) => (
+                    {account.goals.map((goal: Goal, index: number) => (
                       <tr key={index}>
                         <td>{goal.description}</td>
                         <td>{new Date(goal.dueDate).toLocaleDateString()}</td>
