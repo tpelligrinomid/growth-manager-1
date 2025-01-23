@@ -40,28 +40,39 @@ function App() {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        console.log('API URL:', API_URL); // Log the API URL being used
         console.log('Fetching accounts...');
         const response = await fetch(`${API_URL}/api/accounts`);
         
         if (!response.ok) {
-          console.error('Response not OK:', response.status, response.statusText);
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const text = await response.text();
-        console.log('Raw response:', text);
+        const accountsData = await response.json();
         
-        let data;
-        try {
-          data = JSON.parse(text);
-          console.log('Parsed data:', data);
-        } catch (e) {
-          console.error('JSON parse error:', e);
-          throw new Error('Invalid JSON response from server');
-        }
+        // For each account, fetch BigQuery data if we have ClickUp IDs
+        const accountsWithBigQueryData = await Promise.all(
+          accountsData.data.map(async (account: AccountResponse) => {
+            const accountData = {
+              ...account,
+              clientFolderId: account.clientFolderId || ''
+            } as const;
+
+            if (accountData.clientFolderId !== '') {
+              const bigQueryResponse = await fetch(`${API_URL}/api/bigquery/account/${accountData.clientFolderId}`);
+              const bigQueryData = await bigQueryResponse.json();
+              return {
+                ...accountData,
+                points: bigQueryData.points,
+                growthTasks: bigQueryData.growthTasks,
+                goals: bigQueryData.goals,
+                clientData: bigQueryData.clientData
+              };
+            }
+            return accountData;
+          })
+        );
         
-        setAccounts(data.data);
+        setAccounts(accountsWithBigQueryData);
         setError(null);
         setIsLoading(false);
       } catch (error) {

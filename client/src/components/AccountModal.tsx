@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AccountResponse } from '../types';
 import {
   BuildingOfficeIcon,
@@ -8,8 +8,10 @@ import {
   BuildingLibraryIcon,
   XMarkIcon,
   PencilIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { formatBusinessUnit, formatEngagementType, formatPriority } from '../utils/formatters';
+import { API_URL } from '../config/api';
 
 interface Props {
   account: AccountResponse;
@@ -19,7 +21,36 @@ interface Props {
 }
 
 const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => {
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+
   if (!isOpen) return null;
+
+  const handleSync = async () => {
+    const folderId = account.clientFolderId || '';
+    if (folderId === '') {
+      setSyncError('No ClickUp Folder ID available');
+      return;
+    }
+
+    setIsSyncing(true);
+    setSyncError(null);
+    try {
+      const response = await fetch(`${API_URL}/api/bigquery/account/${folderId}`);
+      const data = await response.json();
+      
+      if (!response.ok) throw new Error(data.error || 'Failed to sync');
+      
+      console.log('Synced data:', data);
+      // TODO: Update account data with synced info
+      
+    } catch (error) {
+      console.error('Error syncing:', error);
+      setSyncError(error instanceof Error ? error.message : 'Failed to sync');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   return (
     <div className="modal-overlay">
@@ -27,6 +58,15 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
         <div className="modal-header">
           <h2>{account.accountName}</h2>
           <div className="modal-actions">
+            <button 
+              onClick={handleSync} 
+              className={`sync-button ${isSyncing ? 'syncing' : ''}`} 
+              disabled={isSyncing}
+              title="Sync with ClickUp"
+            >
+              <ArrowPathIcon className="h-5 w-5" />
+            </button>
+            {syncError && <div className="error-message">{syncError}</div>}
             <button onClick={onEdit} className="edit-button" title="Edit Account">
               <PencilIcon className="h-5 w-5" aria-hidden="true" />
             </button>

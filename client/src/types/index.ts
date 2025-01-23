@@ -41,15 +41,15 @@ export interface Task {
 export interface AccountResponse {
   id: string;
   accountName: string;
-  businessUnit: BusinessUnit;
-  engagementType: EngagementType;
-  priority: Priority;
+  businessUnit: string;
+  engagementType: string;
+  priority: string;
   accountManager: string;
   teamManager: string;
-  relationshipStartDate: string;
-  contractStartDate: string;
-  contractRenewalEnd: string;
-  services: Service[];
+  relationshipStartDate: Date;
+  contractStartDate: Date;
+  contractRenewalEnd: Date;
+  services: string[];
   pointsPurchased: number;
   pointsDelivered: number;
   pointsStrikingDistance: number;
@@ -63,9 +63,12 @@ export interface AccountResponse {
   industry: string;
   annualRevenue: number;
   employees: number;
+  clientFolderId: string;
+  clientListTaskId: string;
+  clientTenure: number;
+  pointsBalance: number;
+  points?: any[];
+  growthTasks?: any[];
   goals?: any[];
-  notes?: any[];
-  clientTenure?: number;
-  pointsBalance?: number;
-  tasks: Task[];
+  clientData?: any | null;
 } 

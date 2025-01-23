@@ -811,3 +811,26 @@ html, body, #root {
   font-size: 0.875rem;
   color: var(--nn-text);
 }
+
+.sync-button {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  background-color: transparent;
+  color: var(--nn-text);
+  transition: all 0.2s;
+}
+
+.sync-button:hover:not(:disabled) {
+  background-color: var(--nn-hover);
+}
+
+.sync-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
