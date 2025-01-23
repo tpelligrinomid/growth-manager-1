@@ -58,24 +58,34 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit }) => 
       // 2. Prepare update data - with validation
       const updateData = {
         accountName: data.clientData?.[0]?.client_name || account.accountName,
-        businessUnit: 'NEW_NORTH', // Force NEW_NORTH since that's what we support
+        businessUnit: 'NEW_NORTH' as const, // Force type as const
         accountManager: data.clientData?.[0]?.assignee || account.accountManager,
         teamManager: data.clientData?.[0]?.team_lead || account.teamManager,
         relationshipStartDate: data.clientData?.[0]?.original_contract_start_date ? 
-          new Date(data.clientData[0].original_contract_start_date) : account.relationshipStartDate,
+          new Date(data.clientData[0].original_contract_start_date.replace('/', '-')) : account.relationshipStartDate,
         contractStartDate: data.clientData?.[0]?.points_mrr_start_date ? 
-          new Date(data.clientData[0].points_mrr_start_date) : account.contractStartDate,
+          new Date(data.clientData[0].points_mrr_start_date.replace('/', '-')) : account.contractStartDate,
         contractRenewalEnd: data.clientData?.[0]?.contract_renewal_end ? 
-          new Date(data.clientData[0].contract_renewal_end) : account.contractRenewalEnd,
+          new Date(data.clientData[0].contract_renewal_end.replace('/', '-')) : account.contractRenewalEnd,
         pointsPurchased: data.points?.[0]?.points_purchased ? 
-          Number(data.points[0].points_purchased) : account.pointsPurchased,
+          Number(data.points[0].points_purchased.replace(/,/g, '')) : account.pointsPurchased,
         pointsDelivered: data.points?.[0]?.points_delivered ? 
-          Number(data.points[0].points_delivered) : account.pointsDelivered,
+          Number(data.points[0].points_delivered.replace(/,/g, '')) : account.pointsDelivered,
         recurringPointsAllotment: data.clientData?.[0]?.recurring_points_allotment ? 
-          Number(data.clientData[0].recurring_points_allotment) : account.recurringPointsAllotment,
+          Number(data.clientData[0].recurring_points_allotment.replace(/,/g, '')) : account.recurringPointsAllotment,
         mrr: data.clientData?.[0]?.mrr ? 
-          Number(data.clientData[0].mrr) : account.mrr
+          Number(data.clientData[0].mrr.replace(/,/g, '')) : account.mrr
       };
+      
+      // Remove these fields as they're not in our Prisma schema
+      delete (updateData as any).points;
+      delete (updateData as any).growthTasks;
+      delete (updateData as any).clientData;
+      delete (updateData as any).pointsBalance;
+      delete (updateData as any).averageMrr;
+      delete (updateData as any).goals;
+      delete (updateData as any).tasks;
+      delete (updateData as any).clientContacts;
       
       console.log('3. Update data prepared:', updateData);
 
