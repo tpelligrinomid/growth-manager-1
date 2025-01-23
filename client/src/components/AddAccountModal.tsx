@@ -29,7 +29,9 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
     linkedinProfile: '',
     industry: '',
     annualRevenue: 0,
-    employees: 0
+    employees: 0,
+    clientFolderId: '',
+    clientListTaskId: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -319,6 +321,30 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                     value={formData.linkedinProfile}
                     onChange={e => setFormData({...formData, linkedinProfile: e.target.value})}
                     placeholder="https://linkedin.com/company/"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="form-section">
+              <h3>ClickUp Information</h3>
+              <div className="form-grid">
+                <div className="form-field">
+                  <label htmlFor="clientFolderId">ClickUp Folder ID</label>
+                  <input
+                    type="text"
+                    id="clientFolderId"
+                    value={formData.clientFolderId}
+                    onChange={e => setFormData({...formData, clientFolderId: e.target.value})}
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="clientListTaskId">ClickUp Client List Task ID</label>
+                  <input
+                    type="text"
+                    id="clientListTaskId"
+                    value={formData.clientListTaskId}
+                    onChange={e => setFormData({...formData, clientListTaskId: e.target.value})}
                   />
                 </div>
               </div>

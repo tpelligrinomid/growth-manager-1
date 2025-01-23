@@ -68,6 +68,13 @@ model Account {
   goals                  Goal[]
   notes                  Note[]
   clientContacts         ClientContact[]
+  clientFolderId         String?    @unique  // ClickUp Folder ID
+  clientListTaskId       String?    @unique  // ClickUp Client List Task ID
+  
+  // Relations to BigQuery data
+  points                 Points?
+  growthTasks           GrowthTask[]
+  clientListData        ClientListData?
 }
 
 model Task {
@@ -81,6 +88,7 @@ model Task {
   completedAt DateTime?
   account     Account   @relation(fields: [accountId], references: [id])
   accountId   String
+  lastSyncedAt DateTime @default(now())
 }
 
 model Goal {
@@ -126,4 +134,45 @@ model User {
   role          Role      @default(GROWTH_ADVISOR)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+}
+
+model Points {
+  id              String   @id @default(cuid())
+  accountId       String   @unique
+  account         Account  @relation(fields: [accountId], references: [id])
+  pointsPurchased Float
+  pointsDelivered Float
+  lastSyncedAt    DateTime @default(now())
+}
+
+model GrowthTask {
+  id              String    @id @default(cuid())
+  accountId       String
+  account         Account   @relation(fields: [accountId], references: [id])
+  taskId          String    // ClickUp Task ID
+  description     String
+  status          String
+  assignee        String?
+  isGrowthTask    Boolean   @default(true)
+  createdDate     DateTime
+  dueDate         DateTime?
+  dateDone        DateTime?
+  createdBy       String
+  lastSyncedAt    DateTime  @default(now())
+}
+
+model ClientListData {
+  id                      String    @id @default(cuid())
+  accountId               String    @unique
+  account                 Account   @relation(fields: [accountId], references: [id])
+  assignee                String?
+  teamLead                String?
+  status                  String?
+  mrr                     Float?
+  contractStartDate       DateTime?
+  contractRenewalEnd      DateTime?
+  nextStrategyApproval    DateTime?
+  recurringPointsAllotment Float?
+  businessUnit            String?
+  lastSyncedAt            DateTime  @default(now())
 } 
