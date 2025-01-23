@@ -93,9 +93,36 @@ interface AccountCreateBody {
 // Create new account
 router.post('/', async (req: Request<{}, {}, AccountCreateBody>, res: Response) => {
   try {
+    const {
+      engagementType,
+      priority,
+      industry,
+      annualRevenue,
+      employees,
+      website,
+      linkedinProfile,
+      clientFolderId,
+      clientListTaskId,
+      growthInMrr,
+      services
+    } = req.body;
+
     const account = await prisma.account.create({
       data: {
-        ...req.body,
+        // Manual fields
+        engagementType,
+        priority,
+        industry,
+        annualRevenue,
+        employees,
+        website,
+        linkedinProfile,
+        clientFolderId,
+        clientListTaskId,
+        growthInMrr,
+        services,
+
+        // Default values for BigQuery fields
         accountName: '',
         businessUnit: 'NEW_NORTH' as BusinessUnit,
         accountManager: '',
@@ -108,7 +135,8 @@ router.post('/', async (req: Request<{}, {}, AccountCreateBody>, res: Response) 
         recurringPointsAllotment: 0,
         mrr: 0,
         pointsStrikingDistance: 0,
-        potentialMrr: 0
+        potentialMrr: 0,
+        delivery: ''
       }
     });
 
@@ -129,83 +157,56 @@ router.post('/', async (req: Request<{}, {}, AccountCreateBody>, res: Response) 
   }
 });
 
-// Add this PUT route alongside the existing GET and POST routes
-router.put('/:id', async (req, res) => {
+interface AccountUpdateBody {
+  // Manual fields
+  engagementType?: EngagementType;
+  priority?: Priority;
+  industry?: string;
+  annualRevenue?: number;
+  employees?: number;
+  website?: string;
+  linkedinProfile?: string;
+  clientFolderId?: string;
+  clientListTaskId?: string;
+  growthInMrr?: number;
+  services?: Service[];
+
+  // BigQuery fields
+  accountName?: string;
+  businessUnit?: BusinessUnit;
+  accountManager?: string;
+  teamManager?: string;
+  relationshipStartDate?: Date;
+  contractStartDate?: Date;
+  contractRenewalEnd?: Date;
+  pointsPurchased?: number;
+  pointsDelivered?: number;
+  recurringPointsAllotment?: number;
+  mrr?: number;
+}
+
+// Update the PUT route
+router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res: Response) => {
   try {
     const { id } = req.params;
-    const {
-      accountName,
-      businessUnit,
-      engagementType,
-      priority,
-      accountManager,
-      teamManager,
-      relationshipStartDate,
-      contractStartDate,
-      contractRenewalEnd,
-      services,
-      pointsPurchased,
-      pointsDelivered,
-      recurringPointsAllotment,
-      mrr,
-      growthInMrr,
-      website,
-      linkedinProfile,
-      industry,
-      annualRevenue,
-      employees,
-    } = req.body;
-
-    // Calculate the fields just like in POST
-    const pointsBalance = calculatePointsBalance({ pointsPurchased, pointsDelivered });
-    const pointsStrikingDistance = calculatePointsStrikingDistance({
-      pointsPurchased,
-      pointsDelivered,
-      recurringPointsAllotment
-    });
-    const delivery = determineDeliveryStatus(pointsStrikingDistance);
-    const potentialMrr = calculatePotentialMrr({ mrr, growthInMrr });
+    const updateData = req.body;
 
     const account = await prisma.account.update({
       where: { id },
-      data: {
-        accountName,
-        businessUnit,
-        engagementType,
-        priority,
-        accountManager,
-        teamManager,
-        relationshipStartDate: new Date(relationshipStartDate),
-        contractStartDate: new Date(contractStartDate),
-        contractRenewalEnd: new Date(contractRenewalEnd),
-        services,
-        pointsPurchased,
-        pointsDelivered,
-        pointsStrikingDistance,
-        recurringPointsAllotment,
-        mrr,
-        growthInMrr,
-        potentialMrr,
-        website,
-        linkedinProfile,
-        industry,
-        annualRevenue,
-        employees,
-      },
+      data: updateData
     });
 
     res.json({ 
       data: { 
-        ...account, 
-        delivery: determineDeliveryStatus(pointsStrikingDistance)
+        ...account,
+        delivery: determineDeliveryStatus(account.pointsStrikingDistance)
       } 
     });
-  } catch (err) {
-    console.error('Error updating account:', err);
-    const error = err as Error;
+  } catch (error) {
+    console.error('Detailed error:', error);
     res.status(500).json({ 
       error: 'Error updating account',
-      details: error?.toString() || 'Unknown error occurred'
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
