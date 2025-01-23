@@ -27,4 +27,29 @@ export async function fetchPointsData() {
     console.error('Error fetching from BigQuery:', error);
     throw error;
   }
+}
+
+export async function fetchAllAccountData() {
+  const bigquery = new BigQuery({/*...*/});
+  
+  // Fetch points
+  const pointsQuery = `
+    SELECT 
+      client_folder_id,
+      points_purchased,
+      points_delivered
+    FROM \`clickup-data-448517.ClickupData.points\`
+  `;
+  
+  // Fetch tasks
+  const tasksQuery = `
+    SELECT 
+      client_folder_id,
+      task_name,
+      status,
+      due_date
+    FROM \`clickup-data-448517.ClickupData.tasks\`
+  `;
+  
+  // ... other queries
 } 

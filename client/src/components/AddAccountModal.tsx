@@ -25,11 +25,14 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
     recurringPointsAllotment: 0,
     mrr: 0,
     growthInMrr: 0,
+    potentialMrr: 0,
     website: '',
     linkedinProfile: '',
     industry: '',
     annualRevenue: 0,
-    employees: 0
+    employees: 0,
+    clientFolderId: '',
+    clientListTaskId: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,11 +51,10 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
       }
 
       const data = await response.json();
-      onSubmit(data.data); // Pass the created account back
-      onClose(); // Close the modal after successful creation
+      onSubmit(data.data);
+      onClose();
     } catch (error) {
       console.error('Error creating account:', error);
-      // You might want to add error state and display to user
     }
   };
 
@@ -88,6 +90,7 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                     id="businessUnit"
                     value={formData.businessUnit}
                     onChange={e => setFormData({...formData, businessUnit: e.target.value})}
+                    required
                   >
                     <option value="NEW_NORTH">New North</option>
                     <option value="IDEOMETRY">Ideometry</option>
@@ -101,6 +104,7 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                     id="engagementType"
                     value={formData.engagementType}
                     onChange={e => setFormData({...formData, engagementType: e.target.value})}
+                    required
                   >
                     <option value="STRATEGIC">Strategic</option>
                     <option value="TACTICAL">Tactical</option>
@@ -112,6 +116,7 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                     id="priority"
                     value={formData.priority}
                     onChange={e => setFormData({...formData, priority: e.target.value})}
+                    required
                   >
                     <option value="TIER_1">Tier 1</option>
                     <option value="TIER_2">Tier 2</option>
@@ -119,12 +124,6 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                     <option value="TIER_4">Tier 4</option>
                   </select>
                 </div>
-              </div>
-            </div>
-
-            <div className="form-section">
-              <h3>Management</h3>
-              <div className="form-grid">
                 <div className="form-field">
                   <label htmlFor="accountManager">Account Manager</label>
                   <input
@@ -145,12 +144,6 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                     required
                   />
                 </div>
-              </div>
-            </div>
-
-            <div className="form-section">
-              <h3>Contract Details</h3>
-              <div className="form-grid">
                 <div className="form-field">
                   <label htmlFor="relationshipStartDate">Relationship Start Date</label>
                   <input
@@ -172,7 +165,7 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                   />
                 </div>
                 <div className="form-field">
-                  <label htmlFor="contractRenewalEnd">Contract Renewal Date</label>
+                  <label htmlFor="contractRenewalEnd">Contract Renewal End</label>
                   <input
                     type="date"
                     id="contractRenewalEnd"
@@ -181,44 +174,21 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                     required
                   />
                 </div>
-              </div>
-            </div>
-
-            <div className="form-section">
-              <h3>Services</h3>
-              <div className="form-grid">
-                <div className="form-field checkbox-group">
-                  {['ABM', 'PAID', 'CONTENT', 'SEO', 'REPORTING', 'SOCIAL', 'WEBSITE'].map(service => (
-                    <label key={service} className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={formData.services.includes(service)}
-                        onChange={e => {
-                          const updatedServices = e.target.checked
-                            ? [...formData.services, service]
-                            : formData.services.filter(s => s !== service);
-                          setFormData({...formData, services: updatedServices});
-                        }}
-                      />
-                      {service}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="form-section">
-              <h3>Points & Delivery</h3>
-              <div className="form-grid">
                 <div className="form-field">
-                  <label htmlFor="recurringPointsAllotment">Recurring Points Allotment</label>
-                  <input
-                    type="number"
-                    id="recurringPointsAllotment"
-                    value={formData.recurringPointsAllotment}
-                    onChange={e => setFormData({...formData, recurringPointsAllotment: Number(e.target.value)})}
-                    required
-                  />
+                  <label htmlFor="services">Services</label>
+                  <select
+                    id="services"
+                    multiple
+                    value={formData.services}
+                    onChange={e => setFormData({...formData, services: Array.from(e.target.selectedOptions, option => option.value)})}
+                  >
+                    <option value="SOCIAL">Social</option>
+                    <option value="WEBSITE">Website</option>
+                    <option value="SEO">SEO</option>
+                    <option value="PPC">PPC</option>
+                    <option value="EMAIL">Email</option>
+                    <option value="CONTENT">Content</option>
+                  </select>
                 </div>
                 <div className="form-field">
                   <label htmlFor="pointsPurchased">Points Purchased</label>
@@ -240,14 +210,18 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                     required
                   />
                 </div>
-              </div>
-            </div>
-
-            <div className="form-section">
-              <h3>Financial Information</h3>
-              <div className="form-grid">
                 <div className="form-field">
-                  <label htmlFor="mrr">Monthly Recurring Revenue</label>
+                  <label htmlFor="recurringPointsAllotment">Recurring Points Allotment</label>
+                  <input
+                    type="number"
+                    id="recurringPointsAllotment"
+                    value={formData.recurringPointsAllotment}
+                    onChange={e => setFormData({...formData, recurringPointsAllotment: Number(e.target.value)})}
+                    required
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="mrr">MRR</label>
                   <input
                     type="number"
                     id="mrr"
@@ -263,14 +237,39 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                     id="growthInMrr"
                     value={formData.growthInMrr}
                     onChange={e => setFormData({...formData, growthInMrr: Number(e.target.value)})}
+                    required
                   />
                 </div>
-              </div>
-            </div>
-
-            <div className="form-section">
-              <h3>Company Information</h3>
-              <div className="form-grid">
+                <div className="form-field">
+                  <label htmlFor="potentialMrr">Potential MRR</label>
+                  <input
+                    type="number"
+                    id="potentialMrr"
+                    value={formData.potentialMrr}
+                    onChange={e => setFormData({...formData, potentialMrr: Number(e.target.value)})}
+                    required
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="website">Website</label>
+                  <input
+                    type="url"
+                    id="website"
+                    value={formData.website}
+                    onChange={e => setFormData({...formData, website: e.target.value})}
+                    placeholder="https://"
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="linkedinProfile">LinkedIn Profile</label>
+                  <input
+                    type="url"
+                    id="linkedinProfile"
+                    value={formData.linkedinProfile}
+                    onChange={e => setFormData({...formData, linkedinProfile: e.target.value})}
+                    placeholder="https://linkedin.com/company/"
+                  />
+                </div>
                 <div className="form-field">
                   <label htmlFor="industry">Industry</label>
                   <input
@@ -301,24 +300,28 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                     required
                   />
                 </div>
+              </div>
+            </div>
+
+            <div className="form-section">
+              <h3>ClickUp Information</h3>
+              <div className="form-grid">
                 <div className="form-field">
-                  <label htmlFor="website">Website</label>
+                  <label htmlFor="clientFolderId">ClickUp Folder ID</label>
                   <input
-                    type="url"
-                    id="website"
-                    value={formData.website}
-                    onChange={e => setFormData({...formData, website: e.target.value})}
-                    placeholder="https://"
+                    type="text"
+                    id="clientFolderId"
+                    value={formData.clientFolderId}
+                    onChange={e => setFormData({...formData, clientFolderId: e.target.value})}
                   />
                 </div>
                 <div className="form-field">
-                  <label htmlFor="linkedinProfile">LinkedIn Profile</label>
+                  <label htmlFor="clientListTaskId">ClickUp Client List Task ID</label>
                   <input
-                    type="url"
-                    id="linkedinProfile"
-                    value={formData.linkedinProfile}
-                    onChange={e => setFormData({...formData, linkedinProfile: e.target.value})}
-                    placeholder="https://linkedin.com/company/"
+                    type="text"
+                    id="clientListTaskId"
+                    value={formData.clientListTaskId}
+                    onChange={e => setFormData({...formData, clientListTaskId: e.target.value})}
                   />
                 </div>
               </div>
