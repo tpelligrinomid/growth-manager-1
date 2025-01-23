@@ -47,9 +47,8 @@ export async function fetchGrowthTasksForAccount(clientFolderId: string) {
       created_date,
       due_date,
       date_done
-    FROM \`clickup-data-448517.ClickupData.tasks\`
+    FROM \`clickup-data-448517.ClickupData.growth_tasks\`
     WHERE client_folder_id = @clientFolderId
-    AND growth_task = true
   `;
   
   return executeQuery(query, { clientFolderId });
@@ -63,9 +62,8 @@ export async function fetchGoalsForAccount(clientFolderId: string) {
       status,
       due_date,
       progress
-    FROM \`clickup-data-448517.ClickupData.tasks\`
+    FROM \`clickup-data-448517.ClickupData.goals\`
     WHERE client_folder_id = @clientFolderId
-    AND list_name = 'Goals'
   `;
   
   return executeQuery(query, { clientFolderId });
@@ -85,7 +83,7 @@ export async function fetchClientListData(clientListTaskId: string) {
       contract_renewal_end,
       recurring_points_allotment,
       business_unit
-    FROM \`clickup-data-448517.ClickupData.client_list\`
+    FROM \`clickup-data-448517.ClickupData.clients_list\`
     WHERE task_id = @clientListTaskId
   `;
   
