@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { AccountResponse, EngagementType, Priority } from '../types';
+import { AccountResponse, EngagementType, Priority, Service } from '../types';
 import { formatEngagementType, formatPriority } from '../utils/formatters';
 
 interface Props {
@@ -22,6 +22,7 @@ interface EditAccountForm {
   clientFolderId: string;
   clientListTaskId: string;
   growthInMrr: number;
+  services: Service[];
 }
 
 export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, onSubmit }) => {
@@ -46,7 +47,8 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
     linkedinProfile: account.linkedinProfile,
     clientFolderId: account.clientFolderId,
     clientListTaskId: account.clientListTaskId,
-    growthInMrr: cleanNumber(account.growthInMrr)
+    growthInMrr: cleanNumber(account.growthInMrr),
+    services: account.services
   }));
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -149,6 +151,26 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
                     value={formData.linkedinProfile}
                     onChange={e => setFormData({...formData, linkedinProfile: e.target.value})}
                   />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="services">Services</label>
+                  <select
+                    id="services"
+                    multiple
+                    value={formData.services}
+                    onChange={e => setFormData({
+                      ...formData, 
+                      services: Array.from(e.target.selectedOptions, option => option.value as Service)
+                    })}
+                  >
+                    <option value={Service.ABM}>ABM</option>
+                    <option value={Service.PAID_MEDIA}>Paid Media</option>
+                    <option value={Service.SEO}>SEO</option>
+                    <option value={Service.CONTENT}>Content</option>
+                    <option value={Service.REPORTING}>Reporting</option>
+                    <option value={Service.SOCIAL}>Social</option>
+                    <option value={Service.WEBSITE}>Website</option>
+                  </select>
                 </div>
               </div>
             </div>

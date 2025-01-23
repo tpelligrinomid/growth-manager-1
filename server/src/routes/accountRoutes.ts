@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient, EngagementType, Priority, Service, Prisma } from '@prisma/client';
+import { PrismaClient, EngagementType, Priority, Service, Prisma, BusinessUnit } from '@prisma/client';
 import { 
   calculatePointsStrikingDistance, 
   calculatePointsBalance,
@@ -76,119 +76,58 @@ router.get('/', async (req, res) => {
 });
 
 interface AccountCreateBody {
-  accountName: string;
-  businessUnit: string;
+  // Only manual fields
   engagementType: EngagementType;
   priority: Priority;
-  accountManager: string;
-  teamManager: string;
-  relationshipStartDate: string;
-  contractStartDate: string;
-  contractRenewalEnd: string;
-  services: Service[];
-  pointsPurchased: number;
-  pointsDelivered: number;
-  recurringPointsAllotment: number;
-  mrr: number;
-  growthInMrr: number;
-  website?: string;
-  linkedinProfile?: string;
   industry: string;
   annualRevenue: number;
   employees: number;
+  website?: string;
+  linkedinProfile?: string;
   clientFolderId: string;
   clientListTaskId: string;
+  growthInMrr: number;
+  services: Service[];
 }
 
 // Create new account
-router.post('/', async (
-  req: Request<Record<string, never>, unknown, AccountCreateBody>, 
-  res: Response
-) => {
+router.post('/', async (req: Request<{}, {}, AccountCreateBody>, res: Response) => {
   try {
-    console.log('Received account data:', req.body);
-    const {
-      accountName,
-      businessUnit,
-      engagementType,
-      priority,
-      accountManager,
-      teamManager,
-      relationshipStartDate,
-      contractStartDate,
-      contractRenewalEnd,
-      services,
-      pointsPurchased,
-      pointsDelivered,
-      recurringPointsAllotment,
-      mrr,
-      growthInMrr,
-      website,
-      linkedinProfile,
-      industry,
-      annualRevenue,
-      employees,
-      clientFolderId,
-      clientListTaskId,
-    } = req.body;
-
-    // Use the calculation function from utils
-    const pointsBalance = calculatePointsBalance({ pointsPurchased, pointsDelivered });
-    console.log('Account Data for Striking Distance:');
-    console.log('Points Purchased:', pointsPurchased);
-    console.log('Points Delivered:', pointsDelivered);
-    console.log('Recurring Points:', recurringPointsAllotment);
-
-    const pointsStrikingDistance = calculatePointsStrikingDistance({
-      pointsPurchased,
-      pointsDelivered,
-      recurringPointsAllotment
-    });
-
-    console.log('Final Striking Distance:', pointsStrikingDistance);
-    const delivery = determineDeliveryStatus(pointsStrikingDistance);
-    const potentialMrr = calculatePotentialMrr({ mrr, growthInMrr });
-
-    const accountData = {
-      accountName,
-      businessUnit,
-      engagementType,
-      priority,
-      accountManager,
-      teamManager,
-      relationshipStartDate: new Date(relationshipStartDate),
-      contractStartDate: new Date(contractStartDate),
-      contractRenewalEnd: new Date(contractRenewalEnd),
-      services,
-      pointsPurchased,
-      pointsDelivered,
-      pointsStrikingDistance,
-      delivery,
-      recurringPointsAllotment,
-      mrr,
-      growthInMrr,
-      potentialMrr,
-      website,
-      linkedinProfile,
-      industry,
-      annualRevenue,
-      employees,
-      clientFolderId: clientFolderId || '',
-      clientListTaskId: clientListTaskId || '',
-      status: '',
-    } as const;
-
     const account = await prisma.account.create({
-      data: accountData as Prisma.AccountCreateInput
+      data: {
+        // Manual fields from request
+        ...req.body,
+        
+        // Default values for BigQuery fields
+        accountName: '',
+        businessUnit: 'NEW_NORTH' as BusinessUnit,
+        accountManager: '',
+        teamManager: '',
+        relationshipStartDate: new Date(),
+        contractStartDate: new Date(),
+        contractRenewalEnd: new Date(),
+        pointsPurchased: 0,
+        pointsDelivered: 0,
+        recurringPointsAllotment: 0,
+        mrr: 0,
+        pointsStrikingDistance: 0,
+        potentialMrr: 0
+      }
     });
 
-    res.status(201).json({ data: account });
-  } catch (err) {
-    console.error('Detailed error:', err);
-    const error = err as Error;
+    // Add calculated fields to response
+    const response = {
+      ...account,
+      clientTenure: calculateClientTenure(account.relationshipStartDate),
+      delivery: determineDeliveryStatus(account.pointsStrikingDistance)
+    };
+
+    res.status(201).json({ data: response });
+  } catch (error) {
+    console.error('Detailed error:', error);
     res.status(500).json({ 
       error: 'Error creating account',
-      details: error?.toString() || 'Unknown error occurred'
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -246,7 +185,6 @@ router.put('/:id', async (req, res) => {
         pointsPurchased,
         pointsDelivered,
         pointsStrikingDistance,
-        delivery,
         recurringPointsAllotment,
         mrr,
         growthInMrr,
@@ -259,7 +197,12 @@ router.put('/:id', async (req, res) => {
       },
     });
 
-    res.json({ data: account });
+    res.json({ 
+      data: { 
+        ...account, 
+        delivery: determineDeliveryStatus(pointsStrikingDistance)
+      } 
+    });
   } catch (err) {
     console.error('Error updating account:', err);
     const error = err as Error;
