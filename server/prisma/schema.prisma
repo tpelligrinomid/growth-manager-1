@@ -33,6 +33,13 @@ enum Service {
   WEBSITE
 }
 
+enum BusinessUnit {
+  NEW_NORTH
+  IDEOMETRY
+  MOTION
+  SPOKE
+}
+
 model Account {
   id                     String   @id @default(uuid())
   
@@ -51,7 +58,7 @@ model Account {
 
   // BigQuery Sourced Fields
   accountName            String   @default("")
-  businessUnit           String   @default("")
+  businessUnit           BusinessUnit
   accountManager         String   @default("")
   teamManager            String   @default("")
   status                 String   @default("")
@@ -72,6 +79,8 @@ model Account {
   tasks                  Task[]
   goals                  Goal[]
   clientContacts         ClientContact[]
+
+  delivery String @default("")  // Add temporarily until we fix all references
 }
 
 model Task {
