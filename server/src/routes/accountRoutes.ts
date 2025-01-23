@@ -174,7 +174,8 @@ router.post('/', async (
       annualRevenue,
       employees,
       clientFolderId: clientFolderId || '',
-      clientListTaskId: clientListTaskId || ''
+      clientListTaskId: clientListTaskId || '',
+      status: '',
     } as const;
 
     const account = await prisma.account.create({
