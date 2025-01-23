@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { API_URL } from '../config/api';
 
 interface Props {
   isOpen: boolean;
@@ -31,10 +32,28 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
     employees: 0
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitting form data:', formData);
-    onSubmit(formData);
+    try {
+      const response = await fetch(`${API_URL}/api/accounts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      onSubmit(data.data); // Pass the created account back
+      onClose(); // Close the modal after successful creation
+    } catch (error) {
+      console.error('Error creating account:', error);
+      // You might want to add error state and display to user
+    }
   };
 
   if (!isOpen) return null;
