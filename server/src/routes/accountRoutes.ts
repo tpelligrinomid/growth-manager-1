@@ -26,10 +26,12 @@ router.get('/', async (req, res) => {
     });
 
     // Calculate averages first
-    const totalMrr = accounts.reduce((sum, account) => sum + account.mrr, 0);
+    const totalMrr = accounts.reduce((sum: number, account: any) => {
+      return sum + account.mrr;
+    }, 0);
     const averageMrr = accounts.length > 0 ? totalMrr / accounts.length : 0;
 
-    const accountsWithCalculations = accounts.map(account => {
+    const accountsWithCalculations = accounts.map((account: any) => {
       const pointsStrikingDistance = calculatePointsStrikingDistance({
         pointsPurchased: account.pointsPurchased,
         pointsDelivered: account.pointsDelivered,
