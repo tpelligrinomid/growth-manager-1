@@ -15,7 +15,8 @@
     "build:prod": "IF exist build rmdir /s /q build && mkdir build && npx tsc",
     "prisma:generate": "npx prisma generate",
     "prisma:push": "npx prisma db push",
-    "postinstall": "npx prisma generate && npx prisma db push && npx prisma db seed && npm run build"
+    "postinstall": "npm run build",
+    "db:setup": "npx prisma generate && npx prisma db push && npx prisma db seed"
   },
   "dependencies": {
     "@prisma/client": "^6.2.1",
