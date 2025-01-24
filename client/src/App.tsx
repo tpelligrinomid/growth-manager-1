@@ -159,9 +159,9 @@ function App() {
     }
   };
 
-  const handleEditAccount = async (accountData: any) => {
+  const handleEditAccount = async (accountData: AccountResponse) => {
     try {
-      const response = await fetch(`/api/accounts/${accountData.id}`, {
+      const response = await fetch(`${API_URL}/api/accounts/${accountData.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -173,14 +173,18 @@ function App() {
         throw new Error('Failed to update account');
       }
 
-      const result = await response.json();
+      const { data: updatedAccount } = await response.json();
+
+      // Update the accounts state with the new data
       setAccounts(prevAccounts => 
         prevAccounts.map(acc => 
-          acc.id === result.data.id ? result.data : acc
+          acc.id === updatedAccount.id ? updatedAccount : acc
         )
       );
+
+      // Close both modals
       setIsEditModalOpen(false);
-      setSelectedAccount(null);  // Close the detail modal too
+      setSelectedAccount(null);
     } catch (error) {
       console.error('Error updating account:', error);
     }
