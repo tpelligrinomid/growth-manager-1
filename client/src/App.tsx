@@ -33,6 +33,8 @@ interface Filters {
   engagementType: string;
   priority: string;
   delivery: string;
+  accountManager: string;
+  teamManager: string;
 }
 
 function App() {
@@ -47,6 +49,8 @@ function App() {
     engagementType: '',
     priority: '',
     delivery: '',
+    accountManager: '',
+    teamManager: '',
   });
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: null as (keyof AccountResponse | 'pointsBalance' | 'clientTenure' | null),
@@ -107,7 +111,9 @@ function App() {
       (!filters.businessUnit || account.businessUnit === filters.businessUnit) &&
       (!filters.engagementType || account.engagementType === filters.engagementType) &&
       (!filters.priority || account.priority === filters.priority) &&
-      (!filters.delivery || account.delivery === filters.delivery)
+      (!filters.delivery || account.delivery === filters.delivery) &&
+      (!filters.accountManager || account.accountManager === filters.accountManager) &&
+      (!filters.teamManager || account.teamManager === filters.teamManager)
     );
   });
 
@@ -240,8 +246,8 @@ function App() {
     if (!sortConfig.key || !sortConfig.direction) return 0;
 
     if (sortConfig.key === 'pointsBalance') {
-      const aBalance = calculatePointsBalance(a);
-      const bBalance = calculatePointsBalance(b);
+      const aBalance = calculatePointsBalance(a) ?? 0;
+      const bBalance = calculatePointsBalance(b) ?? 0;
       return sortConfig.direction === 'asc' ? aBalance - bBalance : bBalance - aBalance;
     }
 
@@ -264,10 +270,9 @@ function App() {
   });
 
   // Add helper function for points balance calculation
-  const calculatePointsBalance = (account: AccountResponse): number => {
+  const calculatePointsBalance = (account: AccountResponse): number | null => {
     const balance = account.pointsPurchased - account.pointsDelivered;
-    // Return 0 or the actual balance if it's a valid number
-    return isNaN(balance) ? 0 : balance;
+    return isNaN(balance) ? null : balance;
   };
 
   const calculatePercentage = (part: number, total: number): number => {
@@ -288,7 +293,7 @@ function App() {
       <header className="app-header">
         <div className="header-content">
           <img 
-            src="/mid-logo.png" 
+            src="/mid-logo.svg" 
             alt="Marketers in Demand" 
             className="header-logo" 
           />
@@ -413,12 +418,9 @@ function App() {
                 </div>
                 <div className="filters-group">
                   <Filters
-                    businessUnit={filters.businessUnit}
-                    engagementType={filters.engagementType}
-                    priority={filters.priority}
-                    delivery={filters.delivery}
+                    filters={filters}
                     onFilterChange={handleFilterChange}
-                    currentView={currentView}
+                    view={currentView}
                   />
                 </div>
               </div>
@@ -621,7 +623,7 @@ function App() {
                         <td className="number-cell">{account.pointsPurchased}</td>
                         <td className="number-cell">{account.pointsDelivered}</td>
                         <td className="number-cell">
-                          {calculatePointsBalance(account) === 0 ? '-' : calculatePointsBalance(account)}
+                          {calculatePointsBalance(account) === null ? '-' : calculatePointsBalance(account)}
                         </td>
                         <td className="number-cell">{account.pointsStrikingDistance}</td>
                         <td className={`delivery-${account.delivery.toLowerCase().replace('_', '-')}`}>
@@ -650,7 +652,7 @@ function App() {
                         <td className="number-cell">{account.pointsPurchased}</td>
                         <td className="number-cell">{account.pointsDelivered}</td>
                         <td className="number-cell">
-                          {calculatePointsBalance(account) === 0 ? '-' : calculatePointsBalance(account)}
+                          {calculatePointsBalance(account) === null ? '-' : calculatePointsBalance(account)}
                         </td>
                         <td>{determineDeliveryStatus(account.pointsStrikingDistance)}</td>
                         <td>
