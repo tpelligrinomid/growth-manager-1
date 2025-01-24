@@ -129,14 +129,24 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
     e.preventDefault();
     console.log('Submitting form data:', formData); // Debug log
 
-    const updateData: AccountResponse = {
-      ...account,
-      ...formData,
+    // Create a clean update object with only the fields that should be updated
+    const updateData: Partial<AccountResponse> = {
+      id: account.id, // Required for identifying the account
+      engagementType: formData.engagementType,
+      priority: formData.priority,
+      industry: formData.industry,
+      annualRevenue: cleanNumber(formData.annualRevenue),
+      employees: cleanNumber(formData.employees),
+      website: formData.website,
+      linkedinProfile: formData.linkedinProfile,
+      clientFolderId: formData.clientFolderId,
+      clientListTaskId: formData.clientListTaskId,
+      growthInMrr: cleanNumber(formData.growthInMrr),
       services: formData.services
     };
 
     console.log('Sending update data:', updateData); // Debug log
-    await onSubmit(updateData);
+    await onSubmit(updateData as AccountResponse);
     onClose();
   };
 

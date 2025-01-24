@@ -199,31 +199,43 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
     console.log('Attempting to update account:', id);
     console.log('Update data:', updateData);
 
-    // Remove relation fields that can't be updated directly
-    const { goals, tasks, clientContacts, ...sanitizedUpdateData } = updateData;
+    // Get the current account data
+    const currentAccount = await prisma.account.findUnique({
+      where: { id },
+      include: {
+        goals: true,
+        tasks: true,
+        clientContacts: true,
+      }
+    });
 
-    // Convert string numbers to floats/ints
-    const sanitizedData = {
-      ...sanitizedUpdateData,
-      pointsPurchased: sanitizedUpdateData.pointsPurchased ? parseFloat(sanitizedUpdateData.pointsPurchased.toString()) : undefined,
-      pointsDelivered: sanitizedUpdateData.pointsDelivered ? parseFloat(sanitizedUpdateData.pointsDelivered.toString()) : undefined,
-      recurringPointsAllotment: sanitizedUpdateData.recurringPointsAllotment ? parseFloat(sanitizedUpdateData.recurringPointsAllotment.toString()) : undefined,
-      mrr: sanitizedUpdateData.mrr ? parseFloat(sanitizedUpdateData.mrr.toString()) : undefined,
-      // Convert dates if they're strings
-      relationshipStartDate: sanitizedUpdateData.relationshipStartDate ? new Date(sanitizedUpdateData.relationshipStartDate) : undefined,
-      contractStartDate: sanitizedUpdateData.contractStartDate ? new Date(sanitizedUpdateData.contractStartDate) : undefined,
-      contractRenewalEnd: sanitizedUpdateData.contractRenewalEnd ? new Date(sanitizedUpdateData.contractRenewalEnd) : undefined,
-    };
-
-    // Validate the data
-    if (sanitizedData.businessUnit && !Object.values(BusinessUnit).includes(sanitizedData.businessUnit as BusinessUnit)) {
-      console.error('Invalid business unit:', sanitizedData.businessUnit);
-      return res.status(400).json({ 
-        error: 'Invalid business unit',
-        details: `Business unit must be one of: ${Object.values(BusinessUnit).join(', ')}`
-      });
+    if (!currentAccount) {
+      return res.status(404).json({ error: 'Account not found' });
     }
 
+    // Only update the fields that are provided in the request
+    const sanitizedData: Record<string, any> = {
+      engagementType: updateData.engagementType,
+      priority: updateData.priority,
+      industry: updateData.industry,
+      annualRevenue: updateData.annualRevenue ? Number(updateData.annualRevenue) : undefined,
+      employees: updateData.employees ? Number(updateData.employees) : undefined,
+      website: updateData.website,
+      linkedinProfile: updateData.linkedinProfile,
+      clientFolderId: updateData.clientFolderId,
+      clientListTaskId: updateData.clientListTaskId,
+      growthInMrr: updateData.growthInMrr ? Number(updateData.growthInMrr) : undefined,
+      services: updateData.services
+    };
+
+    // Remove undefined values
+    Object.keys(sanitizedData).forEach(key => {
+      if (sanitizedData[key] === undefined) {
+        delete sanitizedData[key];
+      }
+    });
+
+    // Update the account with only the provided fields
     const account = await prisma.account.update({
       where: { id },
       data: sanitizedData,
@@ -236,6 +248,7 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
 
     console.log('Account updated successfully:', account);
 
+    // Return the updated account with delivery status
     res.json({ 
       data: { 
         ...account,
