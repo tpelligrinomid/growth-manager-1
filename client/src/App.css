@@ -942,3 +942,43 @@ html, body, #root {
   right: 0;
   white-space: nowrap;
 }
+
+.multi-select-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.selected-services {
+  padding: 0.5rem;
+  border: 1px solid var(--nn-border);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  background: white;
+}
+
+.services-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid var(--nn-border);
+  border-radius: 0.375rem;
+  margin-top: 0.25rem;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.service-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.service-option:hover {
+  background: var(--nn-light);
+}
