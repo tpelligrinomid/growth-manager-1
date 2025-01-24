@@ -35,9 +35,13 @@ export const GoalProgress: React.FC<GoalProgressProps> = ({ goals }) => {
 
   if (filteredGoals.length === 0) return <div>No active goals</div>;
 
-  const averageProgress = Math.round(
-    filteredGoals.reduce((sum, goal) => sum + (goal.progress || 0), 0) / filteredGoals.length
-  );
+  // Calculate average progress, treating null/undefined as 0
+  const totalProgress = filteredGoals.reduce((sum, goal) => {
+    const progress = goal.progress === null || goal.progress === undefined ? 0 : goal.progress;
+    return sum + progress;
+  }, 0);
+  
+  const averageProgress = Math.round(totalProgress / filteredGoals.length);
 
   // Check if any goal is overdue and not closed
   const hasOverdueGoals = filteredGoals.some(goal => {
