@@ -9,20 +9,28 @@ interface GoalProgressProps {
 export const GoalProgress: React.FC<GoalProgressProps> = ({ goals }) => {
   if (!goals || goals.length === 0) return <div>No goals</div>;
 
-  // Helper function to parse dates
-  const parseDate = (dateStr: string) => {
-    if (!dateStr) return null;
-    // Convert YYYY/MM/DD to YYYY-MM-DD for proper Date parsing
-    return new Date(dateStr.replace(/\//g, '-'));
-  };
-
   // Filter goals to only show:
   // 1. Future goals (any status)
   // 2. Past goals that are not closed
   const filteredGoals = goals.filter(goal => {
-    const dueDate = parseDate(goal.dueDate);
-    const now = new Date();
-    return dueDate && (dueDate > now || (dueDate <= now && goal.status.toLowerCase() !== 'closed'));
+    if (!goal.dueDate || !goal.status) return true;
+    
+    try {
+      // Convert YYYY/MM/DD to YYYY-MM-DD for proper Date parsing
+      const dueDate = new Date(goal.dueDate.replace(/\//g, '-'));
+      const now = new Date();
+      
+      // If the goal is closed and the due date is in the past, filter it out
+      if (goal.status.toLowerCase() === 'closed' && dueDate < now) {
+        return false;
+      }
+      
+      // Keep all other goals (future due dates or not closed)
+      return true;
+    } catch (e) {
+      // If there's any error parsing the date, show the goal
+      return true;
+    }
   });
 
   if (filteredGoals.length === 0) return <div>No active goals</div>;
@@ -33,9 +41,15 @@ export const GoalProgress: React.FC<GoalProgressProps> = ({ goals }) => {
 
   // Check if any goal is overdue and not closed
   const hasOverdueGoals = filteredGoals.some(goal => {
-    const dueDate = parseDate(goal.dueDate);
-    const now = new Date();
-    return dueDate && dueDate < now && goal.status.toLowerCase() !== 'closed';
+    if (!goal.dueDate || !goal.status) return false;
+    
+    try {
+      const dueDate = new Date(goal.dueDate.replace(/\//g, '-'));
+      const now = new Date();
+      return !isNaN(dueDate.getTime()) && dueDate < now && goal.status.toLowerCase() !== 'closed';
+    } catch (e) {
+      return false;
+    }
   });
 
   return (
