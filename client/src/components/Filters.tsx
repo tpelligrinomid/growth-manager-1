@@ -1,49 +1,67 @@
 import React from 'react';
+import { BusinessUnit, EngagementType, Priority } from '../types';
+import { formatBusinessUnit, formatEngagementType, formatPriority } from '../utils/formatters';
 
-interface Props {
+interface FiltersProps {
   filters: {
     businessUnit: string;
     engagementType: string;
     priority: string;
     delivery: string;
-    accountManager?: string;
-    teamManager?: string;
+    accountManager: string;
+    teamManager: string;
   };
-  onFilterChange: (name: string, value: string) => void;
+  onFilterChange: (filterName: string, value: string) => void;
   view: 'manager' | 'finance';
 }
 
-export const Filters: React.FC<Props> = ({ filters, onFilterChange, view }) => {
+export const Filters: React.FC<FiltersProps> = ({ filters, onFilterChange, view }) => {
+  const businessUnits = Object.values(BusinessUnit);
+  const engagementTypes = Object.values(EngagementType);
+  const priorities = Object.values(Priority);
+  
+  // Get unique account managers and team managers from the data
+  const accountManagers = ['Spencer Hertle', 'Nathalie Mintjens', 'Gracie Diamond', 'Mia Mixan'];
+  const teamManagers = ['Colin Costigan'];
+
   return (
-    <div className="filters-container">
+    <div className="filters-group">
       <select
         value={filters.businessUnit}
         onChange={(e) => onFilterChange('businessUnit', e.target.value)}
       >
         <option value="">All Business Units</option>
-        <option value="NEW_NORTH">New North</option>
+        {businessUnits.map((unit) => (
+          <option key={unit} value={unit}>
+            {formatBusinessUnit(unit)}
+          </option>
+        ))}
       </select>
-
+      
       <select
         value={filters.engagementType}
         onChange={(e) => onFilterChange('engagementType', e.target.value)}
       >
         <option value="">All Engagement Types</option>
-        <option value="STRATEGIC">Strategic</option>
-        <option value="TACTICAL">Tactical</option>
+        {engagementTypes.map((type) => (
+          <option key={type} value={type}>
+            {formatEngagementType(type)}
+          </option>
+        ))}
       </select>
-
+      
       <select
         value={filters.priority}
         onChange={(e) => onFilterChange('priority', e.target.value)}
       >
         <option value="">All Priorities</option>
-        <option value="TIER_1">Tier 1</option>
-        <option value="TIER_2">Tier 2</option>
-        <option value="TIER_3">Tier 3</option>
-        <option value="TIER_4">Tier 4</option>
+        {priorities.map((priority) => (
+          <option key={priority} value={priority}>
+            {formatPriority(priority)}
+          </option>
+        ))}
       </select>
-
+      
       <select
         value={filters.delivery}
         onChange={(e) => onFilterChange('delivery', e.target.value)}
@@ -52,7 +70,7 @@ export const Filters: React.FC<Props> = ({ filters, onFilterChange, view }) => {
         <option value="ON_TRACK">On Track</option>
         <option value="OFF_TRACK">Off Track</option>
       </select>
-
+      
       {view === 'manager' && (
         <>
           <select
@@ -60,18 +78,23 @@ export const Filters: React.FC<Props> = ({ filters, onFilterChange, view }) => {
             onChange={(e) => onFilterChange('accountManager', e.target.value)}
           >
             <option value="">All Account Managers</option>
-            <option value="Spencer Hertle">Spencer Hertle</option>
-            <option value="Nathalie Mintjens">Nathalie Mintjens</option>
-            <option value="Gracie Diamond">Gracie Diamond</option>
-            <option value="Mia Mixan">Mia Mixan</option>
+            {accountManagers.map((manager) => (
+              <option key={manager} value={manager}>
+                {manager}
+              </option>
+            ))}
           </select>
-
+          
           <select
             value={filters.teamManager}
             onChange={(e) => onFilterChange('teamManager', e.target.value)}
           >
             <option value="">All Team Managers</option>
-            <option value="Colin Costigan">Colin Costigan</option>
+            {teamManagers.map((manager) => (
+              <option key={manager} value={manager}>
+                {manager}
+              </option>
+            ))}
           </select>
         </>
       )}

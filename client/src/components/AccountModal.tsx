@@ -222,12 +222,12 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                     {currentAccount.goals.map((goal: Goal, index: number) => (
                       <tr key={index}>
                         <td>{goal.task_name}</td>
-                        <td>{new Date(goal.dueDate).toLocaleDateString()}</td>
+                        <td>{goal.dueDate ? new Date(goal.dueDate.replace(/\//g, '-')).toLocaleDateString() : 'No due date'}</td>
                         <td className="progress-cell">
                           <div className="goal-progress">
                             <div className="progress-bar">
                               <div 
-                                className={`progress-fill ${new Date(goal.dueDate) < new Date() && goal.status.toLowerCase() !== 'closed' ? 'overdue' : ''}`}
+                                className={`progress-fill ${new Date(goal.dueDate.replace(/\//g, '-')) < new Date() && goal.status.toLowerCase() !== 'closed' ? 'overdue' : ''}`}
                                 style={{ width: `${goal.progress || 0}%` }}
                               />
                             </div>
