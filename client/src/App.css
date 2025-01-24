@@ -506,11 +506,47 @@ html, body, #root {
 .filters-container {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0;
   margin-bottom: 1rem;
-  background: transparent;
-  box-shadow: none;
+}
+
+.filters-section {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+}
+
+.view-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filters-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-grow: 1;
+}
+
+.view-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  background-color: var(--nn-light);
+  color: var(--nn-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-button.active {
+  background-color: var(--nn-primary);
+  color: white;
+}
+
+.view-button:hover:not(.active) {
+  background-color: var(--nn-border);
 }
 
 .filters-container select {
@@ -529,45 +565,6 @@ html, body, #root {
   box-shadow: 0 0 0 1px var(--nn-primary);
 }
 
-.view-controls {
-  display: flex;
-  gap: 0.5rem;
-  padding-right: 1.5rem;
-  margin-right: 1.5rem;
-  border-right: 2px solid var(--nn-border);
-}
-
-.filters-section {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 0;
-  background: transparent;
-}
-
-.view-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 0.75rem;
-  border: 1px solid var(--nn-primary);
-  border-radius: 6px;
-  background: var(--nn-white);
-  color: var(--nn-primary);
-  font-weight: 500;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-}
-
-.view-button:hover {
-  background: var(--nn-light);
-}
-
-.view-button.active {
-  background: var(--nn-primary);
-  color: var(--nn-white);
-}
-
 .view-button svg {
   width: 1.25rem;
   height: 1.25rem;
@@ -575,13 +572,6 @@ html, body, #root {
 
 .view-button span {
   font-size: 1rem;
-}
-
-.filters-group {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  border: none;
 }
 
 .filter-group {
@@ -691,12 +681,6 @@ html, body, #root {
   gap: 1rem;
   margin-bottom: 1rem;  /* Reduced from 2rem */
   flex-wrap: wrap;  /* Allow cards to wrap on smaller screens */
-}
-
-.filters-group {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;  /* Push filters to the right */
 }
 
 /* Adjust metric cards to be more compact within the filters container */
