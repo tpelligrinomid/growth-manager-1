@@ -88,7 +88,15 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
         recurringPointsAllotment: data.clientData?.[0]?.recurring_points_allotment ? 
           Number(data.clientData[0].recurring_points_allotment.replace(/,/g, '')) : currentAccount.recurringPointsAllotment,
         mrr: data.clientData?.[0]?.mrr ? 
-          Number(data.clientData[0].mrr.replace(/,/g, '')) : currentAccount.mrr
+          Number(data.clientData[0].mrr.replace(/,/g, '')) : currentAccount.mrr,
+        goals: data.goals?.map((goal: any) => ({
+          id: goal.id,
+          description: goal.task_description || '',
+          task_name: goal.task_name || '',
+          dueDate: goal.due_date || '',
+          progress: Number(goal.progress) || 0,
+          status: goal.status || ''
+        }))
       };
       
       // Remove these fields as they're not in our Prisma schema
@@ -97,7 +105,6 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
       delete (updateData as any).clientData;
       delete (updateData as any).pointsBalance;
       delete (updateData as any).averageMrr;
-      delete (updateData as any).goals;
       delete (updateData as any).tasks;
       delete (updateData as any).clientContacts;
       
