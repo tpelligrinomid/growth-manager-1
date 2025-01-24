@@ -57,9 +57,13 @@ html, body, #root {
 }
 
 .app-content {
-  padding: 2rem;
+  padding: 1.5rem 2rem;
   width: 100%;
   margin: 0 auto;
+}
+
+.accounts-section {
+  width: 100%;
 }
 
 .accounts-section h2 {
@@ -503,7 +507,8 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem;
+  padding: 0;
+  margin-bottom: 1rem;
   background: transparent;
   box-shadow: none;
 }
@@ -536,7 +541,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 0.5rem;
+  padding: 0;
   background: transparent;
 }
 
@@ -684,7 +689,7 @@ html, body, #root {
 .metrics-summary {
   display: flex;
   gap: 1rem;
-  margin-bottom: 2rem;  /* Increased spacing below cards */
+  margin-bottom: 1rem;  /* Reduced from 2rem */
   flex-wrap: wrap;  /* Allow cards to wrap on smaller screens */
 }
 
