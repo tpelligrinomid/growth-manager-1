@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AccountResponse } from '../types';
+import { AccountResponse, Goal } from '../types';
 import {
   BuildingOfficeIcon,
   DocumentTextIcon,
@@ -14,16 +14,8 @@ import { formatEngagementType, formatPriority } from '../utils/formatters';
 import { API_URL } from '../config/api';
 import { determineDeliveryStatus } from '../utils/calculations';
 
-interface Goal {
-  description: string;
-  dueDate: string;
-  progress: number;
-}
-
 interface Props {
-  account: AccountResponse & {
-    goals?: Goal[];
-  };
+  account: AccountResponse;
   isOpen: boolean;
   onClose: () => void;
   onEdit: () => void;
@@ -221,7 +213,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                 <table className="goals-table">
                   <thead>
                     <tr>
-                      <th>Description</th>
+                      <th>Description (Task Name)</th>
                       <th>Due Date</th>
                       <th>Progress</th>
                     </tr>
@@ -229,17 +221,17 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                   <tbody>
                     {currentAccount.goals.map((goal: Goal, index: number) => (
                       <tr key={index}>
-                        <td>{goal.description}</td>
+                        <td>{goal.task_name}</td>
                         <td>{new Date(goal.dueDate).toLocaleDateString()}</td>
                         <td className="progress-cell">
                           <div className="goal-progress">
                             <div className="progress-bar">
                               <div 
-                                className="progress-fill"
-                                style={{ width: `${goal.progress}%` }}
+                                className={`progress-fill ${new Date(goal.dueDate) < new Date() && goal.status.toLowerCase() !== 'closed' ? 'overdue' : ''}`}
+                                style={{ width: `${goal.progress || 0}%` }}
                               />
                             </div>
-                            <span className="progress-text">{goal.progress}%</span>
+                            <span className="progress-text">{goal.progress || 0}%</span>
                           </div>
                         </td>
                       </tr>

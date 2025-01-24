@@ -30,8 +30,10 @@ export enum Service {
 export interface Goal {
   id: string;
   description: string;
+  task_name: string;
   dueDate: string;
-  progress: number;
+  progress: number | null;
+  status: string;
 }
 
 export interface AccountResponse {

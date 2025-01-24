@@ -280,7 +280,9 @@ function App() {
 
   // Add helper function for points balance calculation
   const calculatePointsBalance = (account: AccountResponse): number | null => {
-    const balance = account.pointsPurchased - account.pointsDelivered;
+    const purchased = Number(String(account.pointsPurchased).replace(/,/g, ''));
+    const delivered = Number(String(account.pointsDelivered).replace(/,/g, ''));
+    const balance = purchased - delivered;
     return isNaN(balance) ? null : balance;
   };
 
@@ -320,7 +322,6 @@ function App() {
           <div className="error-message">{error}</div>
         ) : (
           <div className="accounts-section">
-            <h2>Accounts</h2>
             <div className="metrics-summary">
               <div className="metric-card">
                 <div className="metric-label">Total Accounts</div>
@@ -391,7 +392,7 @@ function App() {
                 </div>
               </div>
               <div className="metric-card">
-                <div className="metric-label">Average Striking Distance</div>
+                <div className="metric-label">Average Points Burden</div>
                 <div className="metric-value">
                   <div>
                     {filteredAccounts.length > 0
@@ -503,7 +504,7 @@ function App() {
                         className={`sortable-header ${sortConfig.key === 'pointsStrikingDistance' ? 'sort-active' : ''}`}
                       >
                         <div className="header-with-tooltip">
-                          Striking Distance
+                          Points Burden
                           <span className="tooltip">
                             Points Balance - (1.5 × Recurring Points)<br/>
                             Positive = Off Track, Negative = On Track
@@ -632,7 +633,7 @@ function App() {
                         <td className="number-cell">{account.pointsPurchased}</td>
                         <td className="number-cell">{account.pointsDelivered}</td>
                         <td className="number-cell">
-                          {calculatePointsBalance(account) === null ? '-' : calculatePointsBalance(account)}
+                          {calculatePointsBalance(account)}
                         </td>
                         <td className="number-cell">{account.pointsStrikingDistance}</td>
                         <td className={`delivery-${account.delivery.toLowerCase().replace('_', '-')}`}>
@@ -661,7 +662,7 @@ function App() {
                         <td className="number-cell">{account.pointsPurchased}</td>
                         <td className="number-cell">{account.pointsDelivered}</td>
                         <td className="number-cell">
-                          {calculatePointsBalance(account) === null ? '-' : calculatePointsBalance(account)}
+                          {calculatePointsBalance(account)}
                         </td>
                         <td>{determineDeliveryStatus(account.pointsStrikingDistance)}</td>
                         <td>
