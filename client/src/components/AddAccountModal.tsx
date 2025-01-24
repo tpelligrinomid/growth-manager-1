@@ -1,27 +1,11 @@
 import { useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { API_URL } from '../config/api';
-import { Service } from '../types';
+import { Service, AddAccountForm } from '../types';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (accountData: any) => void;
-}
-
-interface AddAccountForm {
-  // Same fields as EditAccountForm
-  engagementType: string;
-  priority: string;
-  industry: string;
-  annualRevenue: number;
-  employees: number;
-  website?: string;
-  linkedinProfile?: string;
-  clientFolderId: string;
-  clientListTaskId: string;
-  growthInMrr: number;
-  services: Service[];
+  onSubmit: (data: AddAccountForm) => Promise<void>;
 }
 
 // Initial form state
@@ -44,29 +28,8 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await fetch(`${API_URL}/api/accounts`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          clientFolderId: formData.clientFolderId || '',
-          clientListTaskId: formData.clientListTaskId || '',
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      onSubmit(data.data);
-      onClose();
-    } catch (error) {
-      console.error('Error creating account:', error);
-    }
+    await onSubmit(formData);
+    onClose();
   };
 
   if (!isOpen) return null;

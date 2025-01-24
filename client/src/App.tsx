@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
-  AccountResponse
+  AccountResponse,
+  AddAccountForm
 } from './types';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import './App.css';
@@ -120,26 +121,38 @@ function App() {
     });
   }, [filters]); // Only depend on filters changes
 
-  const handleAddAccount = async (accountData: any) => {
+  const handleAddAccount = async (formData: AddAccountForm) => {
     try {
-      console.log('Sending account data:', accountData);
-      const response = await fetch('/api/accounts', {
+      const response = await fetch(`${API_URL}/api/accounts`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(accountData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
+
+      if (!response.ok) throw new Error('Failed to create account');
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Server error:', errorData);
-        throw new Error('Failed to create account');
+      const { data: newAccount } = await response.json();
+
+      // Fetch BigQuery data for the new account
+      if (newAccount.clientFolderId) {
+        const bigQueryResponse = await fetch(`${API_URL}/api/bigquery/account/${newAccount.clientFolderId}`);
+        const bigQueryData = await bigQueryResponse.json();
+        
+        // Update the new account with BigQuery data
+        const accountWithBigQueryData = {
+          ...newAccount,
+          points: bigQueryData.points,
+          growthTasks: bigQueryData.growthTasks,
+          goals: bigQueryData.goals,
+          clientData: bigQueryData.clientData
+        };
+
+        // Update accounts state with the new account
+        setAccounts(prevAccounts => [...prevAccounts, accountWithBigQueryData]);
+      } else {
+        setAccounts(prevAccounts => [...prevAccounts, newAccount]);
       }
 
-      const result = await response.json();
-      console.log('Server response:', result);
-      setAccounts(prevAccounts => [...prevAccounts, result.data]);
       setIsAddModalOpen(false);
     } catch (error) {
       console.error('Error adding account:', error);

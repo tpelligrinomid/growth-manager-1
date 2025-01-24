@@ -25,6 +25,49 @@ interface EditAccountForm {
   services: Service[];
 }
 
+const MultiSelectDropdown = ({ 
+  selected, 
+  onChange 
+}: { 
+  selected: Service[], 
+  onChange: (services: Service[]) => void 
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleService = (service: Service) => {
+    if (selected.includes(service)) {
+      onChange(selected.filter(s => s !== service));
+    } else {
+      onChange([...selected, service]);
+    }
+  };
+
+  return (
+    <div className="multi-select-dropdown">
+      <div 
+        className="selected-services" 
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {selected.length ? selected.join(', ') : 'Select Services'}
+      </div>
+      {isOpen && (
+        <div className="services-dropdown">
+          {Object.values(Service).map(service => (
+            <label key={service} className="service-option">
+              <input
+                type="checkbox"
+                checked={selected.includes(service)}
+                onChange={() => toggleService(service)}
+              />
+              {service.replace(/_/g, ' ')}
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, onSubmit }) => {
   console.log('Initial account data:', account);
 
@@ -53,16 +96,16 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
 
   const [formData, setFormData] = useState<EditAccountForm>(defaultValues());
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const updateData = {
-      ...account,
-      ...formData,
-      // Remove all date handling since it comes from BigQuery
+      ...account,  // Keep existing data
+      ...formData, // Override with form changes
+      services: formData.services as Service[]  // Ensure correct typing
     };
 
-    onSubmit(updateData);
+    await onSubmit(updateData);
     onClose();
   };
 
@@ -156,23 +199,10 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
                 </div>
                 <div className="form-field">
                   <label htmlFor="services">Services</label>
-                  <select
-                    id="services"
-                    multiple
-                    value={formData.services}
-                    onChange={e => setFormData({
-                      ...formData, 
-                      services: Array.from(e.target.selectedOptions, option => option.value as Service)
-                    })}
-                  >
-                    <option value={Service.ABM}>ABM</option>
-                    <option value={Service.PAID_MEDIA}>Paid Media</option>
-                    <option value={Service.SEO}>SEO</option>
-                    <option value={Service.CONTENT}>Content</option>
-                    <option value={Service.REPORTING}>Reporting</option>
-                    <option value={Service.SOCIAL}>Social</option>
-                    <option value={Service.WEBSITE}>Website</option>
-                  </select>
+                  <MultiSelectDropdown
+                    selected={formData.services}
+                    onChange={services => setFormData({...formData, services})}
+                  />
                 </div>
               </div>
             </div>
@@ -190,13 +220,6 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
                     onChange={e => setFormData({...formData, growthInMrr: Number(e.target.value)})}
                   />
                 </div>
-              </div>
-            </div>
-
-            {/* Company Information */}
-            <div className="form-section">
-              <h3>Company Information</h3>
-              <div className="form-grid">
                 <div className="form-field">
                   <label htmlFor="clientFolderId">Client Folder ID</label>
                   <input

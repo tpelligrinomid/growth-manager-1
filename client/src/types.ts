@@ -62,4 +62,18 @@ export interface AccountResponse {
   potentialMrr: number;
   delivery: string;
   goals?: Goal[];
+}
+
+export interface AddAccountForm {
+  engagementType: string;
+  priority: string;
+  industry: string;
+  annualRevenue: number;
+  employees: number;
+  website?: string;
+  linkedinProfile?: string;
+  clientFolderId: string;
+  clientListTaskId: string;
+  growthInMrr: number;
+  services: Service[];
 } 
