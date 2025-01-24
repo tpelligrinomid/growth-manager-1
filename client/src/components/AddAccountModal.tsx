@@ -23,6 +23,47 @@ const initialFormData: AddAccountForm = {
   services: []
 };
 
+// Reuse the MultiSelectDropdown component
+const MultiSelectDropdown = ({ 
+  selected, 
+  onChange 
+}: { 
+  selected: Service[], 
+  onChange: (services: Service[]) => void 
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleService = (service: Service) => {
+    if (selected.includes(service)) {
+      onChange(selected.filter(s => s !== service));
+    } else {
+      onChange([...selected, service]);
+    }
+  };
+
+  return (
+    <div className="multi-select-dropdown">
+      <div className="selected-services" onClick={() => setIsOpen(!isOpen)}>
+        {selected.length ? selected.join(', ') : 'Select Services'}
+      </div>
+      {isOpen && (
+        <div className="services-dropdown">
+          {Object.values(Service).map(service => (
+            <label key={service} className="service-option">
+              <input
+                type="checkbox"
+                checked={selected.includes(service)}
+                onChange={() => toggleService(service)}
+              />
+              {service.replace(/_/g, ' ')}
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState<AddAccountForm>(initialFormData);
 
@@ -125,43 +166,29 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                   />
                 </div>
                 <div className="form-field">
+                  <label htmlFor="services">Services</label>
+                  <MultiSelectDropdown
+                    selected={formData.services}
+                    onChange={services => setFormData({...formData, services})}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="form-section">
+              <h3>Additional Information</h3>
+              <div className="form-grid">
+                <div className="form-field">
                   <label htmlFor="growthInMrr">Growth in MRR</label>
                   <input
                     type="number"
                     id="growthInMrr"
                     value={formData.growthInMrr}
                     onChange={e => setFormData({...formData, growthInMrr: Number(e.target.value)})}
-                    required
                   />
                 </div>
                 <div className="form-field">
-                  <label htmlFor="services">Services</label>
-                  <select
-                    id="services"
-                    multiple
-                    value={formData.services}
-                    onChange={e => setFormData({
-                      ...formData, 
-                      services: Array.from(e.target.selectedOptions, option => option.value as Service)
-                    })}
-                  >
-                    <option value={Service.ABM}>ABM</option>
-                    <option value={Service.PAID_MEDIA}>Paid Media</option>
-                    <option value={Service.SEO}>SEO</option>
-                    <option value={Service.CONTENT}>Content</option>
-                    <option value={Service.REPORTING}>Reporting</option>
-                    <option value={Service.SOCIAL}>Social</option>
-                    <option value={Service.WEBSITE}>Website</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div className="form-section">
-              <h3>ClickUp Information</h3>
-              <div className="form-grid">
-                <div className="form-field">
-                  <label htmlFor="clientFolderId">ClickUp Folder ID</label>
+                  <label htmlFor="clientFolderId">Client Folder ID</label>
                   <input
                     type="text"
                     id="clientFolderId"
@@ -170,7 +197,7 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                   />
                 </div>
                 <div className="form-field">
-                  <label htmlFor="clientListTaskId">ClickUp Client List Task ID</label>
+                  <label htmlFor="clientListTaskId">Client List Task ID</label>
                   <input
                     type="text"
                     id="clientListTaskId"

@@ -207,9 +207,9 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
               </div>
             </div>
 
-            {/* Financial Information */}
+            {/* Additional Information */}
             <div className="form-section">
-              <h3>Financial Information</h3>
+              <h3>Additional Information</h3>
               <div className="form-grid">
                 <div className="form-field">
                   <label htmlFor="growthInMrr">Growth in MRR</label>
