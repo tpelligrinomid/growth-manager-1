@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { AccountResponse, EngagementType, Priority, Service } from '../types';
+import { AccountResponse, EngagementType, Priority, Service, BusinessUnit } from '../types';
 import { formatEngagementType, formatPriority } from '../utils/formatters';
 
 interface Props {
@@ -22,6 +22,20 @@ interface EditAccountForm {
   clientListTaskId: string;
   growthInMrr: number;
   services: Service[];
+  accountName: string;
+  businessUnit: BusinessUnit;
+  accountManager: string;
+  teamManager: string;
+  relationshipStartDate: string;
+  contractStartDate: string;
+  contractRenewalEnd: string;
+  pointsPurchased: number;
+  pointsDelivered: number;
+  recurringPointsAllotment: number;
+  mrr: number;
+  pointsStrikingDistance: number;
+  potentialMrr: number;
+  delivery: string;
 }
 
 const MultiSelectDropdown = ({ 
@@ -79,7 +93,7 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
   };
 
   const defaultValues = () => ({
-    // Only include fields from EditAccountForm interface
+    // Manual fields
     engagementType: account.engagementType,
     priority: account.priority,
     industry: account.industry,
@@ -90,7 +104,23 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
     clientFolderId: account.clientFolderId,
     clientListTaskId: account.clientListTaskId,
     growthInMrr: cleanNumber(account.growthInMrr),
-    services: account.services as Service[]
+    services: account.services as Service[],
+    
+    // BigQuery fields
+    accountName: account.accountName,
+    businessUnit: account.businessUnit as BusinessUnit,
+    accountManager: account.accountManager,
+    teamManager: account.teamManager,
+    relationshipStartDate: account.relationshipStartDate,
+    contractStartDate: account.contractStartDate,
+    contractRenewalEnd: account.contractRenewalEnd,
+    pointsPurchased: cleanNumber(account.pointsPurchased),
+    pointsDelivered: cleanNumber(account.pointsDelivered),
+    recurringPointsAllotment: cleanNumber(account.recurringPointsAllotment),
+    mrr: cleanNumber(account.mrr),
+    pointsStrikingDistance: cleanNumber(account.pointsStrikingDistance),
+    potentialMrr: cleanNumber(account.potentialMrr),
+    delivery: account.delivery
   });
 
   const [formData, setFormData] = useState<EditAccountForm>(defaultValues());
