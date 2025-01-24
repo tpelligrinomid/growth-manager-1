@@ -1,5 +1,6 @@
 :root {
   --nn-primary: #5C29C5;      /* Main purple */
+  --nn-dark: #3B1B7D;         /* Darker purple for header */
   --nn-light: #decfff69;      /* Light purple background */
   --nn-hover: #6b3ad4;        /* Slightly lighter purple for hover */
   --nn-text: #2D3748;         /* Dark gray for text */
@@ -28,18 +29,30 @@ html, body, #root {
 }
 
 .app-header {
-  background-color: var(--nn-primary);
-  padding: 1.5rem 2rem;
+  background-color: var(--nn-dark);
+  padding: 1rem 2rem;
   box-shadow: 0 2px 4px var(--nn-shadow);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 2rem;  /* Space between logo and title */
+}
+
+.header-logo {
+  height: 40px;
+  width: auto;
+}
+
 .app-header h1 {
   color: var(--nn-white);
   font-size: 1.5rem;
   font-weight: 600;
+  margin: 0;
 }
 
 .app-content {

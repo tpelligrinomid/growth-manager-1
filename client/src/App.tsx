@@ -124,32 +124,63 @@ function App() {
 
   const handleAddAccount = async (formData: AddAccountForm) => {
     try {
+      // First create the account
       const response = await fetch(`${API_URL}/api/accounts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          // Add default values for required fields
+          accountName: formData.industry, // Temporary name until BigQuery sync
+          businessUnit: 'NEW_NORTH',
+          delivery: 'ON_TRACK',
+          mrr: 0,
+          pointsPurchased: 0,
+          pointsDelivered: 0,
+          recurringPointsAllotment: 0,
+          pointsStrikingDistance: 0,
+          potentialMrr: 0,
+          relationshipStartDate: new Date().toISOString(),
+          contractStartDate: new Date().toISOString(),
+          contractRenewalEnd: new Date().toISOString(),
+        })
       });
 
       if (!response.ok) throw new Error('Failed to create account');
       
       const { data: newAccount } = await response.json();
 
-      // Fetch BigQuery data for the new account
-      if (newAccount.clientFolderId) {
-        const bigQueryResponse = await fetch(`${API_URL}/api/bigquery/account/${newAccount.clientFolderId}`);
-        const bigQueryData = await bigQueryResponse.json();
-        
-        // Update the new account with BigQuery data
-        const accountWithBigQueryData = {
-          ...newAccount,
-          points: bigQueryData.points,
-          growthTasks: bigQueryData.growthTasks,
-          goals: bigQueryData.goals,
-          clientData: bigQueryData.clientData
-        };
+      // Then immediately fetch BigQuery data if we have a folder ID
+      if (formData.clientFolderId) {
+        try {
+          const bigQueryResponse = await fetch(`${API_URL}/api/bigquery/account/${formData.clientFolderId}`);
+          if (bigQueryResponse.ok) {
+            const bigQueryData = await bigQueryResponse.json();
+            
+            // Update the account with BigQuery data
+            const updateResponse = await fetch(`${API_URL}/api/accounts/${newAccount.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ...newAccount,
+                accountName: bigQueryData.clientData?.[0]?.client_name || newAccount.accountName,
+                points: bigQueryData.points,
+                growthTasks: bigQueryData.growthTasks,
+                goals: bigQueryData.goals,
+                clientData: bigQueryData.clientData
+              })
+            });
 
-        // Update accounts state with the new account
-        setAccounts(prevAccounts => [...prevAccounts, accountWithBigQueryData]);
+            if (updateResponse.ok) {
+              const { data: updatedAccount } = await updateResponse.json();
+              setAccounts(prevAccounts => [...prevAccounts, updatedAccount]);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching BigQuery data:', error);
+          // Still add the account even if BigQuery sync fails
+          setAccounts(prevAccounts => [...prevAccounts, newAccount]);
+        }
       } else {
         setAccounts(prevAccounts => [...prevAccounts, newAccount]);
       }
@@ -255,7 +286,14 @@ function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>Growth Manager</h1>
+        <div className="header-content">
+          <img 
+            src="/mid-logo.png" 
+            alt="Marketers in Demand" 
+            className="header-logo" 
+          />
+          <h1>Growth Manager</h1>
+        </div>
         <button className="add-account-button" onClick={() => setIsAddModalOpen(true)}>
           <PlusIcon className="button-icon" />
           Add Account
