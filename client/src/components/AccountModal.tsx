@@ -92,10 +92,10 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
           new Date(data.clientData[0].points_mrr_start_date.replace('/', '-')) : currentAccount.contractStartDate,
         contractRenewalEnd: data.clientData?.[0]?.contract_renewal_end ? 
           new Date(data.clientData[0].contract_renewal_end.replace('/', '-')) : currentAccount.contractRenewalEnd,
-        pointsPurchased: data.points?.find((p: { client_folder_id: string; points_purchased: string }) => p.client_folder_id === folderId)?.points_purchased ? 
-          Number(data.points.find((p: { client_folder_id: string; points_purchased: string }) => p.client_folder_id === folderId).points_purchased.replace(/,/g, '')) : currentAccount.pointsPurchased,
-        pointsDelivered: data.points?.find((p: { client_folder_id: string; points_delivered: string }) => p.client_folder_id === folderId)?.points_delivered ? 
-          Number(data.points.find((p: { client_folder_id: string; points_delivered: string }) => p.client_folder_id === folderId).points_delivered.replace(/,/g, '')) : currentAccount.pointsDelivered,
+        pointsPurchased: data.points?.[0]?.points_purchased ? 
+          Number(data.points[0].points_purchased.replace(/,/g, '')) : currentAccount.pointsPurchased,
+        pointsDelivered: data.points?.[0]?.points_delivered ? 
+          Number(data.points[0].points_delivered.replace(/,/g, '')) : currentAccount.pointsDelivered,
         recurringPointsAllotment: data.clientData?.[0]?.recurring_points_allotment ? 
           Number(data.clientData[0].recurring_points_allotment.replace(/,/g, '')) : currentAccount.recurringPointsAllotment,
         mrr: data.clientData?.[0]?.mrr ? 
