@@ -215,6 +215,7 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
 
     // Only update the fields that are provided in the request
     const sanitizedData: Record<string, any> = {
+      // Manual fields
       engagementType: updateData.engagementType,
       priority: updateData.priority,
       industry: updateData.industry,
@@ -225,7 +226,21 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
       clientFolderId: updateData.clientFolderId,
       clientListTaskId: updateData.clientListTaskId,
       growthInMrr: updateData.growthInMrr ? Number(updateData.growthInMrr) : undefined,
-      services: updateData.services
+      services: updateData.services,
+
+      // BigQuery fields
+      accountName: updateData.accountName,
+      businessUnit: updateData.businessUnit,
+      accountManager: updateData.accountManager,
+      teamManager: updateData.teamManager,
+      relationshipStartDate: updateData.relationshipStartDate,
+      contractStartDate: updateData.contractStartDate,
+      contractRenewalEnd: updateData.contractRenewalEnd,
+      pointsPurchased: updateData.pointsPurchased ? Number(updateData.pointsPurchased) : undefined,
+      pointsDelivered: updateData.pointsDelivered ? Number(updateData.pointsDelivered) : undefined,
+      recurringPointsAllotment: updateData.recurringPointsAllotment ? Number(updateData.recurringPointsAllotment) : undefined,
+      mrr: updateData.mrr ? Number(updateData.mrr) : undefined,
+      goals: updateData.goals
     };
 
     // Remove undefined values
