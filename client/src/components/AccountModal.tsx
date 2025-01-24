@@ -82,21 +82,8 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
       
       // 2. Prepare update data - with validation
       const updateData = {
-        id: currentAccount.id,
-        // Manual fields (preserve existing values)
-        engagementType: currentAccount.engagementType,
-        priority: currentAccount.priority,
-        industry: currentAccount.industry,
-        annualRevenue: currentAccount.annualRevenue,
-        employees: currentAccount.employees,
-        website: currentAccount.website,
-        linkedinProfile: currentAccount.linkedinProfile,
-        clientFolderId: currentAccount.clientFolderId,
-        clientListTaskId: currentAccount.clientListTaskId,
-        growthInMrr: currentAccount.growthInMrr,
-        services: currentAccount.services,
-        
-        // BigQuery fields (update from sync)
+        ...currentAccount, // Preserve all existing fields
+        // Only update fields that come from BigQuery
         accountName: data.clientData?.[0]?.client_name || currentAccount.accountName,
         businessUnit: 'NEW_NORTH' as const,
         accountManager: data.clientData?.[0]?.assignee || currentAccount.accountManager,

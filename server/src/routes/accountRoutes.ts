@@ -236,10 +236,10 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
       relationshipStartDate: updateData.relationshipStartDate,
       contractStartDate: updateData.contractStartDate,
       contractRenewalEnd: updateData.contractRenewalEnd,
-      pointsPurchased: updateData.pointsPurchased ? Number(updateData.pointsPurchased) : undefined,
-      pointsDelivered: updateData.pointsDelivered ? Number(updateData.pointsDelivered) : undefined,
-      recurringPointsAllotment: updateData.recurringPointsAllotment ? Number(updateData.recurringPointsAllotment) : undefined,
-      mrr: updateData.mrr ? Number(updateData.mrr) : undefined,
+      pointsPurchased: typeof updateData.pointsPurchased === 'number' ? updateData.pointsPurchased : undefined,
+      pointsDelivered: typeof updateData.pointsDelivered === 'number' ? updateData.pointsDelivered : undefined,
+      recurringPointsAllotment: typeof updateData.recurringPointsAllotment === 'number' ? updateData.recurringPointsAllotment : undefined,
+      mrr: typeof updateData.mrr === 'number' ? updateData.mrr : undefined,
       goals: updateData.goals
     };
 
@@ -249,6 +249,8 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
         delete sanitizedData[key];
       }
     });
+
+    console.log('Sanitized data before update:', sanitizedData);
 
     // Update the account with only the provided fields
     const account = await prisma.account.update({
@@ -261,7 +263,7 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
       }
     });
 
-    console.log('Account updated successfully:', account);
+    console.log('Account after update:', account);
 
     // Return the updated account with delivery status
     res.json({ 
