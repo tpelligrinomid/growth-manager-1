@@ -155,6 +155,9 @@ function App() {
       if (!response.ok) throw new Error('Failed to create account');
       
       const { data: newAccount } = await response.json();
+      
+      // Add the new account to state immediately
+      setAccounts(prevAccounts => [...prevAccounts, newAccount]);
 
       // Then immediately fetch BigQuery data if we have a folder ID
       if (formData.clientFolderId) {
@@ -179,16 +182,17 @@ function App() {
 
             if (updateResponse.ok) {
               const { data: updatedAccount } = await updateResponse.json();
-              setAccounts(prevAccounts => [...prevAccounts, updatedAccount]);
+              // Update the account in state with the synced data
+              setAccounts(prevAccounts => 
+                prevAccounts.map(account => 
+                  account.id === updatedAccount.id ? updatedAccount : account
+                )
+              );
             }
           }
         } catch (error) {
           console.error('Error fetching BigQuery data:', error);
-          // Still add the account even if BigQuery sync fails
-          setAccounts(prevAccounts => [...prevAccounts, newAccount]);
         }
-      } else {
-        setAccounts(prevAccounts => [...prevAccounts, newAccount]);
       }
 
       setIsAddModalOpen(false);
@@ -199,6 +203,8 @@ function App() {
 
   const handleEditAccount = async (accountData: AccountResponse) => {
     try {
+      console.log('Updating account:', accountData); // Debug log
+
       const response = await fetch(`${API_URL}/api/accounts/${accountData.id}`, {
         method: 'PUT',
         headers: {
@@ -208,10 +214,12 @@ function App() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update account');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update account');
       }
 
       const { data: updatedAccount } = await response.json();
+      console.log('Account updated:', updatedAccount); // Debug log
 
       // Update the accounts state with the new data
       setAccounts(prevAccounts => 
@@ -225,6 +233,7 @@ function App() {
       setSelectedAccount(null);
     } catch (error) {
       console.error('Error updating account:', error);
+      alert('Failed to update account. Please try again.');
     }
   };
 

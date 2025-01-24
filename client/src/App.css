@@ -504,9 +504,8 @@ html, body, #root {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: var(--nn-white);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: transparent;
+  box-shadow: none;
 }
 
 .filters-container select {
@@ -528,14 +527,15 @@ html, body, #root {
 .view-controls {
   display: flex;
   gap: 0.5rem;
-  margin-right: 1rem;
+  padding-right: 1.5rem;
+  margin-right: 1.5rem;
+  border-right: 2px solid var(--nn-border);
 }
 
 .filters-section {
   display: flex;
   align-items: center;
   width: 100%;
-  justify-content: space-between;
   padding: 0.5rem;
   background: transparent;
 }
@@ -576,6 +576,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 1rem;
+  border: none;
 }
 
 .filter-group {

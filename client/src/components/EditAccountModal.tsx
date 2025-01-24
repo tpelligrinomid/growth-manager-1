@@ -97,13 +97,15 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    console.log('Submitting form data:', formData); // Debug log
+
     const updateData: AccountResponse = {
       ...account,
       ...formData,
       services: formData.services
     };
 
+    console.log('Sending update data:', updateData); // Debug log
     await onSubmit(updateData);
     onClose();
   };
