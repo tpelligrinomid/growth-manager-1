@@ -78,7 +78,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
       if (!response.ok) throw new Error(response.statusText);
       
       const data = await response.json();
-      console.log('2. BigQuery data received:', data);
+      console.log('2. BigQuery data received:', JSON.stringify(data, null, 2));
       
       // 2. Prepare update data - with validation
       const updateData = {
@@ -125,16 +125,17 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
         }))
       };
       
-      // Remove these fields as they're not in our Prisma schema
-      delete (updateData as any).points;
-      delete (updateData as any).growthTasks;
-      delete (updateData as any).clientData;
-      delete (updateData as any).pointsBalance;
-      delete (updateData as any).averageMrr;
-      delete (updateData as any).tasks;
-      delete (updateData as any).clientContacts;
-      
-      console.log('3. Update data prepared:', updateData);
+      console.log('3. Update data prepared:', JSON.stringify(updateData, null, 2));
+      console.log('Points data specifically:', {
+        fromBigQuery: {
+          purchased: data.points?.[0]?.points_purchased,
+          delivered: data.points?.[0]?.points_delivered
+        },
+        afterProcessing: {
+          purchased: updateData.pointsPurchased,
+          delivered: updateData.pointsDelivered
+        }
+      });
 
       // 3. Update account
       const updateResponse = await fetch(`${API_URL}/api/accounts/${currentAccount.id}`, {
@@ -150,7 +151,11 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
       }
 
       const { data: updatedAccount } = await updateResponse.json();
-      console.log('Update successful:', updatedAccount);
+      console.log('4. Update successful, received:', JSON.stringify(updatedAccount, null, 2));
+      console.log('5. Final points values:', {
+        purchased: updatedAccount.pointsPurchased,
+        delivered: updatedAccount.pointsDelivered
+      });
 
       // Update local state
       setCurrentAccount(updatedAccount);
