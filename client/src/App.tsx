@@ -224,19 +224,9 @@ function App() {
       let { data: updatedAccount } = await response.json();
       console.log('Initial update successful:', updatedAccount);
 
-      // Step 2: If either folder ID or list task ID changed, fetch fresh BigQuery data
-      if (selectedAccount && (
-        selectedAccount.clientFolderId !== accountData.clientFolderId ||
-        selectedAccount.clientListTaskId !== accountData.clientListTaskId
-      )) {
-        console.log('IDs changed. Old:', {
-          folder: selectedAccount.clientFolderId,
-          task: selectedAccount.clientListTaskId
-        });
-        console.log('New:', {
-          folder: accountData.clientFolderId,
-          task: accountData.clientListTaskId
-        });
+      // Step 2: If folder ID changed, fetch fresh BigQuery data
+      if (selectedAccount && selectedAccount.clientFolderId !== accountData.clientFolderId) {
+        console.log('Folder ID changed. Fetching BigQuery data...');
 
         const bigQueryResponse = await fetch(`${API_URL}/api/bigquery/account/${accountData.clientFolderId}`);
         
@@ -251,13 +241,13 @@ function App() {
         
         // Step 3: Update account with BigQuery data
         const updateData = {
-          ...updatedAccount,
+          ...updatedAccount, // Preserve all existing account data
           pointsPurchased: bigQueryData.points?.[0]?.points_purchased ? 
             Number(String(bigQueryData.points[0].points_purchased).replace(/,/g, '')) : updatedAccount.pointsPurchased,
           pointsDelivered: bigQueryData.points?.[0]?.points_delivered ? 
             Number(String(bigQueryData.points[0].points_delivered).replace(/,/g, '')) : updatedAccount.pointsDelivered,
           recurringPointsAllotment: bigQueryData.clientData?.[0]?.recurring_points_allotment ? 
-            Number(bigQueryData.clientData[0].recurring_points_allotment.replace(/,/g, '')) : updatedAccount.recurringPointsAllotment,
+            Number(String(bigQueryData.clientData[0].recurring_points_allotment).replace(/,/g, '')) : updatedAccount.recurringPointsAllotment,
           goals: bigQueryData.goals || updatedAccount.goals
         };
         
