@@ -196,8 +196,9 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
     const { id } = req.params;
     const updateData = req.body;
     
-    console.log('Attempting to update account:', id);
-    console.log('Update data:', updateData);
+    console.log('=== Account Update Request ===');
+    console.log('Account ID:', id);
+    console.log('Raw update data:', updateData);
 
     // Get the current account data
     const currentAccount = await prisma.account.findUnique({
@@ -210,8 +211,11 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
     });
 
     if (!currentAccount) {
+      console.log('Account not found:', id);
       return res.status(404).json({ error: 'Account not found' });
     }
+
+    console.log('Current account data:', currentAccount);
 
     // Only update the fields that are provided in the request
     const sanitizedData: Record<string, any> = {
@@ -265,15 +269,31 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
 
     console.log('Account after update:', account);
 
+    // Calculate points striking distance
+    const pointsStrikingDistance = calculatePointsStrikingDistance({
+      pointsPurchased: Number(account.pointsPurchased),
+      pointsDelivered: Number(account.pointsDelivered),
+      recurringPointsAllotment: Number(account.recurringPointsAllotment)
+    });
+
+    console.log('Calculated points striking distance:', pointsStrikingDistance);
+
     // Return the updated account with delivery status
-    res.json({ 
+    const response = {
       data: { 
         ...account,
-        delivery: determineDeliveryStatus(account.pointsStrikingDistance)
-      } 
-    });
+        pointsStrikingDistance,
+        delivery: determineDeliveryStatus(pointsStrikingDistance)
+      }
+    };
+
+    console.log('Final response:', response);
+    res.json(response);
+
   } catch (error) {
-    console.error('Detailed update error:', error);
+    console.error('=== Update Error ===');
+    console.error('Detailed error:', error);
+    console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
     res.status(500).json({ 
       error: 'Error updating account',
       details: error instanceof Error ? error.message : 'Unknown error'
