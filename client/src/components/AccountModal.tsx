@@ -156,7 +156,6 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
   // 1. Future goals (any status)
   // 2. Past goals that are not closed
   const filteredGoals = currentAccount.goals?.filter(goal => {
-    // If there's no due date or status, show the goal
     if (!goal.dueDate || !goal.status) return true;
     
     try {
@@ -164,8 +163,9 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
       const now = new Date();
       
       // Show if:
-      // 1. Due date is in the future, OR
-      // 2. Goal is not closed (regardless of due date)
+      // 1. Due date is invalid (can't parse the date), OR
+      // 2. Due date is in the future, OR
+      // 3. Goal is not closed (regardless of due date)
       return isNaN(dueDate.getTime()) || dueDate > now || goal.status.toLowerCase() !== 'closed';
     } catch (e) {
       // If there's any error parsing the date, show the goal
