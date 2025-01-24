@@ -218,8 +218,70 @@ function App() {
         throw new Error(errorData.message || 'Failed to update account');
       }
 
-      const { data: updatedAccount } = await response.json();
+      let { data: updatedAccount } = await response.json();
       console.log('Account updated:', updatedAccount); // Debug log
+
+      // If either the folder ID or list task ID was changed, fetch fresh data from BigQuery
+      if (selectedAccount && (
+        selectedAccount.clientFolderId !== accountData.clientFolderId ||
+        selectedAccount.clientListTaskId !== accountData.clientListTaskId
+      )) {
+        console.log('Folder ID or List Task ID changed, fetching fresh BigQuery data');
+        const syncResponse = await fetch(`${API_URL}/api/bigquery/account/${accountData.clientFolderId}`);
+        
+        if (!syncResponse.ok) {
+          throw new Error('Failed to sync with BigQuery after ID change');
+        }
+        
+        const syncData = await syncResponse.json();
+        
+        // Prepare the sync update
+        const syncUpdateData = {
+          ...updatedAccount,
+          accountName: syncData.clientData?.[0]?.client_name || updatedAccount.accountName,
+          businessUnit: 'NEW_NORTH' as const,
+          accountManager: syncData.clientData?.[0]?.assignee || updatedAccount.accountManager,
+          teamManager: syncData.clientData?.[0]?.team_lead || updatedAccount.teamManager,
+          relationshipStartDate: syncData.clientData?.[0]?.original_contract_start_date ? 
+            new Date(syncData.clientData[0].original_contract_start_date.replace('/', '-')) : updatedAccount.relationshipStartDate,
+          contractStartDate: syncData.clientData?.[0]?.points_mrr_start_date ? 
+            new Date(syncData.clientData[0].points_mrr_start_date.replace('/', '-')) : updatedAccount.contractStartDate,
+          contractRenewalEnd: syncData.clientData?.[0]?.contract_renewal_end ? 
+            new Date(syncData.clientData[0].contract_renewal_end.replace('/', '-')) : updatedAccount.contractRenewalEnd,
+          pointsPurchased: syncData.points?.[0]?.points_purchased ? 
+            Number(String(syncData.points[0].points_purchased).replace(/,/g, '')) : updatedAccount.pointsPurchased,
+          pointsDelivered: syncData.points?.[0]?.points_delivered ? 
+            Number(String(syncData.points[0].points_delivered).replace(/,/g, '')) : updatedAccount.pointsDelivered,
+          recurringPointsAllotment: syncData.clientData?.[0]?.recurring_points_allotment ? 
+            Number(syncData.clientData[0].recurring_points_allotment.replace(/,/g, '')) : updatedAccount.recurringPointsAllotment,
+          mrr: syncData.clientData?.[0]?.mrr ? 
+            Number(syncData.clientData[0].mrr.replace(/,/g, '')) : updatedAccount.mrr,
+          goals: syncData.goals?.map((goal: any) => ({
+            id: goal.id,
+            description: goal.task_description || '',
+            task_name: goal.task_name || '',
+            dueDate: goal.due_date || '',
+            progress: Number(goal.progress) || 0,
+            status: goal.status || ''
+          }))
+        };
+
+        // Update with the synced data
+        const syncUpdateResponse = await fetch(`${API_URL}/api/accounts/${accountData.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(syncUpdateData),
+        });
+
+        if (!syncUpdateResponse.ok) {
+          throw new Error('Failed to update account with synced data');
+        }
+
+        const { data: finalAccount } = await syncUpdateResponse.json();
+        updatedAccount = finalAccount;
+      }
 
       // Update the accounts state with the new data
       setAccounts(prevAccounts => 
