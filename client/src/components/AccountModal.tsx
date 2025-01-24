@@ -38,13 +38,24 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
     if (!dateStr) return 'No due date';
     try {
       // First convert YYYY/MM/DD to YYYY-MM-DD for proper Date parsing
-      const date = new Date(dateStr.replace(/\//g, '-'));
-      if (isNaN(date.getTime())) return 'Invalid date';
+      const cleanDateStr = dateStr.replace(/\//g, '-');
+      const date = new Date(cleanDateStr);
+      
+      // Check if date is invalid
+      if (isNaN(date.getTime())) {
+        // Try parsing the date directly from YYYY/MM/DD format
+        const [year, month, day] = dateStr.split('/').map(Number);
+        if (!year || !month || !day) return 'Invalid date';
+        
+        return `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}/${year}`;
+      }
+      
       const month = (date.getMonth() + 1).toString().padStart(2, '0');
       const day = date.getDate().toString().padStart(2, '0');
       const year = date.getFullYear();
       return `${month}/${day}/${year}`;
     } catch (e) {
+      console.error('Error formatting date:', dateStr, e);
       return 'Invalid date';
     }
   };
