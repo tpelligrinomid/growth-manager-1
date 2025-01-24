@@ -203,8 +203,7 @@ function App() {
 
   const handleEditAccount = async (accountData: AccountResponse) => {
     try {
-      console.log('Updating account with data:', accountData); // Debug log
-
+      // Step 1: Save the manual edits
       const response = await fetch(`${API_URL}/api/accounts/${accountData.id}`, {
         method: 'PUT',
         headers: {
@@ -214,92 +213,63 @@ function App() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Server error response:', errorData); // Debug log
-        throw new Error(errorData.message || 'Failed to update account');
+        throw new Error('Failed to update account');
       }
 
       let { data: updatedAccount } = await response.json();
-      console.log('Account updated successfully:', updatedAccount); // Debug log
 
-      // If either the folder ID or list task ID was changed, fetch fresh data from BigQuery
+      // Step 2: If either folder ID or list task ID changed, fetch fresh BigQuery data
       if (selectedAccount && (
         selectedAccount.clientFolderId !== accountData.clientFolderId ||
         selectedAccount.clientListTaskId !== accountData.clientListTaskId
       )) {
-        console.log('Folder ID or List Task ID changed, fetching fresh BigQuery data...'); // Debug log
-        const syncResponse = await fetch(`${API_URL}/api/bigquery/account/${accountData.clientFolderId}`);
+        console.log('Folder ID or List Task ID changed, fetching fresh data...');
+        const bigQueryResponse = await fetch(`${API_URL}/api/bigquery/account/${accountData.clientFolderId}`);
         
-        if (!syncResponse.ok) {
-          const syncErrorData = await syncResponse.json();
-          console.error('BigQuery sync error:', syncErrorData); // Debug log
-          throw new Error('Failed to sync with BigQuery after ID change');
+        if (!bigQueryResponse.ok) {
+          throw new Error('Failed to fetch BigQuery data');
         }
         
-        const syncData = await syncResponse.json();
-        console.log('Received BigQuery data:', syncData); // Debug log
+        const bigQueryData = await bigQueryResponse.json();
         
-        // Prepare the sync update - preserve all existing account data
-        const syncUpdateData = {
-          ...updatedAccount, // Keep all existing account data
-          // Only update fields that come from BigQuery
-          accountName: syncData.clientData?.[0]?.client_name || updatedAccount.accountName,
-          accountManager: syncData.clientData?.[0]?.assignee || updatedAccount.accountManager,
-          teamManager: syncData.clientData?.[0]?.team_lead || updatedAccount.teamManager,
-          relationshipStartDate: syncData.clientData?.[0]?.original_contract_start_date ? 
-            new Date(syncData.clientData[0].original_contract_start_date.replace(/\//g, '-')).toISOString() : updatedAccount.relationshipStartDate,
-          contractStartDate: syncData.clientData?.[0]?.points_mrr_start_date ? 
-            new Date(syncData.clientData[0].points_mrr_start_date.replace(/\//g, '-')).toISOString() : updatedAccount.contractStartDate,
-          contractRenewalEnd: syncData.clientData?.[0]?.contract_renewal_end ? 
-            new Date(syncData.clientData[0].contract_renewal_end.replace(/\//g, '-')).toISOString() : updatedAccount.contractRenewalEnd,
-          pointsPurchased: syncData.points?.[0]?.points_purchased ? 
-            Number(String(syncData.points[0].points_purchased).replace(/,/g, '')) : updatedAccount.pointsPurchased,
-          pointsDelivered: syncData.points?.[0]?.points_delivered ? 
-            Number(String(syncData.points[0].points_delivered).replace(/,/g, '')) : updatedAccount.pointsDelivered,
-          recurringPointsAllotment: syncData.clientData?.[0]?.recurring_points_allotment ? 
-            Number(syncData.clientData[0].recurring_points_allotment.replace(/,/g, '')) : updatedAccount.recurringPointsAllotment,
-          mrr: syncData.clientData?.[0]?.mrr ? 
-            Number(syncData.clientData[0].mrr.replace(/,/g, '')) : updatedAccount.mrr,
-          goals: syncData.goals || updatedAccount.goals
-        };
-
-        console.log('Preparing to update with synced data:', syncUpdateData); // Debug log
-
-        // Update with the synced data
-        const syncUpdateResponse = await fetch(`${API_URL}/api/accounts/${accountData.id}`, {
+        // Step 3: Update account with BigQuery data
+        const bigQueryUpdateResponse = await fetch(`${API_URL}/api/accounts/${accountData.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(syncUpdateData),
+          body: JSON.stringify({
+            ...updatedAccount,
+            pointsPurchased: bigQueryData.points?.[0]?.points_purchased ? 
+              Number(String(bigQueryData.points[0].points_purchased).replace(/,/g, '')) : updatedAccount.pointsPurchased,
+            pointsDelivered: bigQueryData.points?.[0]?.points_delivered ? 
+              Number(String(bigQueryData.points[0].points_delivered).replace(/,/g, '')) : updatedAccount.pointsDelivered,
+            recurringPointsAllotment: bigQueryData.clientData?.[0]?.recurring_points_allotment ? 
+              Number(bigQueryData.clientData[0].recurring_points_allotment.replace(/,/g, '')) : updatedAccount.recurringPointsAllotment,
+            goals: bigQueryData.goals || updatedAccount.goals
+          })
         });
 
-        if (!syncUpdateResponse.ok) {
-          const syncUpdateErrorData = await syncUpdateResponse.json();
-          console.error('Sync update error:', syncUpdateErrorData); // Debug log
-          throw new Error('Failed to update account with synced data');
+        if (!bigQueryUpdateResponse.ok) {
+          throw new Error('Failed to update account with BigQuery data');
         }
 
-        const { data: finalAccount } = await syncUpdateResponse.json();
-        console.log('Account updated with synced data:', finalAccount); // Debug log
+        const { data: finalAccount } = await bigQueryUpdateResponse.json();
         updatedAccount = finalAccount;
       }
 
-      // Update the accounts state with the new data
+      // Step 4: Update UI
       setAccounts(prevAccounts => 
         prevAccounts.map(acc => 
           acc.id === updatedAccount.id ? updatedAccount : acc
         )
       );
-
-      // Update the selected account to refresh the modal
       setSelectedAccount(updatedAccount);
-
-      // Close only the edit modal
       setIsEditModalOpen(false);
+
     } catch (error) {
-      console.error('Detailed error:', error); // Debug log
-      alert(error instanceof Error ? error.message : 'Failed to update account. Please try again.');
+      console.error('Error:', error);
+      alert(error instanceof Error ? error.message : 'Failed to update account');
     }
   };
 
