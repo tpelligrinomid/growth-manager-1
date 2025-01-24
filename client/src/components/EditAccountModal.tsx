@@ -66,14 +66,17 @@ const MultiSelectDropdown = ({
       {isOpen && (
         <div className="services-dropdown">
           {Object.values(Service).map(service => (
-            <label key={service} className="service-option">
+            <div key={service} className="service-option">
               <input
                 type="checkbox"
+                id={`service-${service}`}
                 checked={selected.includes(service)}
                 onChange={() => toggleService(service)}
               />
-              {service.replace(/_/g, ' ')}
-            </label>
+              <label htmlFor={`service-${service}`}>
+                {service.replace(/_/g, ' ')}
+              </label>
+            </div>
           ))}
         </div>
       )}
