@@ -36,7 +36,7 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
     return Number(value);
   };
 
-  const [formData, setFormData] = useState<EditAccountForm>(() => ({
+  const defaultValues = () => ({
     // Only include fields from EditAccountForm interface
     engagementType: account.engagementType,
     priority: account.priority,
@@ -48,8 +48,10 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
     clientFolderId: account.clientFolderId,
     clientListTaskId: account.clientListTaskId,
     growthInMrr: cleanNumber(account.growthInMrr),
-    services: account.services
-  }));
+    services: account.services as Service[]
+  });
+
+  const [formData, setFormData] = useState<EditAccountForm>(defaultValues());
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

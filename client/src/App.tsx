@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import { AccountResponse } from './types';
+import {
+  AccountResponse
+} from './types';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import './App.css';
-import { AccountModal } from './components/AccountModal';
+import AccountModal from './components/AccountModal';
 import { AddAccountModal } from './components/AddAccountModal';
 import { EditAccountModal } from './components/EditAccountModal';
 import { formatBusinessUnit, formatEngagementType, formatPriority, formatDelivery } from './utils/formatters';
@@ -11,9 +13,25 @@ import { PieChart } from './components/PieChart';
 import { ClipboardDocumentListIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 import { GoalProgress } from './components/GoalProgress';
 import { API_URL } from './config/api';
+import { 
+  calculateClientTenure,
+  determineDeliveryStatus 
+} from './utils/calculations';
 
 // Fix the type definition
 type ViewType = 'manager' | 'finance';
+
+interface SortConfig {
+  key: keyof AccountResponse | 'pointsBalance' | 'clientTenure' | null;
+  direction: 'asc' | 'desc' | null;
+}
+
+interface Filters {
+  businessUnit: string;
+  engagementType: string;
+  priority: string;
+  delivery: string;
+}
 
 function App() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
@@ -28,12 +46,9 @@ function App() {
     priority: '',
     delivery: '',
   });
-  const [sortConfig, setSortConfig] = useState<{
-    key: keyof AccountResponse | null;
-    direction: 'asc' | 'desc' | null;
-  }>({
-    key: null,
-    direction: null
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    key: null as (keyof AccountResponse | 'pointsBalance' | 'clientTenure' | null),
+    direction: null as ('asc' | 'desc' | null)
   });
   const [currentView, setCurrentView] = useState<ViewType>('manager');
 
@@ -165,34 +180,22 @@ function App() {
     }));
   };
 
-  const handleSort = (key: keyof AccountResponse) => {
-    setSortConfig(current => {
-      if (current.key === key) {
-        // Toggle direction if same key
-        return {
-          key,
-          direction: current.direction === 'asc' ? 'desc' : 'asc'
-        };
-      }
-      // Default to ascending for new key
-      return {
-        key,
-        direction: 'asc'
-      };
-    });
+  const handleSort = (key: keyof AccountResponse | 'pointsBalance' | 'clientTenure') => {
+    setSortConfig(current => ({
+      key,
+      direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc'
+    }));
   };
 
   const sortedAccounts = [...filteredAccounts].sort((a, b) => {
     if (!sortConfig.key || !sortConfig.direction) return 0;
 
-    // Handle calculated fields
     if (sortConfig.key === 'pointsBalance') {
-      const aBalance = a.pointsPurchased - a.pointsDelivered;
-      const bBalance = b.pointsPurchased - b.pointsDelivered;
+      const aBalance = calculatePointsBalance(a);
+      const bBalance = calculatePointsBalance(b);
       return sortConfig.direction === 'asc' ? aBalance - bBalance : bBalance - aBalance;
     }
 
-    // Handle regular fields
     const aValue = a[sortConfig.key as keyof AccountResponse];
     const bValue = b[sortConfig.key as keyof AccountResponse];
 
@@ -211,9 +214,22 @@ function App() {
     return 0;
   });
 
-  const calculatePercentage = (part: number, total: number) => {
+  // Add helper function for points balance calculation
+  const calculatePointsBalance = (account: AccountResponse): number => {
+    return account.pointsPurchased - account.pointsDelivered;
+  };
+
+  const calculatePercentage = (part: number, total: number): number => {
     if (total === 0 || !total) return 0;
     return Math.round((part / total) * 100);
+  };
+
+  const handleAccountUpdate = (updatedAccount: AccountResponse) => {
+    setAccounts(prevAccounts => 
+      prevAccounts.map(account => 
+        account.id === updatedAccount.id ? updatedAccount : account
+      )
+    );
   };
 
   return (
@@ -531,12 +547,8 @@ function App() {
                 </tr>
               </thead>
               <tbody>
-                {sortedAccounts.map(account => (
-                  <tr 
-                    key={account.id}
-                    onClick={() => setSelectedAccount(account)}
-                    className="account-row"
-                  >
+                {sortedAccounts.map((account) => (
+                  <tr key={account.id} onClick={() => setSelectedAccount(account)}>
                     {currentView === 'manager' ? (
                       <>
                         <td>{account.accountName}</td>
@@ -546,15 +558,11 @@ function App() {
                           {formatPriority(account.priority)}
                         </td>
                         <td>{account.accountManager}</td>
-                        <td className="number-cell">
-                          ${parseInt(account.mrr.toString().replace(/[$,]/g, '')).toLocaleString()}
-                        </td>
+                        <td className="number-cell">${account.mrr.toLocaleString()}</td>
                         <td className="number-cell">{account.recurringPointsAllotment}</td>
                         <td className="number-cell">{account.pointsPurchased}</td>
                         <td className="number-cell">{account.pointsDelivered}</td>
-                        <td className="number-cell">
-                          {Number(account.pointsBalance).toLocaleString()}
-                        </td>
+                        <td className="number-cell">{calculatePointsBalance(account)}</td>
                         <td className="number-cell">{account.pointsStrikingDistance}</td>
                         <td className={`delivery-${account.delivery.toLowerCase().replace('_', '-')}`}>
                           {formatDelivery(account.delivery)}
@@ -575,9 +583,14 @@ function App() {
                         <td className="number-cell">${account.growthInMrr.toLocaleString()}</td>
                         <td className="number-cell">${account.potentialMrr.toLocaleString()}</td>
                         <td>{new Date(account.relationshipStartDate).toLocaleDateString()}</td>
-                        <td>{account.clientTenure} months</td>
+                        <td>{calculateClientTenure(account.relationshipStartDate)} months</td>
                         <td>{new Date(account.contractStartDate).toLocaleDateString()}</td>
                         <td>{new Date(account.contractRenewalEnd).toLocaleDateString()}</td>
+                        <td className="number-cell">{account.recurringPointsAllotment}</td>
+                        <td className="number-cell">{account.pointsPurchased}</td>
+                        <td className="number-cell">{account.pointsDelivered}</td>
+                        <td className="number-cell">{calculatePointsBalance(account)}</td>
+                        <td>{determineDeliveryStatus(account.pointsStrikingDistance)}</td>
                         <td>
                           <GoalProgress goals={account.goals || []} />
                         </td>
@@ -596,6 +609,7 @@ function App() {
           isOpen={!!selectedAccount}
           onClose={() => setSelectedAccount(null)}
           onEdit={() => setIsEditModalOpen(true)}
+          onUpdate={handleAccountUpdate}
         />
       )}
       {isAddModalOpen && (
