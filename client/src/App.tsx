@@ -293,7 +293,7 @@ function App() {
       <header className="app-header">
         <div className="header-content">
           <img 
-            src="/mid-logo.svg" 
+            src="/mid-logo.png"
             alt="Marketers in Demand" 
             className="header-logo" 
           />
