@@ -183,6 +183,11 @@ interface AccountUpdateBody {
   pointsDelivered?: number;
   recurringPointsAllotment?: number;
   mrr?: number;
+
+  // Relations
+  goals?: any[];
+  tasks?: any[];
+  clientContacts?: any[];
 }
 
 // Update the PUT route
@@ -194,17 +199,20 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
     console.log('Attempting to update account:', id);
     console.log('Update data:', updateData);
 
+    // Remove relation fields that can't be updated directly
+    const { goals, tasks, clientContacts, ...sanitizedUpdateData } = updateData;
+
     // Convert string numbers to floats/ints
     const sanitizedData = {
-      ...updateData,
-      pointsPurchased: updateData.pointsPurchased ? parseFloat(updateData.pointsPurchased.toString()) : undefined,
-      pointsDelivered: updateData.pointsDelivered ? parseFloat(updateData.pointsDelivered.toString()) : undefined,
-      recurringPointsAllotment: updateData.recurringPointsAllotment ? parseFloat(updateData.recurringPointsAllotment.toString()) : undefined,
-      mrr: updateData.mrr ? parseFloat(updateData.mrr.toString()) : undefined,
+      ...sanitizedUpdateData,
+      pointsPurchased: sanitizedUpdateData.pointsPurchased ? parseFloat(sanitizedUpdateData.pointsPurchased.toString()) : undefined,
+      pointsDelivered: sanitizedUpdateData.pointsDelivered ? parseFloat(sanitizedUpdateData.pointsDelivered.toString()) : undefined,
+      recurringPointsAllotment: sanitizedUpdateData.recurringPointsAllotment ? parseFloat(sanitizedUpdateData.recurringPointsAllotment.toString()) : undefined,
+      mrr: sanitizedUpdateData.mrr ? parseFloat(sanitizedUpdateData.mrr.toString()) : undefined,
       // Convert dates if they're strings
-      relationshipStartDate: updateData.relationshipStartDate ? new Date(updateData.relationshipStartDate) : undefined,
-      contractStartDate: updateData.contractStartDate ? new Date(updateData.contractStartDate) : undefined,
-      contractRenewalEnd: updateData.contractRenewalEnd ? new Date(updateData.contractRenewalEnd) : undefined,
+      relationshipStartDate: sanitizedUpdateData.relationshipStartDate ? new Date(sanitizedUpdateData.relationshipStartDate) : undefined,
+      contractStartDate: sanitizedUpdateData.contractStartDate ? new Date(sanitizedUpdateData.contractStartDate) : undefined,
+      contractRenewalEnd: sanitizedUpdateData.contractRenewalEnd ? new Date(sanitizedUpdateData.contractRenewalEnd) : undefined,
     };
 
     // Validate the data
@@ -218,7 +226,12 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
 
     const account = await prisma.account.update({
       where: { id },
-      data: sanitizedData
+      data: sanitizedData,
+      include: {
+        goals: true,
+        tasks: true,
+        clientContacts: true
+      }
     });
 
     console.log('Account updated successfully:', account);
