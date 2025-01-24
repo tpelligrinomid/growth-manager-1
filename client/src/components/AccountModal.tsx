@@ -33,11 +33,15 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
 
   if (!isOpen) return null;
 
-  // Helper function to safely parse dates
-  const parseDate = (dateStr: string | undefined) => {
-    if (!dateStr) return null;
+  // Helper function to safely parse dates and format as MM/DD/YYYY
+  const formatDate = (dateStr: string | undefined) => {
+    if (!dateStr) return 'No due date';
     try {
-      return new Date(dateStr.replace(/\//g, '-')).toLocaleDateString();
+      const date = new Date(dateStr.replace(/\//g, '-'));
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      const year = date.getFullYear();
+      return `${month}/${day}/${year}`;
     } catch (e) {
       return 'Invalid date';
     }
@@ -184,9 +188,9 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
               <h3>Contract Details</h3>
             </div>
             <div className="section-content">
-              <p><strong>Relationship Start:</strong> {parseDate(currentAccount.relationshipStartDate)}</p>
-              <p><strong>Contract Start:</strong> {parseDate(currentAccount.contractStartDate)}</p>
-              <p><strong>Contract Renewal:</strong> {parseDate(currentAccount.contractRenewalEnd)}</p>
+              <p><strong>Relationship Start:</strong> {formatDate(currentAccount.relationshipStartDate)}</p>
+              <p><strong>Contract Start:</strong> {formatDate(currentAccount.contractStartDate)}</p>
+              <p><strong>Contract Renewal:</strong> {formatDate(currentAccount.contractRenewalEnd)}</p>
               <p><strong>Client Tenure:</strong> {calculateClientTenure(currentAccount.relationshipStartDate)} months</p>
             </div>
           </div>
@@ -236,12 +240,12 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                     {currentAccount.goals.map((goal: Goal, index: number) => (
                       <tr key={index}>
                         <td>{goal.task_name}</td>
-                        <td>{parseDate(goal.dueDate)}</td>
+                        <td>{formatDate(goal.dueDate)}</td>
                         <td className="progress-cell">
                           <div className="goal-progress">
                             <div className="progress-bar">
                               <div 
-                                className={`progress-fill ${parseDate(goal.dueDate) && new Date(goal.dueDate.replace(/\//g, '-')) < new Date() && goal.status.toLowerCase() !== 'closed' ? 'overdue' : ''}`}
+                                className={`progress-fill ${goal.dueDate && new Date(goal.dueDate.replace(/\//g, '-')) < new Date() && goal.status.toLowerCase() !== 'closed' ? 'overdue' : ''}`}
                                 style={{ width: `${goal.progress || 0}%` }}
                               />
                             </div>
