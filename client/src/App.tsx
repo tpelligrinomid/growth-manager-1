@@ -203,7 +203,7 @@ function App() {
 
   const handleEditAccount = async (accountData: AccountResponse) => {
     try {
-      console.log('Updating account:', accountData); // Debug log
+      console.log('Updating account with data:', accountData); // Debug log
 
       const response = await fetch(`${API_URL}/api/accounts/${accountData.id}`, {
         method: 'PUT',
@@ -215,31 +215,35 @@ function App() {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Server error response:', errorData); // Debug log
         throw new Error(errorData.message || 'Failed to update account');
       }
 
       let { data: updatedAccount } = await response.json();
-      console.log('Account updated:', updatedAccount); // Debug log
+      console.log('Account updated successfully:', updatedAccount); // Debug log
 
       // If either the folder ID or list task ID was changed, fetch fresh data from BigQuery
       if (selectedAccount && (
         selectedAccount.clientFolderId !== accountData.clientFolderId ||
         selectedAccount.clientListTaskId !== accountData.clientListTaskId
       )) {
-        console.log('Folder ID or List Task ID changed, fetching fresh BigQuery data');
+        console.log('Folder ID or List Task ID changed, fetching fresh BigQuery data...'); // Debug log
         const syncResponse = await fetch(`${API_URL}/api/bigquery/account/${accountData.clientFolderId}`);
         
         if (!syncResponse.ok) {
+          const syncErrorData = await syncResponse.json();
+          console.error('BigQuery sync error:', syncErrorData); // Debug log
           throw new Error('Failed to sync with BigQuery after ID change');
         }
         
         const syncData = await syncResponse.json();
+        console.log('Received BigQuery data:', syncData); // Debug log
         
         // Prepare the sync update
         const syncUpdateData = {
           ...updatedAccount,
           accountName: syncData.clientData?.[0]?.client_name || updatedAccount.accountName,
-          businessUnit: 'NEW_NORTH' as const,
+          businessUnit: updatedAccount.businessUnit, // Keep existing business unit
           accountManager: syncData.clientData?.[0]?.assignee || updatedAccount.accountManager,
           teamManager: syncData.clientData?.[0]?.team_lead || updatedAccount.teamManager,
           relationshipStartDate: syncData.clientData?.[0]?.original_contract_start_date ? 
@@ -256,15 +260,10 @@ function App() {
             Number(syncData.clientData[0].recurring_points_allotment.replace(/,/g, '')) : updatedAccount.recurringPointsAllotment,
           mrr: syncData.clientData?.[0]?.mrr ? 
             Number(syncData.clientData[0].mrr.replace(/,/g, '')) : updatedAccount.mrr,
-          goals: syncData.goals?.map((goal: any) => ({
-            id: goal.id,
-            description: goal.task_description || '',
-            task_name: goal.task_name || '',
-            dueDate: goal.due_date || '',
-            progress: Number(goal.progress) || 0,
-            status: goal.status || ''
-          }))
+          goals: syncData.goals || updatedAccount.goals // Keep existing goals if none in sync data
         };
+
+        console.log('Preparing to update with synced data:', syncUpdateData); // Debug log
 
         // Update with the synced data
         const syncUpdateResponse = await fetch(`${API_URL}/api/accounts/${accountData.id}`, {
@@ -276,10 +275,13 @@ function App() {
         });
 
         if (!syncUpdateResponse.ok) {
+          const syncUpdateErrorData = await syncUpdateResponse.json();
+          console.error('Sync update error:', syncUpdateErrorData); // Debug log
           throw new Error('Failed to update account with synced data');
         }
 
         const { data: finalAccount } = await syncUpdateResponse.json();
+        console.log('Account updated with synced data:', finalAccount); // Debug log
         updatedAccount = finalAccount;
       }
 
@@ -294,8 +296,8 @@ function App() {
       setIsEditModalOpen(false);
       setSelectedAccount(null);
     } catch (error) {
-      console.error('Error updating account:', error);
-      alert('Failed to update account. Please try again.');
+      console.error('Detailed error:', error); // Debug log
+      alert(error instanceof Error ? error.message : 'Failed to update account. Please try again.');
     }
   };
 
