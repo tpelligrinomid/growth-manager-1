@@ -1,7 +1,7 @@
 :root {
   --nn-primary: #5C29C5;      /* Main purple */
-  --nn-dark: #3B1B7D;         /* Darker purple for header */
-  --nn-light: #decfff69;      /* Light purple background */
+  --nn-dark: #2D0B3A;         /* Darker purple for header - updated */
+  --nn-light: #F8F6FF;        /* Much lighter purple background - updated */
   --nn-hover: #6b3ad4;        /* Slightly lighter purple for hover */
   --nn-text: #2D3748;         /* Dark gray for text */
   --nn-border: #E2E8F0;       /* Light gray for borders */
@@ -40,12 +40,13 @@ html, body, #root {
 .header-content {
   display: flex;
   align-items: center;
-  gap: 2rem;  /* Space between logo and title */
+  gap: 1.5rem;  /* Slightly reduced gap */
 }
 
 .header-logo {
-  height: 40px;
+  height: 32px;  /* Slightly smaller */
   width: auto;
+  object-fit: contain;  /* Ensure logo maintains aspect ratio */
 }
 
 .app-header h1 {
