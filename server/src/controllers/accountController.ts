@@ -161,9 +161,21 @@ export const updateAccount = async (req: Request, res: Response) => {
       updatedAt: undefined
     };
 
+    // Calculate striking distance
+    const pointsStrikingDistance = calculatePointsStrikingDistance({
+      pointsPurchased: Number(updateData.pointsPurchased),
+      pointsDelivered: Number(updateData.pointsDelivered),
+      recurringPointsAllotment: Number(updateData.recurringPointsAllotment)
+    });
+
+    // Update with calculated fields
     const account = await prisma.account.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...updateData,
+        pointsStrikingDistance,
+        delivery: determineDeliveryStatus(pointsStrikingDistance)
+      },
       include: {
         goals: true,
         tasks: true,
