@@ -18,6 +18,7 @@ import {
   calculateClientTenure,
   determineDeliveryStatus 
 } from './utils/calculations';
+import { LoadingSpinner } from './components/LoadingSpinner';
 
 // Fix the type definition
 type ViewType = 'manager' | 'finance';
@@ -233,7 +234,9 @@ function App() {
 
   // Add helper function for points balance calculation
   const calculatePointsBalance = (account: AccountResponse): number => {
-    return account.pointsPurchased - account.pointsDelivered;
+    const balance = account.pointsPurchased - account.pointsDelivered;
+    // Return 0 or the actual balance if it's a valid number
+    return isNaN(balance) ? 0 : balance;
   };
 
   const calculatePercentage = (part: number, total: number): number => {
@@ -260,7 +263,7 @@ function App() {
       </header>
       <main className="app-content">
         {isLoading ? (
-          <div>Loading accounts...</div>
+          <LoadingSpinner />
         ) : error ? (
           <div className="error-message">{error}</div>
         ) : (
@@ -579,7 +582,9 @@ function App() {
                         <td className="number-cell">{account.recurringPointsAllotment}</td>
                         <td className="number-cell">{account.pointsPurchased}</td>
                         <td className="number-cell">{account.pointsDelivered}</td>
-                        <td className="number-cell">{calculatePointsBalance(account)}</td>
+                        <td className="number-cell">
+                          {calculatePointsBalance(account) === 0 ? '-' : calculatePointsBalance(account)}
+                        </td>
                         <td className="number-cell">{account.pointsStrikingDistance}</td>
                         <td className={`delivery-${account.delivery.toLowerCase().replace('_', '-')}`}>
                           {formatDelivery(account.delivery)}
@@ -606,7 +611,9 @@ function App() {
                         <td className="number-cell">{account.recurringPointsAllotment}</td>
                         <td className="number-cell">{account.pointsPurchased}</td>
                         <td className="number-cell">{account.pointsDelivered}</td>
-                        <td className="number-cell">{calculatePointsBalance(account)}</td>
+                        <td className="number-cell">
+                          {calculatePointsBalance(account) === 0 ? '-' : calculatePointsBalance(account)}
+                        </td>
                         <td>{determineDeliveryStatus(account.pointsStrikingDistance)}</td>
                         <td>
                           <GoalProgress goals={account.goals || []} />

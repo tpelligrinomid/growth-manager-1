@@ -7,13 +7,12 @@ interface Props {
   account: AccountResponse;
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (accountData: any) => void;
+  onSubmit: (accountData: AccountResponse) => Promise<void>;
 }
 
 interface EditAccountForm {
-  // Only manual fields
-  engagementType: string;
-  priority: string;
+  engagementType: EngagementType;
+  priority: Priority;
   industry: string;
   annualRevenue: number;
   employees: number;
@@ -99,10 +98,10 @@ export const EditAccountModal: React.FC<Props> = ({ account, isOpen, onClose, on
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const updateData = {
-      ...account,  // Keep existing data
-      ...formData, // Override with form changes
-      services: formData.services as Service[]  // Ensure correct typing
+    const updateData: AccountResponse = {
+      ...account,
+      ...formData,
+      services: formData.services
     };
 
     await onSubmit(updateData);
