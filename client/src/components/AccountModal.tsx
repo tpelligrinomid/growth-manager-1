@@ -33,6 +33,16 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
 
   if (!isOpen) return null;
 
+  // Helper function to safely parse dates
+  const parseDate = (dateStr: string | undefined) => {
+    if (!dateStr) return null;
+    try {
+      return new Date(dateStr.replace(/\//g, '-')).toLocaleDateString();
+    } catch (e) {
+      return 'Invalid date';
+    }
+  };
+
   const handleSync = async () => {
     const folderId = currentAccount.clientFolderId;
     if (!folderId) {
@@ -119,10 +129,14 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
   };
 
   const calculateClientTenure = (relationshipStartDate: string): number => {
-    const startDate = new Date(relationshipStartDate);
-    const endDate = new Date();
-    const tenure = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
-    return tenure;
+    try {
+      const startDate = new Date(relationshipStartDate);
+      const endDate = new Date();
+      const tenure = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
+      return tenure;
+    } catch (e) {
+      return 0;
+    }
   };
 
   return (
@@ -170,9 +184,9 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
               <h3>Contract Details</h3>
             </div>
             <div className="section-content">
-              <p><strong>Relationship Start:</strong> {new Date(currentAccount.relationshipStartDate).toLocaleDateString()}</p>
-              <p><strong>Contract Start:</strong> {new Date(currentAccount.contractStartDate).toLocaleDateString()}</p>
-              <p><strong>Contract Renewal:</strong> {new Date(currentAccount.contractRenewalEnd).toLocaleDateString()}</p>
+              <p><strong>Relationship Start:</strong> {parseDate(currentAccount.relationshipStartDate)}</p>
+              <p><strong>Contract Start:</strong> {parseDate(currentAccount.contractStartDate)}</p>
+              <p><strong>Contract Renewal:</strong> {parseDate(currentAccount.contractRenewalEnd)}</p>
               <p><strong>Client Tenure:</strong> {calculateClientTenure(currentAccount.relationshipStartDate)} months</p>
             </div>
           </div>
@@ -222,12 +236,12 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                     {currentAccount.goals.map((goal: Goal, index: number) => (
                       <tr key={index}>
                         <td>{goal.task_name}</td>
-                        <td>{goal.dueDate ? new Date(goal.dueDate.replace(/\//g, '-')).toLocaleDateString() : 'No due date'}</td>
+                        <td>{parseDate(goal.dueDate)}</td>
                         <td className="progress-cell">
                           <div className="goal-progress">
                             <div className="progress-bar">
                               <div 
-                                className={`progress-fill ${new Date(goal.dueDate.replace(/\//g, '-')) < new Date() && goal.status.toLowerCase() !== 'closed' ? 'overdue' : ''}`}
+                                className={`progress-fill ${parseDate(goal.dueDate) && new Date(goal.dueDate.replace(/\//g, '-')) < new Date() && goal.status.toLowerCase() !== 'closed' ? 'overdue' : ''}`}
                                 style={{ width: `${goal.progress || 0}%` }}
                               />
                             </div>
