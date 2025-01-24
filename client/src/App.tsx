@@ -239,19 +239,19 @@ function App() {
         const syncData = await syncResponse.json();
         console.log('Received BigQuery data:', syncData); // Debug log
         
-        // Prepare the sync update
+        // Prepare the sync update - preserve all existing account data
         const syncUpdateData = {
-          ...updatedAccount,
+          ...updatedAccount, // Keep all existing account data
+          // Only update fields that come from BigQuery
           accountName: syncData.clientData?.[0]?.client_name || updatedAccount.accountName,
-          businessUnit: updatedAccount.businessUnit, // Keep existing business unit
           accountManager: syncData.clientData?.[0]?.assignee || updatedAccount.accountManager,
           teamManager: syncData.clientData?.[0]?.team_lead || updatedAccount.teamManager,
           relationshipStartDate: syncData.clientData?.[0]?.original_contract_start_date ? 
-            new Date(syncData.clientData[0].original_contract_start_date.replace('/', '-')) : updatedAccount.relationshipStartDate,
+            new Date(syncData.clientData[0].original_contract_start_date.replace(/\//g, '-')).toISOString() : updatedAccount.relationshipStartDate,
           contractStartDate: syncData.clientData?.[0]?.points_mrr_start_date ? 
-            new Date(syncData.clientData[0].points_mrr_start_date.replace('/', '-')) : updatedAccount.contractStartDate,
+            new Date(syncData.clientData[0].points_mrr_start_date.replace(/\//g, '-')).toISOString() : updatedAccount.contractStartDate,
           contractRenewalEnd: syncData.clientData?.[0]?.contract_renewal_end ? 
-            new Date(syncData.clientData[0].contract_renewal_end.replace('/', '-')) : updatedAccount.contractRenewalEnd,
+            new Date(syncData.clientData[0].contract_renewal_end.replace(/\//g, '-')).toISOString() : updatedAccount.contractRenewalEnd,
           pointsPurchased: syncData.points?.[0]?.points_purchased ? 
             Number(String(syncData.points[0].points_purchased).replace(/,/g, '')) : updatedAccount.pointsPurchased,
           pointsDelivered: syncData.points?.[0]?.points_delivered ? 
@@ -260,7 +260,7 @@ function App() {
             Number(syncData.clientData[0].recurring_points_allotment.replace(/,/g, '')) : updatedAccount.recurringPointsAllotment,
           mrr: syncData.clientData?.[0]?.mrr ? 
             Number(syncData.clientData[0].mrr.replace(/,/g, '')) : updatedAccount.mrr,
-          goals: syncData.goals || updatedAccount.goals // Keep existing goals if none in sync data
+          goals: syncData.goals || updatedAccount.goals
         };
 
         console.log('Preparing to update with synced data:', syncUpdateData); // Debug log
@@ -292,9 +292,11 @@ function App() {
         )
       );
 
-      // Close both modals
+      // Update the selected account to refresh the modal
+      setSelectedAccount(updatedAccount);
+
+      // Close only the edit modal
       setIsEditModalOpen(false);
-      setSelectedAccount(null);
     } catch (error) {
       console.error('Detailed error:', error); // Debug log
       alert(error instanceof Error ? error.message : 'Failed to update account. Please try again.');
