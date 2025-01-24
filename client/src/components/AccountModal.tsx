@@ -37,7 +37,9 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
   const formatDate = (dateStr: string | undefined) => {
     if (!dateStr) return 'No due date';
     try {
+      // First convert YYYY/MM/DD to YYYY-MM-DD for proper Date parsing
       const date = new Date(dateStr.replace(/\//g, '-'));
+      if (isNaN(date.getTime())) return 'Invalid date';
       const month = (date.getMonth() + 1).toString().padStart(2, '0');
       const day = date.getDate().toString().padStart(2, '0');
       const year = date.getFullYear();
@@ -143,6 +145,15 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
     }
   };
 
+  // Filter goals to only show:
+  // 1. Future goals (any status)
+  // 2. Past goals that are not closed
+  const filteredGoals = currentAccount.goals?.filter(goal => {
+    const dueDate = goal.dueDate ? new Date(goal.dueDate.replace(/\//g, '-')) : null;
+    const now = new Date();
+    return dueDate && (dueDate > now || (dueDate <= now && goal.status.toLowerCase() !== 'closed'));
+  }) || [];
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
@@ -227,7 +238,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
               <h3>Goals</h3>
             </div>
             <div className="section-content">
-              {currentAccount.goals && currentAccount.goals.length > 0 ? (
+              {filteredGoals.length > 0 ? (
                 <table className="goals-table">
                   <thead>
                     <tr>
@@ -237,7 +248,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                     </tr>
                   </thead>
                   <tbody>
-                    {currentAccount.goals.map((goal: Goal, index: number) => (
+                    {filteredGoals.map((goal: Goal, index: number) => (
                       <tr key={index}>
                         <td>{goal.task_name}</td>
                         <td>{formatDate(goal.dueDate)}</td>
@@ -257,7 +268,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                   </tbody>
                 </table>
               ) : (
-                <p>No goals set</p>
+                <p>No active goals</p>
               )}
             </div>
           </div>
