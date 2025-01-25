@@ -175,7 +175,14 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                   </tr>
                 </thead>
                 <tbody>
-                  {currentAccount.goals?.map((goal: Goal) => (
+                  {currentAccount.goals
+                    ?.filter(goal => {
+                      // Show goal if:
+                      // 1. Due date is in the future, OR
+                      // 2. Progress is less than 100%
+                      return new Date(goal.due_date) > new Date() || (goal.progress ?? 0) < 100;
+                    })
+                    .map((goal: Goal) => (
                     <tr key={goal.id}>
                       <td>{goal.task_name}</td>
                       <td>{formatDate(goal.due_date)}</td>

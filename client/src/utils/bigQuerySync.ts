@@ -23,7 +23,7 @@ export const syncAccountWithBigQuery = async (account: AccountResponse): Promise
       ...account,
       accountName: bigQueryData.clientData?.[0]?.client_name || account.accountName,
       accountManager: bigQueryData.clientData?.[0]?.account_manager || account.accountManager,
-      teamManager: bigQueryData.clientData?.[0]?.team_manager || account.teamManager,
+      teamManager: bigQueryData.clientData?.[0]?.team_lead || account.teamManager,
       pointsPurchased: bigQueryData.points?.[0]?.points_purchased ? 
         Number(String(bigQueryData.points[0].points_purchased).replace(/,/g, '')) : account.pointsPurchased,
       pointsDelivered: bigQueryData.points?.[0]?.points_delivered ? 
@@ -32,19 +32,26 @@ export const syncAccountWithBigQuery = async (account: AccountResponse): Promise
         Number(String(bigQueryData.clientData[0].recurring_points_allotment).replace(/,/g, '')) : account.recurringPointsAllotment,
       mrr: bigQueryData.clientData?.[0]?.mrr ?
         Number(String(bigQueryData.clientData[0].mrr).replace(/,/g, '')) : account.mrr,
-      relationshipStartDate: bigQueryData.clientData?.[0]?.original_contract_start_date || account.relationshipStartDate,
-      contractStartDate: bigQueryData.clientData?.[0]?.points_mrr_start_date || account.contractStartDate,
-      contractRenewalEnd: bigQueryData.clientData?.[0]?.contract_renewal_end || account.contractRenewalEnd,
+      relationshipStartDate: bigQueryData.clientData?.[0]?.original_contract_start_date ? 
+        new Date(bigQueryData.clientData[0].original_contract_start_date) : account.relationshipStartDate,
+      contractStartDate: bigQueryData.clientData?.[0]?.points_mrr_start_date ? 
+        new Date(bigQueryData.clientData[0].points_mrr_start_date) : account.contractStartDate,
+      contractRenewalEnd: bigQueryData.clientData?.[0]?.contract_renewal_end ? 
+        new Date(bigQueryData.clientData[0].contract_renewal_end) : account.contractRenewalEnd,
+      employees: typeof account.employees === 'string' ? 
+        parseInt(String(account.employees).replace(/,/g, ''), 10) : account.employees,
+      annualRevenue: typeof account.annualRevenue === 'string' ? 
+        parseInt(String(account.annualRevenue).replace(/,/g, ''), 10) : account.annualRevenue,
       goals: bigQueryData.goals?.map((goal: any) => ({
         id: goal.id,
         task_name: goal.task_name || '',
         task_description: goal.task_description,
         status: goal.status || '',
-        progress: parseInt(goal.progress?.toString() || '0', 10),
+        progress: parseInt(String(goal.progress || '0').replace('%', ''), 10),
         assignee: goal.assignee,
-        created_date: goal.created_date,
-        due_date: goal.due_date,
-        date_done: goal.date_done,
+        created_date: new Date(goal.created_date),
+        due_date: new Date(goal.due_date),
+        date_done: goal.date_done ? new Date(goal.date_done) : null,
         created_by: goal.created_by
       })) || account.goals || []
     };
