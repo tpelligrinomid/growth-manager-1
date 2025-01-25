@@ -532,15 +532,18 @@ function App() {
                   <tr>
                     {currentView === 'manager' ? (
                       <>
-                        <th className="sortable-header" onClick={() => handleSort('accountName')}>
-                          Account Name
+                        <th className="sortable-header wide-header" onClick={() => handleSort('accountName')}>
+                          Account<br/>Name
                           {sortConfig.key === 'accountName' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                         </th>
                         <th className="sortable-header" onClick={() => handleSort('businessUnit')}>
-                          Business Unit
+                          Business<br/>Unit
                           {sortConfig.key === 'businessUnit' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                         </th>
-                        <th>Engagement Type</th>
+                        <th className="sortable-header" onClick={() => handleSort('engagementType')}>
+                          Engagement<br/>Type
+                          {sortConfig.key === 'engagementType' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                        </th>
                         <th className="sortable-header" onClick={() => handleSort('priority')}>
                           <div className="header-with-tooltip">
                             Priority
@@ -553,21 +556,29 @@ function App() {
                             {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                           </div>
                         </th>
-                        <th className="sortable-header" onClick={() => handleSort('accountManager')}>
-                          Account Manager
+                        <th className="sortable-header wide-header" onClick={() => handleSort('accountManager')}>
+                          Account<br/>Manager
                           {sortConfig.key === 'accountManager' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                         </th>
                         <th className="sortable-header" onClick={() => handleSort('mrr')}>
                           MRR
                           {sortConfig.key === 'mrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                         </th>
-                        <th>Recurring Points</th>
-                        <th>Points Purchased</th>
-                        <th>Points Delivered</th>
-                        <th>Points Balance</th>
+                        <th>
+                          Recurring<br/>Points
+                        </th>
+                        <th>
+                          Points<br/>Purchased
+                        </th>
+                        <th>
+                          Points<br/>Delivered
+                        </th>
+                        <th>
+                          Points<br/>Balance
+                        </th>
                         <th className="sortable-header" onClick={() => handleSort('pointsStrikingDistance')}>
                           <div className="header-with-tooltip">
-                            Points Burden
+                            Points<br/>Burden
                             <span className="tooltip">
                               Points Balance - (1.5 × Recurring Points)<br/>
                               Positive = Off Track, Negative = On Track
@@ -575,7 +586,7 @@ function App() {
                             {sortConfig.key === 'pointsStrikingDistance' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                           </div>
                         </th>
-                        <th>
+                        <th className="sortable-header" onClick={() => handleSort('delivery')}>
                           <div className="header-with-tooltip">
                             Delivery
                             <span className="tooltip">
@@ -583,21 +594,25 @@ function App() {
                               • Off Track if &gt; 0<br/>
                               • On Track if ≤ 0
                             </span>
+                            {sortConfig.key === 'delivery' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                           </div>
                         </th>
                         <th>Goals</th>
                       </>
                     ) : (
                       <>
-                        <th className="sortable-header" onClick={() => handleSort('accountName')}>
-                          Account Name
+                        <th className="sortable-header wide-header" onClick={() => handleSort('accountName')}>
+                          Account<br/>Name
                           {sortConfig.key === 'accountName' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                         </th>
                         <th className="sortable-header" onClick={() => handleSort('businessUnit')}>
-                          Business Unit
+                          Business<br/>Unit
                           {sortConfig.key === 'businessUnit' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                         </th>
-                        <th>Engagement Type</th>
+                        <th className="sortable-header" onClick={() => handleSort('engagementType')}>
+                          Engagement<br/>Type
+                          {sortConfig.key === 'engagementType' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                        </th>
                         <th className="sortable-header" onClick={() => handleSort('priority')}>
                           Priority
                           {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
@@ -607,27 +622,27 @@ function App() {
                           {sortConfig.key === 'mrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                         </th>
                         <th className="sortable-header" onClick={() => handleSort('growthInMrr')}>
-                          Growth in MRR
+                          Growth in<br/>MRR
                           {sortConfig.key === 'growthInMrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                         </th>
                         <th className="sortable-header" onClick={() => handleSort('potentialMrr')}>
-                          Potential MRR
+                          Potential<br/>MRR
                           {sortConfig.key === 'potentialMrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                         </th>
                         <th className="sortable-header" onClick={() => handleSort('relationshipStartDate')}>
-                          Relationship Start
+                          Relationship<br/>Start
                           {sortConfig.key === 'relationshipStartDate' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                         </th>
                         <th className="sortable-header" onClick={() => handleSort('clientTenure')}>
-                          Client Tenure
+                          Client<br/>Tenure
                           {sortConfig.key === 'clientTenure' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                         </th>
                         <th className="sortable-header" onClick={() => handleSort('contractStartDate')}>
-                          Contract Start
+                          Contract<br/>Start
                           {sortConfig.key === 'contractStartDate' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                         </th>
                         <th className="sortable-header" onClick={() => handleSort('contractRenewalEnd')}>
-                          Contract End
+                          Contract<br/>End
                           {sortConfig.key === 'contractRenewalEnd' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                         </th>
                       </>
