@@ -11,7 +11,6 @@ const LoadingSpinner: FC<LoadingSpinnerProps> = ({
 }) => {
   return (
     <div 
-      className="loading-spinner-overlay"
       style={{
         position: 'fixed',
         top: 0,
@@ -22,16 +21,15 @@ const LoadingSpinner: FC<LoadingSpinnerProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        zIndex: 9999,
+        zIndex: 3000,
       }}
     >
       <div 
-        className="loading-spinner"
         style={{
           width: size,
           height: size,
-          border: `4px solid ${color}`,
-          borderTop: '4px solid transparent',
+          border: `3px solid ${color}`,
+          borderTopColor: 'transparent',
           borderRadius: '50%',
           animation: 'spin 1s linear infinite',
         }}

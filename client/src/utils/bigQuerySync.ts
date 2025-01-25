@@ -27,7 +27,7 @@ export const syncAccountWithBigQuery = async (
     const newMrr = bigQueryData.clientData?.[0]?.mrr ?
       Number(String(bigQueryData.clientData[0].mrr).replace(/,/g, '')) : account.mrr;
 
-    // Get the growth in MRR value
+    // Keep the existing growth in MRR value
     const growthInMrr = account.growthInMrr || 0;
 
     // Prepare update data with consistent transformation logic

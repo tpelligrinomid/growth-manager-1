@@ -89,6 +89,7 @@ export async function fetchClientListData(clientListTaskId: string) {
       team_lead,
       status,
       mrr,
+      growth_in_mrr,
       original_contract_start_date,
       points_mrr_start_date,
       contract_renewal_end,
