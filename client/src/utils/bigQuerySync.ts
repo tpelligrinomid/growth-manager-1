@@ -5,14 +5,20 @@ export const syncAccountWithBigQuery = async (
   account: AccountResponse,
   onLoadingChange?: (isLoading: boolean) => void
 ): Promise<AccountResponse> => {
-  if (!account.clientFolderId) {
+  if (!account.clientFolderId || !account.clientListTaskId) {
+    console.error('Missing required IDs for sync:', { 
+      clientFolderId: account.clientFolderId, 
+      clientListTaskId: account.clientListTaskId 
+    });
     return account;
   }
 
   try {
     onLoadingChange?.(true);
     console.log(`Fetching BigQuery data for ${account.accountName}...`);
-    const bigQueryResponse = await fetch(`${API_URL}/api/bigquery/account/${account.clientFolderId}`);
+    const bigQueryResponse = await fetch(
+      `${API_URL}/api/bigquery/account/${account.clientFolderId}?clientListTaskId=${account.clientListTaskId}`
+    );
     
     if (!bigQueryResponse.ok) {
       console.error(`Failed to fetch BigQuery data for ${account.accountName}`);
