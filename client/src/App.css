@@ -796,7 +796,7 @@ html, body, #root {
 }
 
 .view-toggle-container button.active {
-  background-color: #7c3aed;
+  background-color: var(--nn-primary);
   color: white;
 }
 
