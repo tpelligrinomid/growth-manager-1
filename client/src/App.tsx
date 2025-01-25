@@ -72,32 +72,67 @@ function App() {
         // For each account, fetch BigQuery data if we have ClickUp IDs
         const accountsWithBigQueryData = await Promise.all(
           accountsData.data.map(async (account: AccountResponse) => {
-            const accountData = {
-              ...account,
-              clientFolderId: account.clientFolderId || ''
-            } as const;
-
-            if (accountData.clientFolderId !== '') {
-              const bigQueryResponse = await fetch(`${API_URL}/api/bigquery/account/${accountData.clientFolderId}`);
-              const bigQueryData = await bigQueryResponse.json();
-              return {
-                ...accountData,
-                points: bigQueryData.points,
-                growthTasks: bigQueryData.growthTasks,
-                goals: bigQueryData.goals,
-                clientData: bigQueryData.clientData
-              };
+            if (account.clientFolderId) {
+              try {
+                console.log(`Fetching BigQuery data for ${account.accountName}...`);
+                const bigQueryResponse = await fetch(`${API_URL}/api/bigquery/account/${account.clientFolderId}`);
+                if (!bigQueryResponse.ok) {
+                  console.error(`Failed to fetch BigQuery data for ${account.accountName}`);
+                  return account;
+                }
+                
+                const bigQueryData = await bigQueryResponse.json();
+                console.log(`BigQuery data received for ${account.accountName}:`, bigQueryData);
+                
+                // Update account with BigQuery data
+                const updateData = {
+                  ...account,
+                  pointsPurchased: bigQueryData.points?.[0]?.points_purchased ? 
+                    parseInt(String(bigQueryData.points[0].points_purchased).replace(/,/g, ''), 10) : account.pointsPurchased,
+                  pointsDelivered: bigQueryData.points?.[0]?.points_delivered ? 
+                    parseInt(String(bigQueryData.points[0].points_delivered).replace(/,/g, ''), 10) : account.pointsDelivered,
+                  recurringPointsAllotment: bigQueryData.clientData?.[0]?.recurring_points_allotment ? 
+                    parseInt(String(bigQueryData.clientData[0].recurring_points_allotment).replace(/,/g, ''), 10) : account.recurringPointsAllotment,
+                  goals: bigQueryData.goals?.map((goal: any) => ({
+                    id: goal.id,
+                    description: goal.task_description || '',
+                    task_name: goal.task_name || '',
+                    due_date: goal.due_date || '',
+                    progress: parseInt(String(goal.progress || '0').replace(/%/g, ''), 10),
+                    status: goal.status || ''
+                  })) || account.goals
+                };
+                
+                // Update the account in the database
+                const updateResponse = await fetch(`${API_URL}/api/accounts/${account.id}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(updateData)
+                });
+                
+                if (!updateResponse.ok) {
+                  console.error(`Failed to update account ${account.accountName} with BigQuery data`);
+                  return account;
+                }
+                
+                const { data: updatedAccount } = await updateResponse.json();
+                console.log(`Successfully updated ${account.accountName} with BigQuery data:`, updatedAccount);
+                return updatedAccount;
+              } catch (error) {
+                console.error(`Error processing BigQuery data for ${account.accountName}:`, error);
+                return account;
+              }
             }
-            return accountData;
+            return account;
           })
         );
         
         setAccounts(accountsWithBigQueryData);
         setError(null);
-        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching accounts:', error);
         setError(error instanceof Error ? error.message : 'Failed to load accounts');
+      } finally {
         setIsLoading(false);
       }
     };
