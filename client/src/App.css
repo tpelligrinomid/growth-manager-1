@@ -676,7 +676,7 @@ html, body, #root {
   display: none;
 }
 
-.metrics-summary {
+.metrics-container {
   display: flex;
   gap: 16px;
   margin-bottom: 24px;
@@ -707,6 +707,40 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.view-toggle-container {
+  display: inline-flex;
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 6px;
+  padding: 2px;
+  margin-right: 16px;
+  background: white;
+}
+
+.view-toggle-container button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.view-toggle-container button.active {
+  background-color: #7c3aed;
+  color: white;
+}
+
+.view-toggle-container button svg {
+  width: 16px;
+  height: 16px;
 }
 
 /* Remove all existing sync-button styles and replace with this */

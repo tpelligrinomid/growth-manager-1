@@ -385,36 +385,23 @@ function App() {
           <div className="error-message">{error}</div>
         ) : (
           <div className="accounts-section">
-            <div className="metrics-summary">
+            <div className="metrics-container">
               <div className="metric-card">
                 <div className="metric-label">Total Accounts</div>
-                <div className="metric-value">
-                  <div>{filteredAccounts.length}</div>
-                </div>
+                <div className="metric-value">{filteredAccounts.length}</div>
               </div>
 
               <div className="metric-card">
                 <div className="metric-label">Total MRR</div>
                 <div className="metric-value">
-                  <div>
-                    ${filteredAccounts.reduce((sum, account) => sum + account.mrr, 0).toLocaleString()}
-                  </div>
+                  ${filteredAccounts.reduce((sum, account) => sum + account.mrr, 0).toLocaleString()}
                 </div>
               </div>
 
               <div className="metric-card">
                 <div className="metric-label">Average MRR</div>
                 <div className="metric-value">
-                  <div>
-                    ${filteredAccounts.length > 0
-                      ? Math.round(
-                          filteredAccounts.reduce((sum, account) => {
-                            const mrrValue = parseInt(account.mrr.toString().replace(/[$,]/g, ''));
-                            return sum + (isNaN(mrrValue) ? 0 : mrrValue);
-                          }, 0) / filteredAccounts.length
-                        ).toLocaleString()
-                      : 0}
-                  </div>
+                  ${averageMRR.toLocaleString()}
                 </div>
               </div>
 
