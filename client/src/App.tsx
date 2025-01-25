@@ -390,14 +390,14 @@ function App() {
               <div className="metric-card">
                 <div className="metric-label">Total MRR</div>
                 <div className="metric-value">
-                  ${filteredAccounts.reduce((sum, account) => sum + account.mrr, 0).toLocaleString()}
+                  ${filteredAccounts.reduce((total, account) => total + (account.mrr || 0), 0).toLocaleString()}
                 </div>
               </div>
 
               <div className="metric-card">
                 <div className="metric-label">Average MRR</div>
                 <div className="metric-value">
-                  ${Math.round(filteredAccounts.reduce((sum, account) => sum + account.mrr, 0) / filteredAccounts.length).toLocaleString()}
+                  ${filteredAccounts.length === 0 ? '0' : Math.round(filteredAccounts.reduce((total, account) => total + (account.mrr || 0), 0) / filteredAccounts.length).toLocaleString()}
                 </div>
               </div>
 
