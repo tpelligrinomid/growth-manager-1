@@ -4,9 +4,10 @@ import { Goal } from '../types';
 
 interface GoalProgressProps {
   goals: Array<Goal>;
+  detailed?: boolean;
 }
 
-export const GoalProgress: React.FC<GoalProgressProps> = ({ goals }) => {
+export const GoalProgress: React.FC<GoalProgressProps> = ({ goals, detailed = false }) => {
   if (!goals || goals.length === 0) return <div>No goals</div>;
 
   // Filter goals to show:
@@ -28,6 +29,20 @@ export const GoalProgress: React.FC<GoalProgressProps> = ({ goals }) => {
   }, 0);
   
   const averageProgress = Math.round(totalProgress / activeGoals.length);
+
+  if (!detailed) {
+    return (
+      <div className="goal-progress">
+        <div className="progress-bar">
+          <div 
+            className="progress-fill"
+            style={{ width: `${averageProgress}%` }}
+          />
+        </div>
+        <span className="progress-text">{averageProgress}%</span>
+      </div>
+    );
+  }
 
   return (
     <table className="goals-table">
