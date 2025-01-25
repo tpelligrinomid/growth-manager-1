@@ -95,19 +95,19 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
         contractRenewalEnd: data.clientData?.[0]?.contract_renewal_end ? 
           new Date(data.clientData[0].contract_renewal_end.replace('/', '-')).toISOString() : currentAccount.contractRenewalEnd,
         pointsPurchased: data.points?.[0]?.points_purchased ? 
-          parseInt(data.points[0].points_purchased.toString().replace(/,/g, ''), 10) : currentAccount.pointsPurchased,
+          parseInt(String(data.points[0].points_purchased).replace(/,/g, ''), 10) : currentAccount.pointsPurchased,
         pointsDelivered: data.points?.[0]?.points_delivered ? 
-          parseInt(data.points[0].points_delivered.toString().replace(/,/g, ''), 10) : currentAccount.pointsDelivered,
+          parseInt(String(data.points[0].points_delivered).replace(/,/g, ''), 10) : currentAccount.pointsDelivered,
         recurringPointsAllotment: data.clientData?.[0]?.recurring_points_allotment ? 
-          parseInt(data.clientData[0].recurring_points_allotment.toString().replace(/,/g, ''), 10) : currentAccount.recurringPointsAllotment,
+          parseInt(String(data.clientData[0].recurring_points_allotment).replace(/,/g, ''), 10) : currentAccount.recurringPointsAllotment,
         mrr: data.clientData?.[0]?.mrr ? 
-          parseInt(data.clientData[0].mrr.toString().replace(/,/g, ''), 10) : currentAccount.mrr,
+          parseInt(String(data.clientData[0].mrr).replace(/,/g, ''), 10) : currentAccount.mrr,
         goals: data.goals?.map((goal: any) => ({
           id: goal.id,
           description: goal.task_description || '',
           task_name: goal.task_name || '',
           due_date: goal.due_date || '',
-          progress: parseInt(goal.progress?.toString() || '0', 10),
+          progress: parseInt(String(goal.progress || '0').replace(/%/g, ''), 10),
           status: goal.status || ''
         })) || currentAccount.goals
       };
@@ -147,7 +147,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
       // Update local state
       setCurrentAccount(updatedAccount);
       
-      // Notify parent component
+      // Notify parent component to update the main table
       if (onUpdate) {
         onUpdate(updatedAccount);
       }
