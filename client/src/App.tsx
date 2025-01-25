@@ -542,8 +542,16 @@ function App() {
                         </th>
                         <th>Engagement Type</th>
                         <th className="sortable-header" onClick={() => handleSort('priority')}>
-                          Priority
-                          {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                          <div className="header-with-tooltip">
+                            Priority
+                            <span className="tooltip">
+                              • Tier 1 = Actively working<br/>
+                              • Tier 2 = Client or delivery issues<br/>
+                              • Tier 3 = Smooth<br/>
+                              • Tier 4 = Low risk and low reward
+                            </span>
+                            {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                          </div>
                         </th>
                         <th className="sortable-header" onClick={() => handleSort('accountManager')}>
                           Account Manager
@@ -558,10 +566,25 @@ function App() {
                         <th>Points Delivered</th>
                         <th>Points Balance</th>
                         <th className="sortable-header" onClick={() => handleSort('pointsStrikingDistance')}>
-                          Points Burden
-                          {sortConfig.key === 'pointsStrikingDistance' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                          <div className="header-with-tooltip">
+                            Points Burden
+                            <span className="tooltip">
+                              Points Balance - (1.5 × Recurring Points)<br/>
+                              Positive = Off Track, Negative = On Track
+                            </span>
+                            {sortConfig.key === 'pointsStrikingDistance' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                          </div>
                         </th>
-                        <th>Delivery</th>
+                        <th>
+                          <div className="header-with-tooltip">
+                            Delivery
+                            <span className="tooltip">
+                              Based on Points Burden:<br/>
+                              • Off Track if &gt; 0<br/>
+                              • On Track if ≤ 0
+                            </span>
+                          </div>
+                        </th>
                         <th>Goals</th>
                       </>
                     ) : (

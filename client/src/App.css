@@ -79,8 +79,13 @@ html, body, #root {
   background: var(--nn-white);
   border-radius: 8px;
   box-shadow: 0 4px 6px var(--nn-shadow);
-  overflow: hidden;
+  overflow-x: auto;
   border-collapse: collapse;
+}
+
+.accounts-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
 }
 
 .accounts-table th,
@@ -88,6 +93,7 @@ html, body, #root {
   padding: 1rem;
   border-bottom: 1px solid var(--nn-border);
   text-align: left;
+  min-width: 120px; /* Ensure columns don't get too narrow */
 }
 
 .accounts-table th {
@@ -98,12 +104,68 @@ html, body, #root {
   font-size: 0.875rem;
   letter-spacing: 0.05em;
   white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-with-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+}
+
+.tooltip {
+  visibility: hidden;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--nn-white);
+  color: var(--nn-text);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 2px solid var(--nn-primary);
+  font-size: 0.75rem;
+  font-weight: normal;
+  white-space: nowrap;
+  z-index: 20;
+  box-shadow: 0 4px 6px var(--nn-shadow);
+  width: max-content;
+  margin-top: 0.75rem;
+}
+
+.tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-bottom-color: var(--nn-primary);
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-bottom-color: var(--nn-white);
+  margin-bottom: -2px;
+}
+
+.header-with-tooltip:hover .tooltip {
+  visibility: visible;
 }
 
 .sortable-header {
   cursor: pointer;
   position: relative;
   padding-right: 2rem;
+  user-select: none;
 }
 
 .sort-arrow {
@@ -404,58 +466,6 @@ html, body, #root {
   border-radius: 4px;
   border: 1px solid var(--nn-border);
   cursor: pointer;
-}
-
-.header-with-tooltip {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  cursor: help;
-}
-
-.tooltip {
-  visibility: hidden;
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: var(--nn-white);
-  color: var(--nn-text);
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  border: 2px solid var(--nn-primary);
-  font-size: 0.75rem;
-  font-weight: normal;
-  white-space: nowrap;
-  z-index: 1;
-  box-shadow: 0 4px 6px var(--nn-shadow);
-  width: max-content;
-  margin-top: 0.75rem;
-}
-
-.tooltip::before {
-  content: '';
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 8px solid transparent;
-  border-bottom-color: var(--nn-primary);
-}
-
-.tooltip::after {
-  content: '';
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 7px solid transparent;
-  border-bottom-color: var(--nn-white);
-  margin-bottom: -2px;
-}
-
-.header-with-tooltip:hover .tooltip {
-  visibility: visible;
 }
 
 .modal-actions {
