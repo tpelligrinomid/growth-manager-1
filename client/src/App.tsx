@@ -88,19 +88,23 @@ function App() {
                 const updateData = {
                   ...account,
                   pointsPurchased: bigQueryData.points?.[0]?.points_purchased ? 
-                    parseInt(String(bigQueryData.points[0].points_purchased).replace(/,/g, ''), 10) : account.pointsPurchased,
+                    parseInt(bigQueryData.points[0].points_purchased.toString(), 10) : account.pointsPurchased,
                   pointsDelivered: bigQueryData.points?.[0]?.points_delivered ? 
-                    parseInt(String(bigQueryData.points[0].points_delivered).replace(/,/g, ''), 10) : account.pointsDelivered,
+                    parseInt(bigQueryData.points[0].points_delivered.toString(), 10) : account.pointsDelivered,
                   recurringPointsAllotment: bigQueryData.clientData?.[0]?.recurring_points_allotment ? 
-                    parseInt(String(bigQueryData.clientData[0].recurring_points_allotment).replace(/,/g, ''), 10) : account.recurringPointsAllotment,
+                    parseInt(bigQueryData.clientData[0].recurring_points_allotment.toString(), 10) : account.recurringPointsAllotment,
                   goals: bigQueryData.goals?.map((goal: any) => ({
                     id: goal.id,
-                    description: goal.task_description || '',
                     task_name: goal.task_name || '',
-                    due_date: goal.due_date || '',
-                    progress: parseInt(String(goal.progress || '0').replace(/%/g, ''), 10),
-                    status: goal.status || ''
-                  })) || account.goals
+                    task_description: goal.task_description,
+                    status: goal.status || '',
+                    progress: parseInt(goal.progress?.toString() || '0', 10),
+                    assignee: goal.assignee,
+                    created_date: goal.created_date,
+                    due_date: goal.due_date,
+                    date_done: goal.date_done,
+                    created_by: goal.created_by
+                  })) || []
                 };
                 
                 // Update the account in the database
