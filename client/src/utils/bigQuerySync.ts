@@ -33,8 +33,8 @@ export const syncAccountWithBigQuery = async (
     const newMrr = bigQueryData.clientData?.[0]?.mrr ?
       Number(String(bigQueryData.clientData[0].mrr).replace(/,/g, '')) : account.mrr;
 
-    // Keep the existing growth in MRR value
-    const growthInMrr = account.growthInMrr || 0;
+    // Keep the existing growth in MRR value since it's manually set
+    const growthInMrr = account.growthInMrr;
 
     // Prepare update data with consistent transformation logic
     const updateData = {
@@ -49,8 +49,8 @@ export const syncAccountWithBigQuery = async (
       recurringPointsAllotment: bigQueryData.clientData?.[0]?.recurring_points_allotment ? 
         Number(String(bigQueryData.clientData[0].recurring_points_allotment).replace(/,/g, '')) : account.recurringPointsAllotment,
       mrr: newMrr,
-      growthInMrr: growthInMrr,
-      potentialMrr: newMrr + growthInMrr,
+      growthInMrr, // Preserve the manually set value
+      potentialMrr: newMrr + (growthInMrr || 0), // Calculate potential MRR using manual growth value
       relationshipStartDate: bigQueryData.clientData?.[0]?.original_contract_start_date ? 
         new Date(bigQueryData.clientData[0].original_contract_start_date) : account.relationshipStartDate || new Date(),
       contractStartDate: bigQueryData.clientData?.[0]?.points_mrr_start_date ? 
