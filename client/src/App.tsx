@@ -397,7 +397,9 @@ function App() {
               <div className="metric-card">
                 <div className="metric-label">Average MRR</div>
                 <div className="metric-value">
-                  ${Math.round(filteredAccounts.reduce((sum, account) => sum + Number(account.mrr), 0) / filteredAccounts.length).toLocaleString()}
+                  ${filteredAccounts.length > 0 ? 
+                    Math.round(filteredAccounts.reduce((sum, account) => sum + Number(account.mrr), 0) / filteredAccounts.length
+                  ).toLocaleString() : '0'}
                 </div>
               </div>
 
