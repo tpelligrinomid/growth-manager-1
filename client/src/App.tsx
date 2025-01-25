@@ -118,6 +118,11 @@ function App() {
 
   const handleAddAccount = async (formData: AddAccountForm) => {
     try {
+      // Check if both required IDs are present
+      if (!formData.clientFolderId || !formData.clientListTaskId) {
+        throw new Error('Both Client Folder ID and Client List Task ID are required to create an account');
+      }
+
       setIsSyncing(true);  // Start loading
       // First create the account
       const response = await fetch(`${API_URL}/api/accounts`, {
@@ -145,24 +150,19 @@ function App() {
       
       const { data: newAccount } = await response.json();
       
-      // If we have a folder ID, sync with BigQuery before adding to state
-      if (formData.clientFolderId) {
-        try {
-          const updatedAccount = await syncAccountWithBigQuery(newAccount, setIsSyncing);
-          setAccounts(prevAccounts => [...prevAccounts, updatedAccount]);
-        } catch (error) {
-          console.error('Error syncing with BigQuery:', error);
-          // If sync fails, add the original account
-          setAccounts(prevAccounts => [...prevAccounts, newAccount]);
-        }
-      } else {
-        // If no folder ID, just add the original account
-        setAccounts(prevAccounts => [...prevAccounts, newAccount]);
+      // Sync with BigQuery since we know we have both IDs
+      try {
+        const updatedAccount = await syncAccountWithBigQuery(newAccount, setIsSyncing);
+        setAccounts(prevAccounts => [...prevAccounts, updatedAccount]);
+      } catch (error) {
+        console.error('Error syncing with BigQuery:', error);
+        throw new Error('Failed to sync account with BigQuery');
       }
 
       setIsAddModalOpen(false);
     } catch (error) {
       console.error('Error adding account:', error);
+      alert(error instanceof Error ? error.message : 'Failed to add account');
     } finally {
       setIsSyncing(false);  // End loading regardless of success or failure
     }
