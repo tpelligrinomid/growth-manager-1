@@ -30,14 +30,16 @@ export const GoalProgress: React.FC<GoalProgressProps> = ({ goals }) => {
   const averageProgress = Math.round(totalProgress / activeGoals.length);
 
   return (
-    <div className="goal-progress">
-      <div className="progress-bar">
-        <div 
-          className="progress-fill"
-          style={{ width: `${averageProgress}%` }}
-        />
-      </div>
-      <span className="progress-text">{averageProgress}%</span>
-    </div>
+    <table className="goals-table">
+      <tbody>
+        {goals.map((goal, index) => (
+          <tr key={index}>
+            <td>{goal.task_name}</td>
+            <td>{new Date(goal.due_date).toLocaleDateString()}</td>
+            <td>{goal.progress || 0}%</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }; 
