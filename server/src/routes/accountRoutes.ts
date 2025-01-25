@@ -252,10 +252,15 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
         deleteMany: {}, // Clear existing goals
         create: updateData.goals.map(goal => ({
           id: goal.id,
-          description: goal.task_name,
+          task_name: goal.task_name,
+          task_description: goal.task_description,
           status: goal.status.toUpperCase().replace(' ', '_'),
-          dueDate: new Date(goal.due_date),
           progress: goal.progress || 0,
+          assignee: goal.assignee,
+          created_date: goal.created_date,
+          due_date: goal.due_date,
+          date_done: goal.date_done,
+          created_by: goal.created_by,
           accountId: id
         }))
       };
