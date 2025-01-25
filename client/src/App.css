@@ -101,12 +101,43 @@ html, body, #root {
   color: var(--nn-white);
   font-weight: 500;
   text-transform: uppercase;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.05em;
-  white-space: nowrap;
+  white-space: normal;
   position: sticky;
   top: 0;
   z-index: 10;
+  line-height: 1.2;
+  padding: 0.75rem 0.5rem;
+  min-width: 100px;
+  max-width: 120px;
+}
+
+.accounts-table th.wide-header {
+  min-width: 140px;
+  max-width: 160px;
+}
+
+.accounts-table td {
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--nn-border);
+  text-align: left;
+  min-width: 100px;
+  max-width: 120px;
+  white-space: normal;
+  overflow-wrap: break-word;
+  font-size: 0.875rem;
+  line-height: 1.25;
+}
+
+.accounts-table td.wide-cell {
+  min-width: 140px;
+  max-width: 160px;
+}
+
+.accounts-table td.number-cell {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .header-with-tooltip {
