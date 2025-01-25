@@ -640,6 +640,9 @@ html, body, #root {
   cursor: pointer;
   position: relative;
   padding-right: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* Default sort indicator (only show when not sorted) */
@@ -647,8 +650,6 @@ html, body, #root {
   content: '▲▼';
   position: absolute;
   right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
   font-size: 0.6rem;
   opacity: 0.3;
 }
@@ -659,12 +660,9 @@ html, body, #root {
 
 /* Active sort arrow */
 .sort-arrow {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
   font-size: 0.75rem;
   opacity: 0.8;
+  margin-left: auto;
 }
 
 .sortable-header:hover .sort-arrow {
