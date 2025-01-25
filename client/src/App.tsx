@@ -532,190 +532,64 @@ function App() {
                   <tr>
                     {currentView === 'manager' ? (
                       <>
-                        <th 
-                          onClick={() => handleSort('accountName')} 
-                          className={`sortable-header ${sortConfig.key === 'accountName' ? 'sort-active' : ''}`}
-                        >
-                          Account Name
-                          {sortConfig.key === 'accountName' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
+                        <th onClick={() => handleSort('accountName')} className={`sortable-header ${sortConfig.key === 'accountName' ? 'sort-active' : ''}`}>
+                          Account Name {sortConfig.key === 'accountName' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
-                        <th 
-                          onClick={() => handleSort('businessUnit')} 
-                          className={`sortable-header ${sortConfig.key === 'businessUnit' ? 'sort-active' : ''}`}
-                        >
-                          Business Unit
-                          {sortConfig.key === 'businessUnit' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
+                        <th onClick={() => handleSort('businessUnit')} className={`sortable-header ${sortConfig.key === 'businessUnit' ? 'sort-active' : ''}`}>
+                          Business Unit {sortConfig.key === 'businessUnit' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
                         <th>Engagement Type</th>
-                        <th 
-                          onClick={() => handleSort('priority')}
-                          className={`sortable-header ${sortConfig.key === 'priority' ? 'sort-active' : ''}`}
-                        >
-                          <div className="header-with-tooltip">
-                            Priority
-                            <span className="tooltip">
-                              • Tier 1 = Actively working<br/>
-                              • Tier 2 = Client or delivery issues<br/>
-                              • Tier 3 = Smooth<br/>
-                              • Tier 4 = Low risk and low reward
-                            </span>
-                            {sortConfig.key === 'priority' && (
-                              <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                            )}
-                          </div>
+                        <th onClick={() => handleSort('priority')} className={`sortable-header ${sortConfig.key === 'priority' ? 'sort-active' : ''}`}>
+                          Priority {sortConfig.key === 'priority' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
-                        <th 
-                          onClick={() => handleSort('accountManager')} 
-                          className={`sortable-header ${sortConfig.key === 'accountManager' ? 'sort-active' : ''}`}
-                        >
-                          Account Manager
-                          {sortConfig.key === 'accountManager' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
+                        <th onClick={() => handleSort('accountManager')} className={`sortable-header ${sortConfig.key === 'accountManager' ? 'sort-active' : ''}`}>
+                          Account Manager {sortConfig.key === 'accountManager' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
-                        <th 
-                          onClick={() => handleSort('mrr')} 
-                          className={`sortable-header ${sortConfig.key === 'mrr' ? 'sort-active' : ''}`}
-                        >
-                          MRR
-                          {sortConfig.key === 'mrr' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
+                        <th onClick={() => handleSort('mrr')} className={`sortable-header ${sortConfig.key === 'mrr' ? 'sort-active' : ''}`}>
+                          MRR {sortConfig.key === 'mrr' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
                         <th>Recurring Points</th>
                         <th>Points Purchased</th>
                         <th>Points Delivered</th>
-                        <th>
-                          <div className="header-with-tooltip">
-                            Points Balance
-                            <span className="tooltip">
-                              Points Purchased - Points Delivered
-                            </span>
-                          </div>
+                        <th>Points Balance</th>
+                        <th onClick={() => handleSort('pointsStrikingDistance')} className={`sortable-header ${sortConfig.key === 'pointsStrikingDistance' ? 'sort-active' : ''}`}>
+                          Points Burden {sortConfig.key === 'pointsStrikingDistance' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
-                        <th 
-                          onClick={() => handleSort('pointsStrikingDistance')} 
-                          className={`sortable-header ${sortConfig.key === 'pointsStrikingDistance' ? 'sort-active' : ''}`}
-                        >
-                          <div className="header-with-tooltip">
-                            Points Burden
-                            <span className="tooltip">
-                              Points Balance - (1.5 × Recurring Points)<br/>
-                              Positive = Off Track, Negative = On Track
-                            </span>
-                          </div>
-                          {sortConfig.key === 'pointsStrikingDistance' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
-                        </th>
-                        <th>
-                          <div className="header-with-tooltip">
-                            Delivery
-                            <span className="tooltip">
-                              Based on Striking Distance:<br />
-                              • Off Track if &gt; 0<br />
-                              • On Track if ≤ 0
-                            </span>
-                          </div>
-                        </th>
+                        <th>Delivery</th>
                         <th>Goals</th>
                       </>
                     ) : (
                       <>
-                        <th 
-                          onClick={() => handleSort('accountName')} 
-                          className={`sortable-header ${sortConfig.key === 'accountName' ? 'sort-active' : ''}`}
-                        >
-                          Account Name
-                          {sortConfig.key === 'accountName' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
+                        <th onClick={() => handleSort('accountName')} className={`sortable-header ${sortConfig.key === 'accountName' ? 'sort-active' : ''}`}>
+                          Account Name {sortConfig.key === 'accountName' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
-                        <th 
-                          onClick={() => handleSort('businessUnit')}
-                          className={`sortable-header ${sortConfig.key === 'businessUnit' ? 'sort-active' : ''}`}
-                        >
-                          Business Unit
-                          {sortConfig.key === 'businessUnit' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
+                        <th onClick={() => handleSort('businessUnit')} className={`sortable-header ${sortConfig.key === 'businessUnit' ? 'sort-active' : ''}`}>
+                          Business Unit {sortConfig.key === 'businessUnit' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
                         <th>Engagement Type</th>
-                        <th 
-                          onClick={() => handleSort('priority')}
-                          className={`sortable-header ${sortConfig.key === 'priority' ? 'sort-active' : ''}`}
-                        >
-                          Priority
-                          {sortConfig.key === 'priority' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
+                        <th onClick={() => handleSort('priority')} className={`sortable-header ${sortConfig.key === 'priority' ? 'sort-active' : ''}`}>
+                          Priority {sortConfig.key === 'priority' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
-                        <th 
-                          onClick={() => handleSort('mrr')}
-                          className={`sortable-header ${sortConfig.key === 'mrr' ? 'sort-active' : ''}`}
-                        >
-                          MRR
-                          {sortConfig.key === 'mrr' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
+                        <th onClick={() => handleSort('mrr')} className={`sortable-header ${sortConfig.key === 'mrr' ? 'sort-active' : ''}`}>
+                          MRR {sortConfig.key === 'mrr' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
-                        <th 
-                          onClick={() => handleSort('growthInMrr')}
-                          className={`sortable-header ${sortConfig.key === 'growthInMrr' ? 'sort-active' : ''}`}
-                        >
-                          Growth in MRR
-                          {sortConfig.key === 'growthInMrr' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
+                        <th onClick={() => handleSort('growthInMrr')} className={`sortable-header ${sortConfig.key === 'growthInMrr' ? 'sort-active' : ''}`}>
+                          Growth in MRR {sortConfig.key === 'growthInMrr' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
-                        <th 
-                          onClick={() => handleSort('potentialMrr')}
-                          className={`sortable-header ${sortConfig.key === 'potentialMrr' ? 'sort-active' : ''}`}
-                        >
-                          Potential MRR
-                          {sortConfig.key === 'potentialMrr' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
+                        <th onClick={() => handleSort('potentialMrr')} className={`sortable-header ${sortConfig.key === 'potentialMrr' ? 'sort-active' : ''}`}>
+                          Potential MRR {sortConfig.key === 'potentialMrr' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
-                        <th 
-                          onClick={() => handleSort('relationshipStartDate')}
-                          className={`sortable-header ${sortConfig.key === 'relationshipStartDate' ? 'sort-active' : ''}`}
-                        >
-                          Relationship Start
-                          {sortConfig.key === 'relationshipStartDate' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
+                        <th onClick={() => handleSort('relationshipStartDate')} className={`sortable-header ${sortConfig.key === 'relationshipStartDate' ? 'sort-active' : ''}`}>
+                          Relationship Start {sortConfig.key === 'relationshipStartDate' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
-                        <th 
-                          onClick={() => handleSort('clientTenure')}
-                          className={`sortable-header ${sortConfig.key === 'clientTenure' ? 'sort-active' : ''}`}
-                        >
-                          Client Tenure
-                          {sortConfig.key === 'clientTenure' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
+                        <th onClick={() => handleSort('clientTenure')} className={`sortable-header ${sortConfig.key === 'clientTenure' ? 'sort-active' : ''}`}>
+                          Client Tenure {sortConfig.key === 'clientTenure' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
-                        <th 
-                          onClick={() => handleSort('contractStartDate')}
-                          className={`sortable-header ${sortConfig.key === 'contractStartDate' ? 'sort-active' : ''}`}
-                        >
-                          Contract Start
-                          {sortConfig.key === 'contractStartDate' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
+                        <th onClick={() => handleSort('contractStartDate')} className={`sortable-header ${sortConfig.key === 'contractStartDate' ? 'sort-active' : ''}`}>
+                          Contract Start {sortConfig.key === 'contractStartDate' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
-                        <th 
-                          onClick={() => handleSort('contractRenewalEnd')}
-                          className={`sortable-header ${sortConfig.key === 'contractRenewalEnd' ? 'sort-active' : ''}`}
-                        >
-                          Contract End
-                          {sortConfig.key === 'contractRenewalEnd' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
+                        <th onClick={() => handleSort('contractRenewalEnd')} className={`sortable-header ${sortConfig.key === 'contractRenewalEnd' ? 'sort-active' : ''}`}>
+                          Contract End {sortConfig.key === 'contractRenewalEnd' && (<span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>)}
                         </th>
                       </>
                     )}
