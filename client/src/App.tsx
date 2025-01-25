@@ -118,6 +118,7 @@ function App() {
 
   const handleAddAccount = async (formData: AddAccountForm) => {
     try {
+      setIsSyncing(true);  // Start loading
       // First create the account
       const response = await fetch(`${API_URL}/api/accounts`, {
         method: 'POST',
@@ -147,7 +148,7 @@ function App() {
       // If we have a folder ID, sync with BigQuery before adding to state
       if (formData.clientFolderId) {
         try {
-          const updatedAccount = await syncAccountWithBigQuery(newAccount);
+          const updatedAccount = await syncAccountWithBigQuery(newAccount, setIsSyncing);
           setAccounts(prevAccounts => [...prevAccounts, updatedAccount]);
         } catch (error) {
           console.error('Error syncing with BigQuery:', error);
@@ -162,6 +163,8 @@ function App() {
       setIsAddModalOpen(false);
     } catch (error) {
       console.error('Error adding account:', error);
+    } finally {
+      setIsSyncing(false);  // End loading regardless of success or failure
     }
   };
 
