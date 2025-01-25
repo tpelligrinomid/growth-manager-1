@@ -53,8 +53,8 @@ function App() {
     teamManager: '',
   });
   const [sortConfig, setSortConfig] = useState<SortConfig>({
-    key: null as (keyof AccountResponse | 'pointsBalance' | 'clientTenure' | null),
-    direction: null as ('asc' | 'desc' | null)
+    key: 'priority',
+    direction: 'asc'
   });
   const [currentView, setCurrentView] = useState<ViewType>('manager');
 
@@ -313,6 +313,14 @@ function App() {
   const sortedAccounts = [...filteredAccounts].sort((a, b) => {
     if (!sortConfig.key || !sortConfig.direction) return 0;
 
+    if (sortConfig.key === 'priority') {
+      // Extract tier numbers for comparison
+      const getTierNumber = (priority: string) => parseInt(priority.replace('TIER_', ''));
+      const aTier = getTierNumber(a.priority);
+      const bTier = getTierNumber(b.priority);
+      return sortConfig.direction === 'asc' ? aTier - bTier : bTier - aTier;
+    }
+
     if (sortConfig.key === 'pointsBalance') {
       const aBalance = calculatePointsBalance(a) ?? 0;
       const bBalance = calculatePointsBalance(b) ?? 0;
@@ -527,7 +535,10 @@ function App() {
                         )}
                       </th>
                       <th>Engagement Type</th>
-                      <th>
+                      <th 
+                        onClick={() => handleSort('priority')}
+                        className={`sortable-header ${sortConfig.key === 'priority' ? 'sort-active' : ''}`}
+                      >
                         <div className="header-with-tooltip">
                           Priority
                           <span className="tooltip">
@@ -536,6 +547,9 @@ function App() {
                             • Tier 3 = Smooth<br/>
                             • Tier 4 = Low risk and low reward
                           </span>
+                          {sortConfig.key === 'priority' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
                         </div>
                       </th>
                       <th 
@@ -615,7 +629,23 @@ function App() {
                         )}
                       </th>
                       <th>Engagement Type</th>
-                      <th>Priority</th>
+                      <th 
+                        onClick={() => handleSort('priority')}
+                        className={`sortable-header ${sortConfig.key === 'priority' ? 'sort-active' : ''}`}
+                      >
+                        <div className="header-with-tooltip">
+                          Priority
+                          <span className="tooltip">
+                            • Tier 1 = Actively working<br/>
+                            • Tier 2 = Client or delivery issues<br/>
+                            • Tier 3 = Smooth<br/>
+                            • Tier 4 = Low risk and low reward
+                          </span>
+                          {sortConfig.key === 'priority' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </div>
+                      </th>
                       <th 
                         onClick={() => handleSort('mrr')}
                         className={`sortable-header ${sortConfig.key === 'mrr' ? 'sort-active' : ''}`}
