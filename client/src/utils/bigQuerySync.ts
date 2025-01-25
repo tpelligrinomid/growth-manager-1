@@ -22,7 +22,7 @@ export const syncAccountWithBigQuery = async (account: AccountResponse): Promise
     const updateData = {
       ...account,
       accountName: bigQueryData.clientData?.[0]?.client_name || account.accountName,
-      accountManager: bigQueryData.clientData?.[0]?.account_manager || account.accountManager,
+      accountManager: bigQueryData.clientData?.[0]?.assignee || account.accountManager,
       teamManager: bigQueryData.clientData?.[0]?.team_lead || account.teamManager,
       pointsPurchased: bigQueryData.points?.[0]?.points_purchased ? 
         Number(String(bigQueryData.points[0].points_purchased).replace(/,/g, '')) : account.pointsPurchased,
@@ -33,15 +33,15 @@ export const syncAccountWithBigQuery = async (account: AccountResponse): Promise
       mrr: bigQueryData.clientData?.[0]?.mrr ?
         Number(String(bigQueryData.clientData[0].mrr).replace(/,/g, '')) : account.mrr,
       relationshipStartDate: bigQueryData.clientData?.[0]?.original_contract_start_date ? 
-        new Date(bigQueryData.clientData[0].original_contract_start_date) : account.relationshipStartDate,
+        new Date(bigQueryData.clientData[0].original_contract_start_date) : account.relationshipStartDate || new Date(),
       contractStartDate: bigQueryData.clientData?.[0]?.points_mrr_start_date ? 
-        new Date(bigQueryData.clientData[0].points_mrr_start_date) : account.contractStartDate,
+        new Date(bigQueryData.clientData[0].points_mrr_start_date) : account.contractStartDate || new Date(),
       contractRenewalEnd: bigQueryData.clientData?.[0]?.contract_renewal_end ? 
-        new Date(bigQueryData.clientData[0].contract_renewal_end) : account.contractRenewalEnd,
+        new Date(bigQueryData.clientData[0].contract_renewal_end) : account.contractRenewalEnd || new Date(),
       employees: typeof account.employees === 'string' ? 
-        parseInt(String(account.employees).replace(/,/g, ''), 10) : account.employees,
+        parseInt(String(account.employees).replace(/[^\d.-]/g, ''), 10) : account.employees || 0,
       annualRevenue: typeof account.annualRevenue === 'string' ? 
-        parseInt(String(account.annualRevenue).replace(/,/g, ''), 10) : account.annualRevenue,
+        parseInt(String(account.annualRevenue).replace(/[^\d.-]/g, ''), 10) : account.annualRevenue || 0,
       goals: bigQueryData.goals?.map((goal: any) => ({
         id: goal.id,
         task_name: goal.task_name || '',
