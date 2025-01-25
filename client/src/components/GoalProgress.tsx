@@ -21,9 +21,10 @@ export const GoalProgress: React.FC<GoalProgressProps> = ({ goals }) => {
 
   // Calculate average progress of active goals
   const totalProgress = activeGoals.reduce((sum, goal) => {
-    // Ensure we're getting a number value for progress
-    const progress = typeof goal.progress === 'number' ? goal.progress : 0;
-    return sum + progress;
+    // Convert progress to a number, handling both string and number inputs
+    const progressValue = goal.progress?.toString() || '0';
+    const progress = Number(progressValue.replace(/%/g, ''));
+    return sum + (isNaN(progress) ? 0 : progress);
   }, 0);
   
   const averageProgress = Math.round(totalProgress / activeGoals.length);

@@ -358,6 +358,10 @@ function App() {
     );
   };
 
+  const averageMRR = filteredAccounts.length > 0
+    ? filteredAccounts.reduce((sum, account) => sum + account.mrr, 0) / filteredAccounts.length
+    : 0;
+
   return (
     <div className="app-container">
       <header className="app-header">
@@ -381,13 +385,26 @@ function App() {
           <div className="error-message">{error}</div>
         ) : (
           <div className="accounts-section">
-            <div className="metrics-summary">
+            <div className="metrics-container">
               <div className="metric-card">
                 <div className="metric-label">Total Accounts</div>
+                <div className="metric-value">{filteredAccounts.length}</div>
+              </div>
+              
+              <div className="metric-card">
+                <div className="metric-label">Total MRR</div>
                 <div className="metric-value">
-                  <div>{filteredAccounts.length}</div>
+                  ${filteredAccounts.reduce((sum, account) => sum + account.mrr, 0).toLocaleString()}
                 </div>
               </div>
+
+              <div className="metric-card">
+                <div className="metric-label">Average MRR</div>
+                <div className="metric-value">
+                  ${averageMRR.toLocaleString()}
+                </div>
+              </div>
+              
               <div className="metric-card warning">
                 <div className="metric-label">Accounts Off Track</div>
                 <div className="metric-value">
@@ -435,22 +452,6 @@ function App() {
                 </div>
               </div>
               <div className="metric-card">
-                <div className="metric-label">Average MRR</div>
-                <div className="metric-value">
-                  <div>
-                    ${filteredAccounts.length > 0 
-                      ? Math.round(
-                          filteredAccounts.reduce((sum, account) => {
-                            // Ensure we're working with a clean number
-                            const mrrValue = parseInt(account.mrr.toString().replace(/[$,]/g, ''));
-                            return sum + (isNaN(mrrValue) ? 0 : mrrValue);
-                          }, 0) / filteredAccounts.length
-                        ).toLocaleString()
-                      : 0}
-                  </div>
-                </div>
-              </div>
-              <div className="metric-card">
                 <div className="metric-label">Average Points Burden</div>
                 <div className="metric-value">
                   <div>
@@ -469,20 +470,20 @@ function App() {
             </div>
             <div className="filters-container">
               <div className="filters-section">
-                <div className="view-controls">
+                <div className="view-toggle-container">
                   <button 
-                    className={`view-button ${currentView === 'manager' ? 'active' : ''}`}
+                    className={currentView === 'manager' ? 'active' : ''} 
                     onClick={() => setCurrentView('manager')}
                   >
-                    <ClipboardDocumentListIcon className="h-5 w-5" aria-hidden="true" />
-                    <span>Manager</span>
+                    <ClipboardDocumentListIcon className="h-5 w-5 inline-block mr-2" />
+                    Manager
                   </button>
                   <button 
-                    className={`view-button ${currentView === 'finance' ? 'active' : ''}`}
+                    className={currentView === 'finance' ? 'active' : ''} 
                     onClick={() => setCurrentView('finance')}
                   >
-                    <BanknotesIcon className="h-5 w-5" aria-hidden="true" />
-                    <span>Finance</span>
+                    <BanknotesIcon className="h-5 w-5 inline-block mr-2" />
+                    Finance
                   </button>
                 </div>
                 <div className="filters-group">

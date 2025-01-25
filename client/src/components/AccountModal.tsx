@@ -294,10 +294,10 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                             <div className="progress-bar">
                               <div 
                                 className={`progress-fill ${goal.due_date && new Date(goal.due_date.replace(/\//g, '-')) < new Date() && goal.status.toLowerCase() !== 'closed' ? 'overdue' : ''}`}
-                                style={{ width: `${Number(goal.progress || 0)}%` }}
+                                style={{ width: `${Number(String(goal.progress || '0').replace(/%/g, ''))}%` }}
                               />
                             </div>
-                            <span className="progress-text">{goal.progress || 0}</span>
+                            <span className="progress-text">{goal.progress || 0}%</span>
                           </div>
                         </td>
                       </tr>
