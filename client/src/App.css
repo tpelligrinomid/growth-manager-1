@@ -678,155 +678,35 @@ html, body, #root {
 
 .metrics-summary {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;  /* Reduced from 2rem */
-  flex-wrap: wrap;  /* Allow cards to wrap on smaller screens */
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 8px 4px;
 }
 
-/* Adjust metric cards to be more compact within the filters container */
 .metric-card {
-  background: var(--nn-white);  /* Changed to white background */
-  padding: 1.25rem;
+  background: white;
   border-radius: 8px;
-  min-width: 200px;
-  border-left: 4px solid transparent;
-  box-shadow: 0 1px 3px var(--nn-shadow);
-  flex: 1;  /* Allow cards to grow evenly */
-  transition: all 0.3s ease;
-}
-
-.metric-card.warning {
-  border-left: 4px solid #ef4444;  /* Red for off track */
-}
-
-.metric-card.priority {
-  border-left: 4px solid #f59e0b;  /* Orange for Tier 1 */
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-width: 140px;
+  flex: 1;
 }
 
 .metric-label {
-  font-size: 0.875rem;
-  color: var(--nn-text);
-  margin-bottom: 0.5rem;
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 8px;
 }
 
 .metric-value {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-/* Base style for all metric values */
-.metric-value {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-/* Style for ALL metric values (both regular numbers and percentages) */
-.metric-value > div,
-.metric-value > span {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--nn-primary);
-}
-
-/* Specific adjustment for percentage values to prevent jumping */
-.metric-value > span {
-  min-width: 4.5rem;
-}
-
-/* Remove animation from text */
-.metric-value.changed > div,
-.metric-value.changed > span {
-  animation: none;
-}
-
-/* Only animate the pie chart */
-.metric-value.changed .pie-chart {
-  animation: pulse 0.3s ease;
-}
-
-.metric-value .pie-chart {
-  transition: transform 0.3s ease;
-}
-
-.pie-chart {
-  transition: transform 0.3s ease;
-  background: white;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-}
-
-.percentage-fill {
-  transition: all 0.6s ease;
-  opacity: 0.8;  /* Makes it slightly softer */
-}
-
-/* Add animation for metric value changes */
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-.metric-value.changed {
-  animation: pulse 0.3s ease;
-}
-
-/* Right justify number columns */
-.number-cell {
-  text-align: right;
-}
-
-/* Goals table styles */
-.goals-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 0.5rem;
-}
-
-.goals-table th,
-.goals-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid var(--nn-border);
-}
-
-.goals-table th {
-  font-weight: 500;
-  color: var(--nn-text);
-  background-color: #f8fafc;
-}
-
-.progress-cell {
-  width: 200px;
-}
-
-.goal-progress {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.progress-bar {
-  flex-grow: 1;
-  height: 8px;
-  background-color: #e5e7eb;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background-color: var(--nn-primary);
-  transition: width 0.3s ease;
-}
-
-.progress-text {
-  min-width: 40px;
-  font-size: 0.875rem;
-  color: var(--nn-text);
 }
 
 /* Remove all existing sync-button styles and replace with this */

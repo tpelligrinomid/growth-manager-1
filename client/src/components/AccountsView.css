@@ -1,18 +1,22 @@
 .view-toggle-container {
   display: inline-flex;
   border: 1px solid rgba(124, 58, 237, 0.2);
-  border-radius: 8px;
+  border-radius: 6px;
   padding: 2px;
   margin-bottom: 16px;
+  background: white;
 }
 
 .view-toggle-container button {
-  border-radius: 6px;
-  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
   font-size: 14px;
   font-weight: 500;
   background: transparent;
   border: none;
+  border-radius: 4px;
   cursor: pointer;
   color: #6b7280;
   transition: all 0.2s ease;
@@ -21,4 +25,9 @@
 .view-toggle-container button.active {
   background-color: #7c3aed;
   color: white;
+}
+
+.view-toggle-container button svg {
+  width: 16px;
+  height: 16px;
 } 

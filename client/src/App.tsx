@@ -492,14 +492,14 @@ function App() {
                     className={currentView === 'manager' ? 'active' : ''} 
                     onClick={() => setCurrentView('manager')}
                   >
-                    <ClipboardDocumentListIcon className="h-5 w-5 inline-block mr-2" />
+                    <ClipboardDocumentListIcon className="h-4 w-4" />
                     Manager
                   </button>
                   <button 
                     className={currentView === 'finance' ? 'active' : ''} 
                     onClick={() => setCurrentView('finance')}
                   >
-                    <BanknotesIcon className="h-5 w-5 inline-block mr-2" />
+                    <BanknotesIcon className="h-4 w-4" />
                     Finance
                   </button>
                 </div>
