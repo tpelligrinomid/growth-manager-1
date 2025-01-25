@@ -98,14 +98,14 @@ model Task {
 }
 
 model Goal {
-  id              String    @id
-  task_name       String
+  id              String    @id @default(uuid())
+  task_name       String    @default("")
   task_description String?
-  status          String
-  progress        Int
+  status          String    @default("")
+  progress        Int       @default(0)
   assignee        String?
-  created_date    DateTime
-  due_date        DateTime
+  created_date    DateTime  @default(now())
+  due_date        DateTime  @default(now())
   date_done       DateTime?
   created_by      String?
   account         Account   @relation(fields: [accountId], references: [id])
