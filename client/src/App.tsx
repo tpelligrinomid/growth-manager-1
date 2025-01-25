@@ -3,7 +3,7 @@ import {
   AccountResponse,
   AddAccountForm
 } from './types';
-import { PlusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ChartPieIcon, ClipboardDocumentListIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 import './App.css';
 import AccountModal from './components/AccountModal';
 import { AddAccountModal } from './components/AddAccountModal';
@@ -11,7 +11,6 @@ import { EditAccountModal } from './components/EditAccountModal';
 import { formatBusinessUnit, formatEngagementType, formatPriority, formatDelivery } from './utils/formatters';
 import { Filters } from './components/Filters';
 import { PieChart } from './components/PieChart';
-import { ClipboardDocumentListIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 import { GoalProgress } from './components/GoalProgress';
 import { API_URL } from './config/api';
 import { 
@@ -57,6 +56,7 @@ function App() {
     direction: 'asc'
   });
   const [currentView, setCurrentView] = useState<ViewType>('manager');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'tasks'>('dashboard');
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -382,399 +382,417 @@ function App() {
           Add Account
         </button>
       </header>
-      <main className="app-content">
-        {isLoading ? (
-          <LoadingSpinner />
-        ) : error ? (
-          <div className="error-message">{error}</div>
-        ) : (
-          <div className="accounts-section">
-            <div className="metrics-container">
-              <div className="metric-card">
-                <div className="metric-label">Total Accounts</div>
-                <div className="metric-value">{filteredAccounts.length}</div>
-              </div>
-
-              <div className="metric-card">
-                <div className="metric-label">Total MRR</div>
-                <div className="metric-value">
-                  ${filteredAccounts.reduce((sum, account) => {
-                    const mrrValue = String(account.mrr).replace(/[^0-9.-]+/g, '');
-                    return sum + (parseFloat(mrrValue) || 0);
-                  }, 0).toLocaleString()}
+      <div className="main-content-wrapper">
+        <nav className="sidebar">
+          <button 
+            className={`nav-button ${currentPage === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('dashboard')}
+          >
+            <ChartPieIcon className="nav-icon" />
+            <span className="nav-tooltip">Dashboard</span>
+          </button>
+          <button 
+            className={`nav-button ${currentPage === 'tasks' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('tasks')}
+          >
+            <ClipboardDocumentListIcon className="nav-icon" />
+            <span className="nav-tooltip">Tasks</span>
+          </button>
+        </nav>
+        <main className="app-content">
+          {isLoading ? (
+            <LoadingSpinner />
+          ) : error ? (
+            <div className="error-message">{error}</div>
+          ) : (
+            <div className="accounts-section">
+              <div className="metrics-container">
+                <div className="metric-card">
+                  <div className="metric-label">Total Accounts</div>
+                  <div className="metric-value">{filteredAccounts.length}</div>
                 </div>
-              </div>
 
-              <div className="metric-card">
-                <div className="metric-label">Average MRR</div>
-                <div className="metric-value">
-                  ${filteredAccounts.length > 0 
-                    ? Math.round(filteredAccounts.reduce((sum, account) => {
-                        const mrrValue = String(account.mrr).replace(/[^0-9.-]+/g, '');
-                        return sum + (parseFloat(mrrValue) || 0);
-                      }, 0) / filteredAccounts.length).toLocaleString()
-                    : 0}
+                <div className="metric-card">
+                  <div className="metric-label">Total MRR</div>
+                  <div className="metric-value">
+                    ${filteredAccounts.reduce((sum, account) => {
+                      const mrrValue = String(account.mrr).replace(/[^0-9.-]+/g, '');
+                      return sum + (parseFloat(mrrValue) || 0);
+                    }, 0).toLocaleString()}
+                  </div>
                 </div>
-              </div>
 
-              <div className="metric-card warning">
-                <div className="metric-label">Accounts Off Track</div>
-                <div className="metric-value">
-                  <div>{filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length}</div>
-                </div>
-              </div>
-
-              <div className="metric-card warning">
-                <div className="metric-label">% Off Track</div>
-                <div className="metric-value">
-                  <PieChart 
-                    percentage={calculatePercentage(
-                      filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length,
-                      filteredAccounts.length
-                    )} 
-                  />
-                  <span>
-                    {calculatePercentage(
-                      filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length,
-                      filteredAccounts.length
-                    )}%
-                  </span>
-                </div>
-              </div>
-
-              <div className="metric-card priority">
-                <div className="metric-label">Tier 1 Accounts</div>
-                <div className="metric-value">
-                  <div>{filteredAccounts.filter(account => account.priority === 'TIER_1').length}</div>
-                </div>
-              </div>
-
-              <div className="metric-card priority">
-                <div className="metric-label">% Tier 1</div>
-                <div className="metric-value">
-                  <PieChart 
-                    percentage={calculatePercentage(
-                      filteredAccounts.filter(account => account.priority === 'TIER_1').length,
-                      filteredAccounts.length
-                    )} 
-                  />
-                  <span>
-                    {calculatePercentage(
-                      filteredAccounts.filter(account => account.priority === 'TIER_1').length,
-                      filteredAccounts.length
-                    )}%
-                  </span>
-                </div>
-              </div>
-
-              <div className="metric-card">
-                <div className="metric-label">Average Points Burden</div>
-                <div className="metric-value">
-                  <div>
-                    {filteredAccounts.length > 0
-                      ? Math.round(
-                          filteredAccounts.reduce((sum, account) => {
-                            const strikingDistance = Number(account.pointsStrikingDistance) || 0;
-                            return sum + strikingDistance;
-                          }, 0) / filteredAccounts.length
-                        )
+                <div className="metric-card">
+                  <div className="metric-label">Average MRR</div>
+                  <div className="metric-value">
+                    ${filteredAccounts.length > 0 
+                      ? Math.round(filteredAccounts.reduce((sum, account) => {
+                          const mrrValue = String(account.mrr).replace(/[^0-9.-]+/g, '');
+                          return sum + (parseFloat(mrrValue) || 0);
+                        }, 0) / filteredAccounts.length).toLocaleString()
                       : 0}
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="filters-container">
-              <div className="filters-section">
-                <div className="view-toggle-container">
-                  <button 
-                    className={currentView === 'manager' ? 'active' : ''} 
-                    onClick={() => setCurrentView('manager')}
-                  >
-                    <ClipboardDocumentListIcon className="h-4 w-4" />
-                    Manager
-                  </button>
-                  <button 
-                    className={currentView === 'finance' ? 'active' : ''} 
-                    onClick={() => setCurrentView('finance')}
-                  >
-                    <BanknotesIcon className="h-4 w-4" />
-                    Finance
-                  </button>
+                <div className="metric-card warning">
+                  <div className="metric-label">Accounts Off Track</div>
+                  <div className="metric-value">
+                    <div>{filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length}</div>
+                  </div>
                 </div>
-                <div className="filters-group">
-                  <Filters
-                    filters={filters}
-                    onFilterChange={handleFilterChange}
-                    view={currentView}
-                  />
+
+                <div className="metric-card warning">
+                  <div className="metric-label">% Off Track</div>
+                  <div className="metric-value">
+                    <PieChart 
+                      percentage={calculatePercentage(
+                        filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length,
+                        filteredAccounts.length
+                      )} 
+                    />
+                    <span>
+                      {calculatePercentage(
+                        filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length,
+                        filteredAccounts.length
+                      )}%
+                    </span>
+                  </div>
+                </div>
+
+                <div className="metric-card priority">
+                  <div className="metric-label">Tier 1 Accounts</div>
+                  <div className="metric-value">
+                    <div>{filteredAccounts.filter(account => account.priority === 'TIER_1').length}</div>
+                  </div>
+                </div>
+
+                <div className="metric-card priority">
+                  <div className="metric-label">% Tier 1</div>
+                  <div className="metric-value">
+                    <PieChart 
+                      percentage={calculatePercentage(
+                        filteredAccounts.filter(account => account.priority === 'TIER_1').length,
+                        filteredAccounts.length
+                      )} 
+                    />
+                    <span>
+                      {calculatePercentage(
+                        filteredAccounts.filter(account => account.priority === 'TIER_1').length,
+                        filteredAccounts.length
+                      )}%
+                    </span>
+                  </div>
+                </div>
+
+                <div className="metric-card">
+                  <div className="metric-label">Average Points Burden</div>
+                  <div className="metric-value">
+                    <div>
+                      {filteredAccounts.length > 0
+                        ? Math.round(
+                            filteredAccounts.reduce((sum, account) => {
+                              const strikingDistance = Number(account.pointsStrikingDistance) || 0;
+                              return sum + strikingDistance;
+                            }, 0) / filteredAccounts.length
+                          )
+                        : 0}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <table className="accounts-table">
-              <thead>
-                <tr>
-                  {currentView === 'manager' ? (
-                    <>
-                      <th 
-                        onClick={() => handleSort('accountName')} 
-                        className={`sortable-header ${sortConfig.key === 'accountName' ? 'sort-active' : ''}`}
-                      >
-                        Account Name
-                        {sortConfig.key === 'accountName' && (
-                          <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                      <th 
-                        onClick={() => handleSort('businessUnit')} 
-                        className={`sortable-header ${sortConfig.key === 'businessUnit' ? 'sort-active' : ''}`}
-                      >
-                        Business Unit
-                        {sortConfig.key === 'businessUnit' && (
-                          <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                      <th>Engagement Type</th>
-                      <th 
-                        onClick={() => handleSort('priority')}
-                        className={`sortable-header ${sortConfig.key === 'priority' ? 'sort-active' : ''}`}
-                      >
-                        <div className="header-with-tooltip">
-                          Priority
-                          <span className="tooltip">
-                            • Tier 1 = Actively working<br/>
-                            • Tier 2 = Client or delivery issues<br/>
-                            • Tier 3 = Smooth<br/>
-                            • Tier 4 = Low risk and low reward
-                          </span>
-                          {sortConfig.key === 'priority' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
-                        </div>
-                      </th>
-                      <th 
-                        onClick={() => handleSort('accountManager')} 
-                        className={`sortable-header ${sortConfig.key === 'accountManager' ? 'sort-active' : ''}`}
-                      >
-                        Account Manager
-                        {sortConfig.key === 'accountManager' && (
-                          <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                      <th 
-                        onClick={() => handleSort('mrr')} 
-                        className={`sortable-header ${sortConfig.key === 'mrr' ? 'sort-active' : ''}`}
-                      >
-                        MRR
-                        {sortConfig.key === 'mrr' && (
-                          <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                      <th>Recurring Points</th>
-                      <th>Points Purchased</th>
-                      <th>Points Delivered</th>
-                      <th>
-                        <div className="header-with-tooltip">
-                          Points Balance
-                          <span className="tooltip">
-                            Points Purchased - Points Delivered
-                          </span>
-                        </div>
-                      </th>
-                      <th 
-                        onClick={() => handleSort('pointsStrikingDistance')} 
-                        className={`sortable-header ${sortConfig.key === 'pointsStrikingDistance' ? 'sort-active' : ''}`}
-                      >
-                        <div className="header-with-tooltip">
-                          Points Burden
-                          <span className="tooltip">
-                            Points Balance - (1.5 × Recurring Points)<br/>
-                            Positive = Off Track, Negative = On Track
-                          </span>
-                        </div>
-                        {sortConfig.key === 'pointsStrikingDistance' && (
-                          <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                      <th>
-                        <div className="header-with-tooltip">
-                          Delivery
-                          <span className="tooltip">
-                            Based on Striking Distance:<br />
-                            • Off Track if &gt; 0<br />
-                            • On Track if ≤ 0
-                          </span>
-                        </div>
-                      </th>
-                      <th>Goals</th>
-                    </>
-                  ) : (
-                    <>
-                      <th 
-                        onClick={() => handleSort('accountName')} 
-                        className={`sortable-header ${sortConfig.key === 'accountName' ? 'sort-active' : ''}`}
-                      >
-                        Account Name
-                        {sortConfig.key === 'accountName' && (
-                          <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                      <th 
-                        onClick={() => handleSort('businessUnit')}
-                        className={`sortable-header ${sortConfig.key === 'businessUnit' ? 'sort-active' : ''}`}
-                      >
-                        Business Unit
-                        {sortConfig.key === 'businessUnit' && (
-                          <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                      <th>Engagement Type</th>
-                      <th 
-                        onClick={() => handleSort('priority')}
-                        className={`sortable-header ${sortConfig.key === 'priority' ? 'sort-active' : ''}`}
-                      >
-                        <div className="header-with-tooltip">
-                          Priority
-                          <span className="tooltip">
-                            • Tier 1 = Actively working<br/>
-                            • Tier 2 = Client or delivery issues<br/>
-                            • Tier 3 = Smooth<br/>
-                            • Tier 4 = Low risk and low reward
-                          </span>
-                          {sortConfig.key === 'priority' && (
-                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                          )}
-                        </div>
-                      </th>
-                      <th 
-                        onClick={() => handleSort('mrr')}
-                        className={`sortable-header ${sortConfig.key === 'mrr' ? 'sort-active' : ''}`}
-                      >
-                        MRR
-                        {sortConfig.key === 'mrr' && (
-                          <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                      <th 
-                        onClick={() => handleSort('growthInMrr')}
-                        className={`sortable-header ${sortConfig.key === 'growthInMrr' ? 'sort-active' : ''}`}
-                      >
-                        Growth in MRR
-                        {sortConfig.key === 'growthInMrr' && (
-                          <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                      <th 
-                        onClick={() => handleSort('potentialMrr')}
-                        className={`sortable-header ${sortConfig.key === 'potentialMrr' ? 'sort-active' : ''}`}
-                      >
-                        Potential MRR
-                        {sortConfig.key === 'potentialMrr' && (
-                          <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                      <th 
-                        onClick={() => handleSort('relationshipStartDate')}
-                        className={`sortable-header ${sortConfig.key === 'relationshipStartDate' ? 'sort-active' : ''}`}
-                      >
-                        Relationship Start
-                        {sortConfig.key === 'relationshipStartDate' && (
-                          <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                      <th 
-                        onClick={() => handleSort('clientTenure')}
-                        className={`sortable-header ${sortConfig.key === 'clientTenure' ? 'sort-active' : ''}`}
-                      >
-                        Client Tenure
-                        {sortConfig.key === 'clientTenure' && (
-                          <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                      <th 
-                        onClick={() => handleSort('contractStartDate')}
-                        className={`sortable-header ${sortConfig.key === 'contractStartDate' ? 'sort-active' : ''}`}
-                      >
-                        Contract Start
-                        {sortConfig.key === 'contractStartDate' && (
-                          <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                      <th 
-                        onClick={() => handleSort('contractRenewalEnd')}
-                        className={`sortable-header ${sortConfig.key === 'contractRenewalEnd' ? 'sort-active' : ''}`}
-                      >
-                        Contract End
-                        {sortConfig.key === 'contractRenewalEnd' && (
-                          <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                      <th>Goals</th>
-                    </>
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {sortedAccounts.map((account) => (
-                  <tr key={account.id} onClick={() => setSelectedAccount(account)}>
+
+              <div className="filters-container">
+                <div className="filters-section">
+                  <div className="view-toggle-container">
+                    <button 
+                      className={currentView === 'manager' ? 'active' : ''} 
+                      onClick={() => setCurrentView('manager')}
+                    >
+                      <ClipboardDocumentListIcon className="h-4 w-4" />
+                      Manager
+                    </button>
+                    <button 
+                      className={currentView === 'finance' ? 'active' : ''} 
+                      onClick={() => setCurrentView('finance')}
+                    >
+                      <BanknotesIcon className="h-4 w-4" />
+                      Finance
+                    </button>
+                  </div>
+                  <div className="filters-group">
+                    <Filters
+                      filters={filters}
+                      onFilterChange={handleFilterChange}
+                      view={currentView}
+                    />
+                  </div>
+                </div>
+              </div>
+              <table className="accounts-table">
+                <thead>
+                  <tr>
                     {currentView === 'manager' ? (
                       <>
-                        <td>{account.accountName}</td>
-                        <td>{formatBusinessUnit(account.businessUnit)}</td>
-                        <td>{formatEngagementType(account.engagementType)}</td>
-                        <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
-                          {formatPriority(account.priority)}
-                        </td>
-                        <td>{account.accountManager}</td>
-                        <td className="number-cell">${account.mrr.toLocaleString()}</td>
-                        <td className="number-cell">{account.recurringPointsAllotment}</td>
-                        <td className="number-cell">{account.pointsPurchased}</td>
-                        <td className="number-cell">{account.pointsDelivered}</td>
-                        <td className="number-cell">
-                          {calculatePointsBalance(account)}
-                        </td>
-                        <td className="number-cell">{account.pointsStrikingDistance}</td>
-                        <td className={`delivery-${account.delivery.toLowerCase().replace('_', '-')}`}>
-                          {formatDelivery(account.delivery)}
-                        </td>
-                        <td>
-                          <GoalProgress goals={account.goals || []} />
-                        </td>
+                        <th 
+                          onClick={() => handleSort('accountName')} 
+                          className={`sortable-header ${sortConfig.key === 'accountName' ? 'sort-active' : ''}`}
+                        >
+                          Account Name
+                          {sortConfig.key === 'accountName' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </th>
+                        <th 
+                          onClick={() => handleSort('businessUnit')} 
+                          className={`sortable-header ${sortConfig.key === 'businessUnit' ? 'sort-active' : ''}`}
+                        >
+                          Business Unit
+                          {sortConfig.key === 'businessUnit' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </th>
+                        <th>Engagement Type</th>
+                        <th 
+                          onClick={() => handleSort('priority')}
+                          className={`sortable-header ${sortConfig.key === 'priority' ? 'sort-active' : ''}`}
+                        >
+                          <div className="header-with-tooltip">
+                            Priority
+                            <span className="tooltip">
+                              • Tier 1 = Actively working<br/>
+                              • Tier 2 = Client or delivery issues<br/>
+                              • Tier 3 = Smooth<br/>
+                              • Tier 4 = Low risk and low reward
+                            </span>
+                            {sortConfig.key === 'priority' && (
+                              <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                            )}
+                          </div>
+                        </th>
+                        <th 
+                          onClick={() => handleSort('accountManager')} 
+                          className={`sortable-header ${sortConfig.key === 'accountManager' ? 'sort-active' : ''}`}
+                        >
+                          Account Manager
+                          {sortConfig.key === 'accountManager' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </th>
+                        <th 
+                          onClick={() => handleSort('mrr')} 
+                          className={`sortable-header ${sortConfig.key === 'mrr' ? 'sort-active' : ''}`}
+                        >
+                          MRR
+                          {sortConfig.key === 'mrr' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </th>
+                        <th>Recurring Points</th>
+                        <th>Points Purchased</th>
+                        <th>Points Delivered</th>
+                        <th>
+                          <div className="header-with-tooltip">
+                            Points Balance
+                            <span className="tooltip">
+                              Points Purchased - Points Delivered
+                            </span>
+                          </div>
+                        </th>
+                        <th 
+                          onClick={() => handleSort('pointsStrikingDistance')} 
+                          className={`sortable-header ${sortConfig.key === 'pointsStrikingDistance' ? 'sort-active' : ''}`}
+                        >
+                          <div className="header-with-tooltip">
+                            Points Burden
+                            <span className="tooltip">
+                              Points Balance - (1.5 × Recurring Points)<br/>
+                              Positive = Off Track, Negative = On Track
+                            </span>
+                          </div>
+                          {sortConfig.key === 'pointsStrikingDistance' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </th>
+                        <th>
+                          <div className="header-with-tooltip">
+                            Delivery
+                            <span className="tooltip">
+                              Based on Striking Distance:<br />
+                              • Off Track if &gt; 0<br />
+                              • On Track if ≤ 0
+                            </span>
+                          </div>
+                        </th>
+                        <th>Goals</th>
                       </>
                     ) : (
                       <>
-                        <td>{account.accountName}</td>
-                        <td>{formatBusinessUnit(account.businessUnit)}</td>
-                        <td>{formatEngagementType(account.engagementType)}</td>
-                        <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
-                          {formatPriority(account.priority)}
-                        </td>
-                        <td className="number-cell">${account.mrr.toLocaleString()}</td>
-                        <td className="number-cell">${account.growthInMrr.toLocaleString()}</td>
-                        <td className="number-cell">${account.potentialMrr.toLocaleString()}</td>
-                        <td>{new Date(account.relationshipStartDate).toLocaleDateString()}</td>
-                        <td>{calculateClientTenure(account.relationshipStartDate)} months</td>
-                        <td>{new Date(account.contractStartDate).toLocaleDateString()}</td>
-                        <td>{new Date(account.contractRenewalEnd).toLocaleDateString()}</td>
-                        <td className="number-cell">{account.recurringPointsAllotment}</td>
-                        <td className="number-cell">{account.pointsPurchased}</td>
-                        <td className="number-cell">{account.pointsDelivered}</td>
-                        <td className="number-cell">
-                          {calculatePointsBalance(account)}
-                        </td>
-                        <td>{determineDeliveryStatus(account.pointsStrikingDistance)}</td>
-                        <td>
-                          <GoalProgress goals={account.goals || []} />
-                        </td>
+                        <th 
+                          onClick={() => handleSort('accountName')} 
+                          className={`sortable-header ${sortConfig.key === 'accountName' ? 'sort-active' : ''}`}
+                        >
+                          Account Name
+                          {sortConfig.key === 'accountName' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </th>
+                        <th 
+                          onClick={() => handleSort('businessUnit')}
+                          className={`sortable-header ${sortConfig.key === 'businessUnit' ? 'sort-active' : ''}`}
+                        >
+                          Business Unit
+                          {sortConfig.key === 'businessUnit' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </th>
+                        <th>Engagement Type</th>
+                        <th 
+                          onClick={() => handleSort('priority')}
+                          className={`sortable-header ${sortConfig.key === 'priority' ? 'sort-active' : ''}`}
+                        >
+                          <div className="header-with-tooltip">
+                            Priority
+                            <span className="tooltip">
+                              • Tier 1 = Actively working<br/>
+                              • Tier 2 = Client or delivery issues<br/>
+                              • Tier 3 = Smooth<br/>
+                              • Tier 4 = Low risk and low reward
+                            </span>
+                            {sortConfig.key === 'priority' && (
+                              <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                            )}
+                          </div>
+                        </th>
+                        <th 
+                          onClick={() => handleSort('mrr')}
+                          className={`sortable-header ${sortConfig.key === 'mrr' ? 'sort-active' : ''}`}
+                        >
+                          MRR
+                          {sortConfig.key === 'mrr' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </th>
+                        <th 
+                          onClick={() => handleSort('growthInMrr')}
+                          className={`sortable-header ${sortConfig.key === 'growthInMrr' ? 'sort-active' : ''}`}
+                        >
+                          Growth in MRR
+                          {sortConfig.key === 'growthInMrr' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </th>
+                        <th 
+                          onClick={() => handleSort('potentialMrr')}
+                          className={`sortable-header ${sortConfig.key === 'potentialMrr' ? 'sort-active' : ''}`}
+                        >
+                          Potential MRR
+                          {sortConfig.key === 'potentialMrr' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </th>
+                        <th 
+                          onClick={() => handleSort('relationshipStartDate')}
+                          className={`sortable-header ${sortConfig.key === 'relationshipStartDate' ? 'sort-active' : ''}`}
+                        >
+                          Relationship Start
+                          {sortConfig.key === 'relationshipStartDate' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </th>
+                        <th 
+                          onClick={() => handleSort('clientTenure')}
+                          className={`sortable-header ${sortConfig.key === 'clientTenure' ? 'sort-active' : ''}`}
+                        >
+                          Client Tenure
+                          {sortConfig.key === 'clientTenure' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </th>
+                        <th 
+                          onClick={() => handleSort('contractStartDate')}
+                          className={`sortable-header ${sortConfig.key === 'contractStartDate' ? 'sort-active' : ''}`}
+                        >
+                          Contract Start
+                          {sortConfig.key === 'contractStartDate' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </th>
+                        <th 
+                          onClick={() => handleSort('contractRenewalEnd')}
+                          className={`sortable-header ${sortConfig.key === 'contractRenewalEnd' ? 'sort-active' : ''}`}
+                        >
+                          Contract End
+                          {sortConfig.key === 'contractRenewalEnd' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
+                        </th>
+                        <th>Goals</th>
                       </>
                     )}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </main>
+                </thead>
+                <tbody>
+                  {sortedAccounts.map((account) => (
+                    <tr key={account.id} onClick={() => setSelectedAccount(account)}>
+                      {currentView === 'manager' ? (
+                        <>
+                          <td>{account.accountName}</td>
+                          <td>{formatBusinessUnit(account.businessUnit)}</td>
+                          <td>{formatEngagementType(account.engagementType)}</td>
+                          <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
+                            {formatPriority(account.priority)}
+                          </td>
+                          <td>{account.accountManager}</td>
+                          <td className="number-cell">${account.mrr.toLocaleString()}</td>
+                          <td className="number-cell">{account.recurringPointsAllotment}</td>
+                          <td className="number-cell">{account.pointsPurchased}</td>
+                          <td className="number-cell">{account.pointsDelivered}</td>
+                          <td className="number-cell">
+                            {calculatePointsBalance(account)}
+                          </td>
+                          <td className="number-cell">{account.pointsStrikingDistance}</td>
+                          <td className={`delivery-${account.delivery.toLowerCase().replace('_', '-')}`}>
+                            {formatDelivery(account.delivery)}
+                          </td>
+                          <td>
+                            <GoalProgress goals={account.goals || []} />
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td>{account.accountName}</td>
+                          <td>{formatBusinessUnit(account.businessUnit)}</td>
+                          <td>{formatEngagementType(account.engagementType)}</td>
+                          <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
+                            {formatPriority(account.priority)}
+                          </td>
+                          <td className="number-cell">${account.mrr.toLocaleString()}</td>
+                          <td className="number-cell">${account.growthInMrr.toLocaleString()}</td>
+                          <td className="number-cell">${account.potentialMrr.toLocaleString()}</td>
+                          <td>{new Date(account.relationshipStartDate).toLocaleDateString()}</td>
+                          <td>{calculateClientTenure(account.relationshipStartDate)} months</td>
+                          <td>{new Date(account.contractStartDate).toLocaleDateString()}</td>
+                          <td>{new Date(account.contractRenewalEnd).toLocaleDateString()}</td>
+                          <td className="number-cell">{account.recurringPointsAllotment}</td>
+                          <td className="number-cell">{account.pointsPurchased}</td>
+                          <td className="number-cell">{account.pointsDelivered}</td>
+                          <td className="number-cell">
+                            {calculatePointsBalance(account)}
+                          </td>
+                          <td>{determineDeliveryStatus(account.pointsStrikingDistance)}</td>
+                          <td>
+                            <GoalProgress goals={account.goals || []} />
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </main>
+      </div>
       {selectedAccount && (
         <AccountModal
           account={selectedAccount}
