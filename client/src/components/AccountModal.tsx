@@ -160,42 +160,46 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
             </div>
           </div>
 
-          <div className="modal-section">
+          <div className="detail-section">
             <div className="section-header">
               <ChartBarIcon className="section-icon" />
               <h3>Goals</h3>
             </div>
-            <table className="goals-table">
-              <thead>
-                <tr>
-                  <th>Description (Task Name)</th>
-                  <th>Due Date</th>
-                  <th>Progress</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentAccount.goals?.map((goal: Goal) => (
-                  <tr key={goal.id}>
-                    <td>{goal.task_name}</td>
-                    <td>{formatDate(goal.due_date)}</td>
-                    <td className="progress-cell">
-                      <div className="progress-bar-container">
-                        <div 
-                          className="progress-bar" 
-                          style={{ width: `${goal.progress || 0}%` }}
-                        />
-                      </div>
-                      <span className="progress-text">{(goal.progress || 0)}%</span>
-                    </td>
-                  </tr>
-                ))}
-                {(!currentAccount.goals || currentAccount.goals.length === 0) && (
+            <div className="section-content">
+              <table className="goals-table">
+                <thead>
                   <tr>
-                    <td colSpan={3}>No goals found</td>
+                    <th>Description (Task Name)</th>
+                    <th>Due Date</th>
+                    <th>Progress</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {currentAccount.goals?.map((goal: Goal) => (
+                    <tr key={goal.id}>
+                      <td>{goal.task_name}</td>
+                      <td>{formatDate(goal.due_date)}</td>
+                      <td className="progress-cell">
+                        <div className="goal-progress">
+                          <div className="progress-bar">
+                            <div 
+                              className={`progress-fill ${new Date(goal.due_date) < new Date() && (goal.progress ?? 0) < 100 ? 'overdue' : ''}`}
+                              style={{ width: `${goal.progress ?? 0}%` }}
+                            />
+                          </div>
+                          <span className="progress-text">{(goal.progress ?? 0)}%</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {(!currentAccount.goals || currentAccount.goals.length === 0) && (
+                    <tr>
+                      <td colSpan={3}>No goals found</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div className="detail-section">

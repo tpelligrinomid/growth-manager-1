@@ -22,6 +22,8 @@ export const syncAccountWithBigQuery = async (account: AccountResponse): Promise
     const updateData = {
       ...account,
       accountName: bigQueryData.clientData?.[0]?.client_name || account.accountName,
+      accountManager: bigQueryData.clientData?.[0]?.account_manager || account.accountManager,
+      teamManager: bigQueryData.clientData?.[0]?.team_manager || account.teamManager,
       pointsPurchased: bigQueryData.points?.[0]?.points_purchased ? 
         Number(String(bigQueryData.points[0].points_purchased).replace(/,/g, '')) : account.pointsPurchased,
       pointsDelivered: bigQueryData.points?.[0]?.points_delivered ? 
@@ -30,6 +32,9 @@ export const syncAccountWithBigQuery = async (account: AccountResponse): Promise
         Number(String(bigQueryData.clientData[0].recurring_points_allotment).replace(/,/g, '')) : account.recurringPointsAllotment,
       mrr: bigQueryData.clientData?.[0]?.mrr ?
         Number(String(bigQueryData.clientData[0].mrr).replace(/,/g, '')) : account.mrr,
+      relationshipStartDate: bigQueryData.clientData?.[0]?.original_contract_start_date || account.relationshipStartDate,
+      contractStartDate: bigQueryData.clientData?.[0]?.points_mrr_start_date || account.contractStartDate,
+      contractRenewalEnd: bigQueryData.clientData?.[0]?.contract_renewal_end || account.contractRenewalEnd,
       goals: bigQueryData.goals?.map((goal: any) => ({
         id: goal.id,
         task_name: goal.task_name || '',
