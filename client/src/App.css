@@ -81,6 +81,7 @@ html, body, #root {
   box-shadow: 0 4px 6px var(--nn-shadow);
   overflow: hidden;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .accounts-table th,
@@ -89,6 +90,8 @@ html, body, #root {
   border-bottom: 1px solid var(--nn-border);
   white-space: nowrap;
   text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .accounts-table th {
@@ -644,8 +647,7 @@ html, body, #root {
 
 .sortable-header {
   cursor: pointer;
-  position: relative;
-  padding-right: 1.5rem;
+  padding-right: 1.5rem !important;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -670,6 +672,7 @@ html, body, #root {
   margin-left: auto;
   font-size: 0.75rem;
   opacity: 0.8;
+  flex-shrink: 0;
 }
 
 .sortable-header:hover .sort-arrow {
