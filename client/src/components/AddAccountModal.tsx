@@ -191,21 +191,23 @@ export const AddAccountModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                   />
                 </div>
                 <div className="form-field">
-                  <label htmlFor="clientFolderId">Client Folder ID</label>
+                  <label htmlFor="clientFolderId">Client Folder ID *</label>
                   <input
                     type="text"
                     id="clientFolderId"
                     value={formData.clientFolderId}
                     onChange={e => setFormData({...formData, clientFolderId: e.target.value})}
+                    required
                   />
                 </div>
                 <div className="form-field">
-                  <label htmlFor="clientListTaskId">Client List Task ID</label>
+                  <label htmlFor="clientListTaskId">Client List Task ID *</label>
                   <input
                     type="text"
                     id="clientListTaskId"
                     value={formData.clientListTaskId}
                     onChange={e => setFormData({...formData, clientListTaskId: e.target.value})}
+                    required
                   />
                 </div>
               </div>
