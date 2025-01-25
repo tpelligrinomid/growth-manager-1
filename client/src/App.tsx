@@ -203,10 +203,14 @@ function App() {
 
   const handleEditAccount = async (accountData: AccountResponse) => {
     try {
-      console.log('Starting account edit for:', accountData.accountName);
-      console.log('Current account data:', accountData);
+      console.log('=== EDIT ACCOUNT START ===');
+      console.log('Account being edited:', accountData.accountName);
+      console.log('Current folder ID:', selectedAccount?.clientFolderId);
+      console.log('New folder ID:', accountData.clientFolderId);
+      console.log('Full account data:', accountData);
       
       // Step 1: Save the manual edits
+      console.log('Step 1: Saving manual edits...');
       const response = await fetch(`${API_URL}/api/accounts/${accountData.id}`, {
         method: 'PUT',
         headers: {
@@ -215,43 +219,44 @@ function App() {
         body: JSON.stringify(accountData),
       });
 
+      const responseData = await response.json();
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Server error:', errorData);
-        throw new Error(errorData.error || 'Failed to update account');
+        console.error('Manual edit failed:', responseData);
+        throw new Error(responseData.error || 'Failed to update account');
       }
 
-      let { data: updatedAccount } = await response.json();
-      console.log('Initial update successful:', updatedAccount);
+      let { data: updatedAccount } = responseData;
+      console.log('Manual edit successful:', updatedAccount);
 
       // Step 2: If folder ID changed, fetch fresh BigQuery data
       if (selectedAccount && selectedAccount.clientFolderId !== accountData.clientFolderId) {
-        console.log('Folder ID changed. Fetching BigQuery data...');
+        console.log('Step 2: Folder ID changed, fetching BigQuery data...');
+        console.log('Fetching data for folder ID:', accountData.clientFolderId);
 
         const bigQueryResponse = await fetch(`${API_URL}/api/bigquery/account/${accountData.clientFolderId}`);
+        const bigQueryResponseData = await bigQueryResponse.json();
         
         if (!bigQueryResponse.ok) {
-          const errorData = await bigQueryResponse.json();
-          console.error('BigQuery error:', errorData);
+          console.error('BigQuery fetch failed:', bigQueryResponseData);
           throw new Error('Failed to fetch BigQuery data');
         }
         
-        const bigQueryData = await bigQueryResponse.json();
-        console.log('Received BigQuery data:', bigQueryData);
+        console.log('BigQuery data received:', bigQueryResponseData);
         
         // Step 3: Update account with BigQuery data
+        console.log('Step 3: Preparing BigQuery update...');
         const updateData = {
-          ...updatedAccount, // Preserve all existing account data
-          pointsPurchased: bigQueryData.points?.[0]?.points_purchased ? 
-            Number(String(bigQueryData.points[0].points_purchased).replace(/,/g, '')) : updatedAccount.pointsPurchased,
-          pointsDelivered: bigQueryData.points?.[0]?.points_delivered ? 
-            Number(String(bigQueryData.points[0].points_delivered).replace(/,/g, '')) : updatedAccount.pointsDelivered,
-          recurringPointsAllotment: bigQueryData.clientData?.[0]?.recurring_points_allotment ? 
-            Number(String(bigQueryData.clientData[0].recurring_points_allotment).replace(/,/g, '')) : updatedAccount.recurringPointsAllotment,
-          goals: bigQueryData.goals || updatedAccount.goals
+          ...updatedAccount,
+          pointsPurchased: bigQueryResponseData.points?.[0]?.points_purchased ? 
+            Number(String(bigQueryResponseData.points[0].points_purchased).replace(/,/g, '')) : updatedAccount.pointsPurchased,
+          pointsDelivered: bigQueryResponseData.points?.[0]?.points_delivered ? 
+            Number(String(bigQueryResponseData.points[0].points_delivered).replace(/,/g, '')) : updatedAccount.pointsDelivered,
+          recurringPointsAllotment: bigQueryResponseData.clientData?.[0]?.recurring_points_allotment ? 
+            Number(String(bigQueryResponseData.clientData[0].recurring_points_allotment).replace(/,/g, '')) : updatedAccount.recurringPointsAllotment,
+          goals: bigQueryResponseData.goals || updatedAccount.goals
         };
         
-        console.log('Preparing to update with:', updateData);
+        console.log('Update data prepared:', updateData);
 
         const bigQueryUpdateResponse = await fetch(`${API_URL}/api/accounts/${accountData.id}`, {
           method: 'PUT',
@@ -261,18 +266,19 @@ function App() {
           body: JSON.stringify(updateData)
         });
 
+        const bigQueryUpdateResponseData = await bigQueryUpdateResponse.json();
         if (!bigQueryUpdateResponse.ok) {
-          const errorData = await bigQueryUpdateResponse.json();
-          console.error('BigQuery update error:', errorData);
+          console.error('BigQuery update failed:', bigQueryUpdateResponseData);
           throw new Error('Failed to update account with BigQuery data');
         }
 
-        const { data: finalAccount } = await bigQueryUpdateResponse.json();
-        console.log('Final update successful:', finalAccount);
+        const { data: finalAccount } = bigQueryUpdateResponseData;
+        console.log('BigQuery update successful:', finalAccount);
         updatedAccount = finalAccount;
       }
 
       // Step 4: Update UI
+      console.log('Step 4: Updating UI with final data:', updatedAccount);
       setAccounts(prevAccounts => 
         prevAccounts.map(acc => 
           acc.id === updatedAccount.id ? updatedAccount : acc
@@ -280,9 +286,12 @@ function App() {
       );
       setSelectedAccount(updatedAccount);
       setIsEditModalOpen(false);
+      console.log('=== EDIT ACCOUNT COMPLETE ===');
 
     } catch (error) {
-      console.error('Detailed error:', error);
+      console.error('=== EDIT ACCOUNT ERROR ===');
+      console.error('Error details:', error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       alert(error instanceof Error ? error.message : 'Failed to update account');
     }
   };
