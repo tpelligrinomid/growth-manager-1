@@ -142,15 +142,17 @@ html, body, #root {
 
 .header-with-tooltip {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  cursor: help;
+  gap: 0.5rem;
+  width: 100%;
+  cursor: pointer;
 }
 
 .tooltip {
   visibility: hidden;
   position: absolute;
-  top: 100%;
+  top: calc(100% + 0.5rem);
   left: 50%;
   transform: translateX(-50%);
   background-color: var(--nn-white);
@@ -204,6 +206,7 @@ html, body, #root {
   right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
+  z-index: 1;
 }
 
 .number-cell {
@@ -1062,8 +1065,10 @@ html, body, #root {
 }
 
 .nav-button {
-  width: 100%;
-  padding: 0.75rem;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  padding: 0.5rem;
   background: none;
   border: none;
   color: var(--nn-primary);
@@ -1073,6 +1078,7 @@ html, body, #root {
   justify-content: center;
   align-items: center;
   transition: all 0.2s ease;
+  border-radius: 8px;
 }
 
 .nav-button:hover {
