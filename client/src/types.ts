@@ -29,11 +29,15 @@ export enum Service {
 
 export interface Goal {
   id: string;
-  description: string;
   task_name: string;
-  dueDate: string;
-  progress: number | null;
+  task_description: string | null;
   status: string;
+  progress: number | null;
+  assignee: string | null;
+  created_date: string;
+  due_date: string;
+  date_done: string | null;
+  created_by: string;
 }
 
 export interface AccountResponse {

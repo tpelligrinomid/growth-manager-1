@@ -255,7 +255,8 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
           description: goal.task_name,
           status: goal.status.toUpperCase().replace(' ', '_'),
           dueDate: new Date(goal.due_date),
-          progress: goal.progress || 0
+          progress: goal.progress || 0,
+          accountId: id
         }))
       };
     }
