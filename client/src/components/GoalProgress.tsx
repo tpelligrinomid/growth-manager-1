@@ -35,17 +35,20 @@ export const GoalProgress: React.FC<GoalProgressProps> = ({ goals }) => {
     return sum + progress;
   }, 0);
   
-  const averageProgress = Math.round(totalProgress / activeGoals.length);
+  const averageProgress = activeGoals.length > 0 ? Math.round(totalProgress / activeGoals.length) : 0;
+
+  // If averageProgress is NaN, display 0
+  const displayProgress = isNaN(averageProgress) ? 0 : averageProgress;
 
   return (
     <div className="goal-progress">
       <div className="progress-bar">
         <div 
           className="progress-fill"
-          style={{ width: `${averageProgress}%` }}
+          style={{ width: `${displayProgress}%` }}
         />
       </div>
-      <span className="progress-text">{averageProgress}%</span>
+      <span className="progress-text">{displayProgress}%</span>
     </div>
   );
 }; 
