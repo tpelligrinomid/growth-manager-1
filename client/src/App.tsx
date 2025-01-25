@@ -326,6 +326,13 @@ function App() {
       return sortConfig.direction === 'asc' ? aBalance - bBalance : bBalance - aBalance;
     }
 
+    if (sortConfig.key === 'mrr' || sortConfig.key === 'growthInMrr' || sortConfig.key === 'potentialMrr') {
+      // Convert currency strings to numbers for comparison
+      const aValue = Number(String(a[sortConfig.key]).replace(/[^0-9.-]+/g, ''));
+      const bValue = Number(String(b[sortConfig.key]).replace(/[^0-9.-]+/g, ''));
+      return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+    }
+
     const aValue = a[sortConfig.key as keyof AccountResponse];
     const bValue = b[sortConfig.key as keyof AccountResponse];
 
@@ -547,13 +554,13 @@ function App() {
                         <th className="sortable-header" onClick={() => handleSort('priority')}>
                           <div className="header-with-tooltip">
                             Priority
+                            {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                             <span className="tooltip">
                               • Tier 1 = Actively working<br/>
                               • Tier 2 = Client or delivery issues<br/>
                               • Tier 3 = Smooth<br/>
                               • Tier 4 = Low risk and low reward
                             </span>
-                            {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                           </div>
                         </th>
                         <th className="sortable-header wide-header" onClick={() => handleSort('accountManager')}>
@@ -589,12 +596,12 @@ function App() {
                         <th className="sortable-header" onClick={() => handleSort('delivery')}>
                           <div className="header-with-tooltip">
                             Delivery
+                            {sortConfig.key === 'delivery' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                             <span className="tooltip">
                               Based on Points Burden:<br/>
                               • Off Track if &gt; 0<br/>
                               • On Track if ≤ 0
                             </span>
-                            {sortConfig.key === 'delivery' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
                           </div>
                         </th>
                         <th>Goals</th>
