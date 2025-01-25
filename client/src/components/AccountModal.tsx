@@ -11,8 +11,7 @@ import {
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { formatEngagementType, formatPriority } from '../utils/formatters';
-import { API_URL } from '../config/api';
-import { determineDeliveryStatus } from '../utils/calculations';
+import { syncAccountWithBigQuery } from '../utils/bigQuerySync';
 
 interface Props {
   account: AccountResponse;
@@ -24,7 +23,6 @@ interface Props {
 
 const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpdate }) => {
   const [isSyncing, setIsSyncing] = useState(false);
-  const [syncError, setSyncError] = useState<string | null>(null);
   const [currentAccount, setCurrentAccount] = useState(account);
 
   useEffect(() => {
@@ -61,102 +59,15 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
   };
 
   const handleSync = async () => {
-    const folderId = currentAccount.clientFolderId;
-    if (!folderId) {
-      setSyncError('No ClickUp Folder ID available');
-      return;
-    }
-
-    setIsSyncing(true);
-    setSyncError(null);
-    
     try {
-      // 1. Fetch BigQuery data
-      console.log('1. Fetching BigQuery data for folder:', folderId);
-      const response = await fetch(`${API_URL}/api/bigquery/account/${folderId}`);
-      
-      if (!response.ok) throw new Error(response.statusText);
-      
-      const data = await response.json();
-      console.log('2. BigQuery data received:', JSON.stringify(data, null, 2));
-      
-      // 2. Prepare update data - with validation and proper number conversion
-      const updateData = {
-        ...currentAccount,
-        accountName: data.clientData?.[0]?.client_name || currentAccount.accountName,
-        businessUnit: 'NEW_NORTH' as const,
-        accountManager: data.clientData?.[0]?.assignee || currentAccount.accountManager,
-        teamManager: data.clientData?.[0]?.team_lead || currentAccount.teamManager,
-        relationshipStartDate: data.clientData?.[0]?.original_contract_start_date ? 
-          new Date(data.clientData[0].original_contract_start_date.replace('/', '-')).toISOString() : currentAccount.relationshipStartDate,
-        contractStartDate: data.clientData?.[0]?.points_mrr_start_date ? 
-          new Date(data.clientData[0].points_mrr_start_date.replace('/', '-')).toISOString() : currentAccount.contractStartDate,
-        contractRenewalEnd: data.clientData?.[0]?.contract_renewal_end ? 
-          new Date(data.clientData[0].contract_renewal_end.replace('/', '-')).toISOString() : currentAccount.contractRenewalEnd,
-        pointsPurchased: data.points?.[0]?.points_purchased ? 
-          parseInt(data.points[0].points_purchased.toString(), 10) : currentAccount.pointsPurchased,
-        pointsDelivered: data.points?.[0]?.points_delivered ? 
-          parseInt(data.points[0].points_delivered.toString(), 10) : currentAccount.pointsDelivered,
-        recurringPointsAllotment: data.clientData?.[0]?.recurring_points_allotment ? 
-          parseInt(data.clientData[0].recurring_points_allotment.toString(), 10) : currentAccount.recurringPointsAllotment,
-        mrr: data.clientData?.[0]?.mrr ? 
-          parseInt(data.clientData[0].mrr.toString(), 10) : currentAccount.mrr,
-        goals: data.goals?.map((goal: any) => ({
-          id: goal.id,
-          task_name: goal.task_name || '',
-          task_description: goal.task_description,
-          status: goal.status || '',
-          progress: parseInt(goal.progress?.toString() || '0', 10),
-          assignee: goal.assignee,
-          created_date: goal.created_date,
-          due_date: goal.due_date,
-          date_done: goal.date_done,
-          created_by: goal.created_by
-        })) || []
-      };
-      
-      console.log('3. Update data prepared:', JSON.stringify(updateData, null, 2));
-      console.log('Points data specifically:', {
-        fromBigQuery: {
-          purchased: data.points?.[0]?.points_purchased,
-          delivered: data.points?.[0]?.points_delivered
-        },
-        afterProcessing: {
-          purchased: updateData.pointsPurchased,
-          delivered: updateData.pointsDelivered
-        }
-      });
-
-      // 3. Update account
-      const updateResponse = await fetch(`${API_URL}/api/accounts/${currentAccount.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updateData)
-      });
-
-      if (!updateResponse.ok) {
-        const errorData = await updateResponse.json();
-        console.error('Update failed:', errorData);
-        throw new Error(errorData.details || 'Failed to update account');
-      }
-
-      const { data: updatedAccount } = await updateResponse.json();
-      console.log('4. Update successful, received:', JSON.stringify(updatedAccount, null, 2));
-      console.log('5. Final points values:', {
-        purchased: updatedAccount.pointsPurchased,
-        delivered: updatedAccount.pointsDelivered
-      });
-
-      // Update local state
+      setIsSyncing(true);
+      const updatedAccount = await syncAccountWithBigQuery(currentAccount);
       setCurrentAccount(updatedAccount);
-      
-      // Notify parent component to update the main table
       if (onUpdate) {
         onUpdate(updatedAccount);
       }
     } catch (error) {
-      console.error('Sync error:', error);
-      setSyncError(error instanceof Error ? error.message : 'Failed to sync');
+      console.error('Error syncing account:', error);
     } finally {
       setIsSyncing(false);
     }
@@ -173,27 +84,6 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
     }
   };
 
-  // Filter goals to only show:
-  // 1. Future goals (any status)
-  // 2. Past goals that are not closed
-  const filteredGoals = currentAccount.goals?.filter(goal => {
-    if (!goal.due_date || !goal.status) return true;
-    
-    try {
-      const dueDate = new Date(goal.due_date.replace(/\//g, '-'));
-      const now = new Date();
-      
-      // Show if:
-      // 1. Due date is invalid (can't parse the date), OR
-      // 2. Due date is in the future, OR
-      // 3. Goal is not closed (regardless of due date)
-      return isNaN(dueDate.getTime()) || dueDate > now || goal.status.toLowerCase() !== 'closed';
-    } catch (e) {
-      // If there's any error parsing the date, show the goal
-      return true;
-    }
-  }) || [];
-
   return (
     <div className="modal-overlay">
       <div className="modal-content">
@@ -208,7 +98,6 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
             >
               <ArrowPathIcon className={`h-5 w-5 ${isSyncing ? 'animate-spin' : ''}`} />
             </button>
-            {syncError && <div className="error-message">{syncError}</div>}
             <button onClick={onEdit} className="edit-button" title="Edit Account">
               <PencilIcon className="h-5 w-5" aria-hidden="true" />
             </button>
@@ -268,49 +157,45 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
               <p><strong>Points Delivered:</strong> {currentAccount.pointsDelivered}</p>
               <p><strong>Recurring Points:</strong> {currentAccount.recurringPointsAllotment}</p>
               <p><strong>Points Striking Distance:</strong> {currentAccount.pointsStrikingDistance}</p>
-              <p><strong>Delivery Status:</strong> {determineDeliveryStatus(currentAccount.pointsStrikingDistance)}</p>
             </div>
           </div>
 
-          <div className="detail-section">
+          <div className="modal-section">
             <div className="section-header">
               <ChartBarIcon className="section-icon" />
               <h3>Goals</h3>
             </div>
-            <div className="section-content">
-              {filteredGoals.length > 0 ? (
-                <table className="goals-table">
-                  <thead>
-                    <tr>
-                      <th>Description (Task Name)</th>
-                      <th>Due Date</th>
-                      <th>Progress</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredGoals.map((goal: Goal, index: number) => (
-                      <tr key={index}>
-                        <td>{goal.task_name}</td>
-                        <td>{formatDate(goal.due_date)}</td>
-                        <td className="progress-cell">
-                          <div className="goal-progress">
-                            <div className="progress-bar">
-                              <div 
-                                className={`progress-fill ${goal.due_date && new Date(goal.due_date.replace(/\//g, '-')) < new Date() && goal.status.toLowerCase() !== 'closed' ? 'overdue' : ''}`}
-                                style={{ width: `${Number(String(goal.progress || '0').replace(/%/g, ''))}%` }}
-                              />
-                            </div>
-                            <span className="progress-text">{goal.progress || 0}</span>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p>No active goals</p>
-              )}
-            </div>
+            <table className="goals-table">
+              <thead>
+                <tr>
+                  <th>Description (Task Name)</th>
+                  <th>Due Date</th>
+                  <th>Progress</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentAccount.goals?.map((goal: Goal) => (
+                  <tr key={goal.id}>
+                    <td>{goal.task_name}</td>
+                    <td>{formatDate(goal.due_date)}</td>
+                    <td className="progress-cell">
+                      <div className="progress-bar-container">
+                        <div 
+                          className="progress-bar" 
+                          style={{ width: `${goal.progress || 0}%` }}
+                        />
+                      </div>
+                      <span className="progress-text">{(goal.progress || 0)}%</span>
+                    </td>
+                  </tr>
+                ))}
+                {(!currentAccount.goals || currentAccount.goals.length === 0) && (
+                  <tr>
+                    <td colSpan={3}>No goals found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
 
           <div className="detail-section">
