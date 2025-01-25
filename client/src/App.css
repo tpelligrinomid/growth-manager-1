@@ -81,17 +81,13 @@ html, body, #root {
   box-shadow: 0 4px 6px var(--nn-shadow);
   overflow: hidden;
   border-collapse: collapse;
-  table-layout: fixed;
 }
 
 .accounts-table th,
 .accounts-table td {
   padding: 1rem;
   border-bottom: 1px solid var(--nn-border);
-  white-space: nowrap;
   text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .accounts-table th {
@@ -101,37 +97,29 @@ html, body, #root {
   text-transform: uppercase;
   font-size: 0.875rem;
   letter-spacing: 0.05em;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  white-space: nowrap;
+}
+
+.sortable-header {
+  cursor: pointer;
+  position: relative;
+  padding-right: 2rem;
+}
+
+.sort-arrow {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .number-cell {
   text-align: right;
 }
 
-.accounts-table th:hover {
-  background-color: var(--nn-hover);
-}
-
-.sort-indicator {
-  position: absolute;
-  right: 0.5rem;
-  opacity: 0.7;
-}
-
-.accounts-table th:hover .sort-indicator {
-  opacity: 1;
-}
-
 .accounts-table tr:hover {
   background-color: var(--nn-light);
   cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.accounts-table td {
-  color: var(--nn-text);
 }
 
 /* Responsive padding */
@@ -643,45 +631,6 @@ html, body, #root {
   color: #166534;
   font-weight: 500;
   text-align: center;
-}
-
-.sortable-header {
-  cursor: pointer;
-  padding-right: 1.5rem !important;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  user-select: none;
-}
-
-/* Default sort indicator (only show when not sorted) */
-.sortable-header:not(.sort-active)::after {
-  content: '▲▼';
-  position: absolute;
-  right: 0.5rem;
-  font-size: 0.6rem;
-  opacity: 0.3;
-}
-
-.sortable-header:hover:not(.sort-active)::after {
-  opacity: 0.5;
-}
-
-/* Active sort arrow */
-.sort-arrow {
-  margin-left: auto;
-  font-size: 0.75rem;
-  opacity: 0.8;
-  flex-shrink: 0;
-}
-
-.sortable-header:hover .sort-arrow {
-  opacity: 1;
-}
-
-/* Hide default indicator when column is sorted */
-.sort-active::after {
-  display: none;
 }
 
 .metrics-container {
