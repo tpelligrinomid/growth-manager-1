@@ -82,8 +82,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
       
       // 2. Prepare update data - with validation and proper number conversion
       const updateData = {
-        ...currentAccount, // Preserve all existing fields
-        // Only update fields that come from BigQuery
+        ...currentAccount,
         accountName: data.clientData?.[0]?.client_name || currentAccount.accountName,
         businessUnit: 'NEW_NORTH' as const,
         accountManager: data.clientData?.[0]?.assignee || currentAccount.accountManager,
@@ -95,21 +94,25 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
         contractRenewalEnd: data.clientData?.[0]?.contract_renewal_end ? 
           new Date(data.clientData[0].contract_renewal_end.replace('/', '-')).toISOString() : currentAccount.contractRenewalEnd,
         pointsPurchased: data.points?.[0]?.points_purchased ? 
-          parseInt(String(data.points[0].points_purchased).replace(/,/g, ''), 10) : currentAccount.pointsPurchased,
+          parseInt(data.points[0].points_purchased.toString(), 10) : currentAccount.pointsPurchased,
         pointsDelivered: data.points?.[0]?.points_delivered ? 
-          parseInt(String(data.points[0].points_delivered).replace(/,/g, ''), 10) : currentAccount.pointsDelivered,
+          parseInt(data.points[0].points_delivered.toString(), 10) : currentAccount.pointsDelivered,
         recurringPointsAllotment: data.clientData?.[0]?.recurring_points_allotment ? 
-          parseInt(String(data.clientData[0].recurring_points_allotment).replace(/,/g, ''), 10) : currentAccount.recurringPointsAllotment,
+          parseInt(data.clientData[0].recurring_points_allotment.toString(), 10) : currentAccount.recurringPointsAllotment,
         mrr: data.clientData?.[0]?.mrr ? 
-          parseInt(String(data.clientData[0].mrr).replace(/,/g, ''), 10) : currentAccount.mrr,
+          parseInt(data.clientData[0].mrr.toString(), 10) : currentAccount.mrr,
         goals: data.goals?.map((goal: any) => ({
           id: goal.id,
-          description: goal.task_description || '',
           task_name: goal.task_name || '',
-          due_date: goal.due_date || '',
-          progress: parseInt(String(goal.progress || '0').replace(/%/g, ''), 10),
-          status: goal.status || ''
-        })) || currentAccount.goals
+          task_description: goal.task_description,
+          status: goal.status || '',
+          progress: parseInt(goal.progress?.toString() || '0', 10),
+          assignee: goal.assignee,
+          created_date: goal.created_date,
+          due_date: goal.due_date,
+          date_done: goal.date_done,
+          created_by: goal.created_by
+        })) || []
       };
       
       console.log('3. Update data prepared:', JSON.stringify(updateData, null, 2));
