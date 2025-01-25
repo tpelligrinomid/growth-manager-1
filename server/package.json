@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "set PORT=3002 && ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "rm -rf node_modules/.prisma && npx prisma generate && tsc && npx prisma db push --accept-data-loss",
+    "build": "rm -rf node_modules/.prisma && npx prisma generate && tsc && npx prisma db push --force-reset",
     "build:clean": "rm -rf build && mkdir build && npx tsc",
     "prisma:seed": "npx ts-node prisma/seed.ts",
     "test:connection": "npx ts-node src/test-connection.ts",
