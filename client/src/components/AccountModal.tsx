@@ -106,7 +106,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
           id: goal.id,
           description: goal.task_description || '',
           task_name: goal.task_name || '',
-          dueDate: goal.due_date || '',
+          due_date: goal.due_date || '',
           progress: Number(goal.progress) || 0,
           status: goal.status || ''
         }))
@@ -174,10 +174,10 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
   // 1. Future goals (any status)
   // 2. Past goals that are not closed
   const filteredGoals = currentAccount.goals?.filter(goal => {
-    if (!goal.dueDate || !goal.status) return true;
+    if (!goal.due_date || !goal.status) return true;
     
     try {
-      const dueDate = new Date(goal.dueDate.replace(/\//g, '-'));
+      const dueDate = new Date(goal.due_date.replace(/\//g, '-'));
       const now = new Date();
       
       // Show if:
@@ -288,16 +288,16 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                     {filteredGoals.map((goal: Goal, index: number) => (
                       <tr key={index}>
                         <td>{goal.task_name}</td>
-                        <td>{formatDate(goal.dueDate)}</td>
+                        <td>{formatDate(goal.due_date)}</td>
                         <td className="progress-cell">
                           <div className="goal-progress">
                             <div className="progress-bar">
                               <div 
-                                className={`progress-fill ${goal.dueDate && new Date(goal.dueDate.replace(/\//g, '-')) < new Date() && goal.status.toLowerCase() !== 'closed' ? 'overdue' : ''}`}
+                                className={`progress-fill ${goal.due_date && new Date(goal.due_date.replace(/\//g, '-')) < new Date() && goal.status.toLowerCase() !== 'closed' ? 'overdue' : ''}`}
                                 style={{ width: `${goal.progress || 0}%` }}
                               />
                             </div>
-                            <span className="progress-text">{goal.progress || 0}</span>
+                            <span className="progress-text">{goal.progress || 0}%</span>
                           </div>
                         </td>
                       </tr>

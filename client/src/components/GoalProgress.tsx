@@ -13,11 +13,11 @@ export const GoalProgress: React.FC<GoalProgressProps> = ({ goals }) => {
   // 1. Future goals (any status)
   // 2. Past goals that are not closed
   const filteredGoals = goals.filter(goal => {
-    if (!goal.dueDate || !goal.status) return true;
+    if (!goal.due_date || !goal.status) return true;
     
     try {
       // Convert YYYY/MM/DD to YYYY-MM-DD for proper Date parsing
-      const dueDate = new Date(goal.dueDate.replace(/\//g, '-'));
+      const dueDate = new Date(goal.due_date.replace(/\//g, '-'));
       const now = new Date();
       
       // If the goal is closed and the due date is in the past, filter it out
@@ -46,10 +46,10 @@ export const GoalProgress: React.FC<GoalProgressProps> = ({ goals }) => {
 
   // Check if any goal is overdue and not closed
   const hasOverdueGoals = filteredGoals.some(goal => {
-    if (!goal.dueDate || !goal.status) return false;
+    if (!goal.due_date || !goal.status) return false;
     
     try {
-      const dueDate = new Date(goal.dueDate.replace(/\//g, '-'));
+      const dueDate = new Date(goal.due_date.replace(/\//g, '-'));
       const now = new Date();
       return !isNaN(dueDate.getTime()) && dueDate < now && goal.status.toLowerCase() !== 'closed';
     } catch (e) {
