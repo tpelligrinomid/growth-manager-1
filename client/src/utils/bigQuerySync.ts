@@ -1,17 +1,22 @@
 import { AccountResponse } from '../types';
 import { API_URL } from '../config/api';
 
-export const syncAccountWithBigQuery = async (account: AccountResponse): Promise<AccountResponse> => {
+export const syncAccountWithBigQuery = async (
+  account: AccountResponse,
+  onLoadingChange?: (isLoading: boolean) => void
+): Promise<AccountResponse> => {
   if (!account.clientFolderId) {
     return account;
   }
 
   try {
+    onLoadingChange?.(true);
     console.log(`Fetching BigQuery data for ${account.accountName}...`);
     const bigQueryResponse = await fetch(`${API_URL}/api/bigquery/account/${account.clientFolderId}`);
     
     if (!bigQueryResponse.ok) {
       console.error(`Failed to fetch BigQuery data for ${account.accountName}`);
+      onLoadingChange?.(false);
       return account;
     }
 
@@ -65,15 +70,18 @@ export const syncAccountWithBigQuery = async (account: AccountResponse): Promise
 
     if (!updateResponse.ok) {
       console.error(`Failed to update account ${account.accountName} with BigQuery data`);
+      onLoadingChange?.(false);
       return account;
     }
 
     const { data: updatedAccount } = await updateResponse.json();
     console.log(`Successfully updated ${account.accountName} with BigQuery data:`, updatedAccount);
+    onLoadingChange?.(false);
     return updatedAccount;
 
   } catch (error) {
     console.error(`Error syncing BigQuery data for ${account.accountName}:`, error);
+    onLoadingChange?.(false);
     return account;
   }
 }; 

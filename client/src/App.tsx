@@ -16,7 +16,7 @@ import { API_URL } from './config/api';
 import { 
   calculateClientTenure
 } from './utils/calculations';
-import { LoadingSpinner } from './components/LoadingSpinner';
+import LoadingSpinner from './components/LoadingSpinner';
 import { syncAccountWithBigQuery } from './utils/bigQuerySync';
 
 // Fix the type definition
@@ -57,6 +57,7 @@ function App() {
   });
   const [currentView, setCurrentView] = useState<ViewType>('manager');
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'tasks'>('dashboard');
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -191,63 +192,18 @@ function App() {
       let { data: updatedAccount } = responseData;
       console.log('Manual edit successful:', updatedAccount);
 
-      // Step 2: If folder ID changed, fetch fresh BigQuery data
-      if (selectedAccount && selectedAccount.clientFolderId !== accountData.clientFolderId) {
-        console.log('Step 2: Folder ID changed, fetching BigQuery data...');
-        console.log('Fetching data for folder ID:', accountData.clientFolderId);
-
-        const bigQueryResponse = await fetch(`${API_URL}/api/bigquery/account/${accountData.clientFolderId}`);
-        const bigQueryResponseData = await bigQueryResponse.json();
-        
-        if (!bigQueryResponse.ok) {
-          console.error('BigQuery fetch failed:', bigQueryResponseData);
-          throw new Error('Failed to fetch BigQuery data');
-        }
-        
-        console.log('BigQuery data received:', bigQueryResponseData);
-        
-        // Step 3: Update account with BigQuery data
-        console.log('Step 3: Preparing BigQuery update...');
-        const updateData = {
-          ...updatedAccount,
-          pointsPurchased: bigQueryResponseData.points?.[0]?.points_purchased ? 
-            Number(String(bigQueryResponseData.points[0].points_purchased).replace(/,/g, '')) : updatedAccount.pointsPurchased,
-          pointsDelivered: bigQueryResponseData.points?.[0]?.points_delivered ? 
-            Number(String(bigQueryResponseData.points[0].points_delivered).replace(/,/g, '')) : updatedAccount.pointsDelivered,
-          recurringPointsAllotment: bigQueryResponseData.clientData?.[0]?.recurring_points_allotment ? 
-            Number(String(bigQueryResponseData.clientData[0].recurring_points_allotment).replace(/,/g, '')) : updatedAccount.recurringPointsAllotment,
-          goals: bigQueryResponseData.goals || updatedAccount.goals
-        };
-        
-        console.log('Update data prepared:', updateData);
-
-        const bigQueryUpdateResponse = await fetch(`${API_URL}/api/accounts/${accountData.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updateData)
-        });
-
-        const bigQueryUpdateResponseData = await bigQueryUpdateResponse.json();
-        if (!bigQueryUpdateResponse.ok) {
-          console.error('BigQuery update failed:', bigQueryUpdateResponseData);
-          throw new Error('Failed to update account with BigQuery data');
-        }
-
-        const { data: finalAccount } = bigQueryUpdateResponseData;
-        console.log('BigQuery update successful:', finalAccount);
-        updatedAccount = finalAccount;
-      }
-
+      // Step 2: Sync with BigQuery
+      console.log('Step 2: Syncing with BigQuery...');
+      const syncedAccount = await syncAccountWithBigQuery(updatedAccount, setIsSyncing);
+      
       // Step 4: Update UI
-      console.log('Step 4: Updating UI with final data:', updatedAccount);
+      console.log('Step 4: Updating UI with final data:', syncedAccount);
       setAccounts(prevAccounts => 
         prevAccounts.map(acc => 
-          acc.id === updatedAccount.id ? updatedAccount : acc
+          acc.id === syncedAccount.id ? syncedAccount : acc
         )
       );
-      setSelectedAccount(updatedAccount);
+      setSelectedAccount(syncedAccount);
       setIsEditModalOpen(false);
       console.log('=== EDIT ACCOUNT COMPLETE ===');
 
@@ -256,6 +212,7 @@ function App() {
       console.error('Error details:', error);
       console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       alert(error instanceof Error ? error.message : 'Failed to update account');
+      setIsSyncing(false);
     }
   };
 
@@ -338,6 +295,7 @@ function App() {
 
   return (
     <div className="app-container">
+      {isSyncing && <LoadingSpinner />}
       <header className="app-header">
         <div className="header-content">
           <img 
