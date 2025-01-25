@@ -80,12 +80,15 @@ html, body, #root {
   border-radius: 8px;
   box-shadow: 0 4px 6px var(--nn-shadow);
   overflow: hidden;
+  border-collapse: collapse;
 }
 
 .accounts-table th,
 .accounts-table td {
   padding: 1rem;
   border-bottom: 1px solid var(--nn-border);
+  white-space: nowrap;
+  text-align: left;
 }
 
 .accounts-table th {
@@ -95,10 +98,13 @@ html, body, #root {
   text-transform: uppercase;
   font-size: 0.875rem;
   letter-spacing: 0.05em;
-  cursor: pointer;
-  user-select: none;
-  position: relative;
-  padding-right: 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.number-cell {
+  text-align: right;
 }
 
 .accounts-table th:hover {
@@ -643,6 +649,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  user-select: none;
 }
 
 /* Default sort indicator (only show when not sorted) */
@@ -660,9 +667,9 @@ html, body, #root {
 
 /* Active sort arrow */
 .sort-arrow {
+  margin-left: auto;
   font-size: 0.75rem;
   opacity: 0.8;
-  margin-left: auto;
 }
 
 .sortable-header:hover .sort-arrow {
