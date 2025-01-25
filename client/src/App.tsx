@@ -14,8 +14,7 @@ import { PieChart } from './components/PieChart';
 import { GoalProgress } from './components/GoalProgress';
 import { API_URL } from './config/api';
 import { 
-  calculateClientTenure,
-  determineDeliveryStatus 
+  calculateClientTenure
 } from './utils/calculations';
 import { LoadingSpinner } from './components/LoadingSpinner';
 
@@ -650,18 +649,10 @@ function App() {
                           onClick={() => handleSort('priority')}
                           className={`sortable-header ${sortConfig.key === 'priority' ? 'sort-active' : ''}`}
                         >
-                          <div className="header-with-tooltip">
-                            Priority
-                            <span className="tooltip">
-                              • Tier 1 = Actively working<br/>
-                              • Tier 2 = Client or delivery issues<br/>
-                              • Tier 3 = Smooth<br/>
-                              • Tier 4 = Low risk and low reward
-                            </span>
-                            {sortConfig.key === 'priority' && (
-                              <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                            )}
-                          </div>
+                          Priority
+                          {sortConfig.key === 'priority' && (
+                            <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
+                          )}
                         </th>
                         <th 
                           onClick={() => handleSort('mrr')}
@@ -726,7 +717,6 @@ function App() {
                             <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
                           )}
                         </th>
-                        <th>Goals</th>
                       </>
                     )}
                   </tr>
@@ -773,16 +763,6 @@ function App() {
                           <td>{calculateClientTenure(account.relationshipStartDate)} months</td>
                           <td>{new Date(account.contractStartDate).toLocaleDateString()}</td>
                           <td>{new Date(account.contractRenewalEnd).toLocaleDateString()}</td>
-                          <td className="number-cell">{account.recurringPointsAllotment}</td>
-                          <td className="number-cell">{account.pointsPurchased}</td>
-                          <td className="number-cell">{account.pointsDelivered}</td>
-                          <td className="number-cell">
-                            {calculatePointsBalance(account)}
-                          </td>
-                          <td>{determineDeliveryStatus(account.pointsStrikingDistance)}</td>
-                          <td>
-                            <GoalProgress goals={account.goals || []} />
-                          </td>
                         </>
                       )}
                     </tr>
