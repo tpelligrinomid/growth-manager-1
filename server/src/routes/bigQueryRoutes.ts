@@ -51,15 +51,17 @@ router.get<AccountParams>('/account/:clientFolderId', async (
   res: Response<BigQueryResponse | ErrorResponse>
 ) => {
   const { clientFolderId } = req.params;
+  const { clientListTaskId } = req.query;
   
   // Both IDs get the same validation
-  if (clientFolderId === '') {
-    return res.status(400).json({ error: 'Client folder ID is required' });
+  if (!clientFolderId || !clientListTaskId) {
+    return res.status(400).json({ error: 'Both Client Folder ID and Client List Task ID are required' });
   }
   
   try {
     // Add more detailed logging
     console.log('Attempting to fetch BigQuery data for folder:', clientFolderId);
+    console.log('Using Client List Task ID:', clientListTaskId);
     
     const pointsData = await fetchPointsForAccount(clientFolderId);
     console.log('Points data:', pointsData);
@@ -67,15 +69,8 @@ router.get<AccountParams>('/account/:clientFolderId', async (
     const growthTasks = await fetchGrowthTasksForAccount(clientFolderId);
     const goals = await fetchGoalsForAccount(clientFolderId);
     
-    // Fetch client list data using clientListTaskId
-    const account = await prisma.account.findFirst({
-      where: {
-        clientFolderId: clientFolderId
-      } as Prisma.AccountWhereInput
-    });
-    const clientData = account?.clientListTaskId 
-      ? await fetchClientListData(account.clientListTaskId)
-      : null;
+    // Fetch client list data directly using the provided clientListTaskId
+    const clientData = await fetchClientListData(clientListTaskId as string);
 
     res.json({
       points: pointsData,
