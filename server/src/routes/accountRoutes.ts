@@ -249,20 +249,19 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
     // Transform goals data to match Prisma schema
     if (updateData.goals) {
       sanitizedData.goals = {
-        deleteMany: {}, // Clear existing goals
-        create: updateData.goals.map(goal => ({
+        deleteMany: {},
+        create: updateData.goals?.map((goal: any) => ({
           id: goal.id,
           task_name: goal.task_name,
           task_description: goal.task_description,
-          status: goal.status.toUpperCase().replace(' ', '_'),
-          progress: goal.progress || 0,
+          status: goal.status?.toUpperCase().replace(' ', '_') || '',
+          progress: parseInt(String(goal.progress).replace('%', '')) || 0,
           assignee: goal.assignee,
-          created_date: goal.created_date,
-          due_date: goal.due_date,
-          date_done: goal.date_done,
-          created_by: goal.created_by,
-          accountId: id
-        }))
+          created_date: new Date(goal.created_date.replace('/', '-')),
+          due_date: new Date(goal.due_date.replace('/', '-')),
+          date_done: goal.date_done ? new Date(goal.date_done.replace('/', '-')) : null,
+          created_by: goal.created_by
+        })) || []
       };
     }
 
