@@ -185,7 +185,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                           style={{ width: `${goal.progress || 0}%` }}
                         />
                       </div>
-                      <span className="progress-text">{goal.progress || 0}%</span>
+                      <span className="progress-text">{(goal.progress || 0)}%</span>
                     </td>
                   </tr>
                 ))}

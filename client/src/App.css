@@ -1039,49 +1039,45 @@ html, body, #root {
   margin-top: 1rem;
 }
 
-.goals-table th {
-  text-align: left;
+.goals-table th,
+.goals-table td {
   padding: 0.5rem;
-  color: var(--nn-text-secondary);
-  font-weight: 500;
+  text-align: left;
+  vertical-align: top;
+}
+
+.goals-table th {
+  font-weight: 600;
+  color: #4b5563;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 .goals-table td {
-  padding: 0.5rem;
-  vertical-align: top;
-  border-bottom: 1px solid rgba(92, 41, 197, 0.1);
-}
-
-.goals-table tr:last-child td {
-  border-bottom: none;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .goals-table .progress-cell {
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  width: 150px;
 }
 
 .progress-bar-container {
-  width: 100px;
+  width: 100%;
   height: 8px;
   background-color: #e5e7eb;
   border-radius: 4px;
   overflow: hidden;
+  margin-bottom: 4px;
 }
 
 .progress-bar {
   height: 100%;
-  background-color: var(--nn-primary);
-  border-radius: 4px;
+  background-color: #7c3aed;
   transition: width 0.3s ease;
 }
 
 .progress-text {
-  min-width: 2.5rem;
-  text-align: right;
-  color: var(--nn-text-secondary);
+  font-size: 14px;
+  color: #6b7280;
 }
 
 .main-content-wrapper {

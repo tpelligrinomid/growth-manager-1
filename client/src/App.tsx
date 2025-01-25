@@ -143,21 +143,19 @@ function App() {
       
       const { data: newAccount } = await response.json();
       
-      // Add the new account to state immediately
-      setAccounts(prevAccounts => [...prevAccounts, newAccount]);
-
-      // Then immediately sync with BigQuery if we have a folder ID
+      // If we have a folder ID, sync with BigQuery before adding to state
       if (formData.clientFolderId) {
         try {
           const updatedAccount = await syncAccountWithBigQuery(newAccount);
-          setAccounts(prevAccounts => 
-            prevAccounts.map(account => 
-              account.id === updatedAccount.id ? updatedAccount : account
-            )
-          );
+          setAccounts(prevAccounts => [...prevAccounts, updatedAccount]);
         } catch (error) {
           console.error('Error syncing with BigQuery:', error);
+          // If sync fails, add the original account
+          setAccounts(prevAccounts => [...prevAccounts, newAccount]);
         }
+      } else {
+        // If no folder ID, just add the original account
+        setAccounts(prevAccounts => [...prevAccounts, newAccount]);
       }
 
       setIsAddModalOpen(false);
