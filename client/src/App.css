@@ -30,7 +30,7 @@ html, body, #root {
 
 .app-header {
   background-color: var(--nn-dark);
-  padding: 1rem 2rem;
+  padding: 1rem 1rem;
   box-shadow: 0 2px 4px var(--nn-shadow);
   display: flex;
   justify-content: space-between;

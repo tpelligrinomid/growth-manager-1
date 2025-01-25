@@ -22,7 +22,7 @@ const LoadingSpinner: FC<LoadingSpinnerProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        zIndex: 2000,
+        zIndex: 9999,
       }}
     >
       <div 
