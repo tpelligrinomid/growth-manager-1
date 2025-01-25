@@ -707,32 +707,32 @@ html, body, #root {
   background: transparent;
 }
 
-/* Single cards - light purple */
+/* Single cards - lightest purple */
 .metric-card:nth-child(1)::before {
-  background: #E9D5FF;
+  background: rgba(92, 41, 197, 0.2);  /* --nn-primary with 0.2 opacity */
 }
 
-/* MRR group - medium purple */
+/* MRR group - light purple */
 .metric-card:nth-child(2)::before,
 .metric-card:nth-child(3)::before {
-  background: #C084FC;
+  background: rgba(92, 41, 197, 0.4);  /* --nn-primary with 0.4 opacity */
 }
 
-/* Off Track group - deep purple */
+/* Off Track group - dark red */
 .metric-card:nth-child(4)::before,
 .metric-card:nth-child(5)::before {
-  background: #A855F7;
+  background: #7f1d1d;  /* Even darker red than the table's #991b1b */
 }
 
-/* Tier 1 group - darker purple */
+/* Tier 1 group - match table Tier 1 color */
 .metric-card:nth-child(6)::before,
 .metric-card:nth-child(7)::before {
-  background: #9333EA;
+  background: #991b1b;
 }
 
-/* Points burden - lightest purple */
+/* Points burden - very light purple */
 .metric-card:nth-child(8)::before {
-  background: #F3E8FF;
+  background: rgba(92, 41, 197, 0.1);
 }
 
 .metric-label {
