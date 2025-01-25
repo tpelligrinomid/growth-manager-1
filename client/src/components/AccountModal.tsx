@@ -80,7 +80,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
       const data = await response.json();
       console.log('2. BigQuery data received:', JSON.stringify(data, null, 2));
       
-      // 2. Prepare update data - with validation
+      // 2. Prepare update data - with validation and proper number conversion
       const updateData = {
         ...currentAccount, // Preserve all existing fields
         // Only update fields that come from BigQuery
@@ -89,27 +89,27 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
         accountManager: data.clientData?.[0]?.assignee || currentAccount.accountManager,
         teamManager: data.clientData?.[0]?.team_lead || currentAccount.teamManager,
         relationshipStartDate: data.clientData?.[0]?.original_contract_start_date ? 
-          new Date(data.clientData[0].original_contract_start_date.replace('/', '-')) : currentAccount.relationshipStartDate,
+          new Date(data.clientData[0].original_contract_start_date.replace('/', '-')).toISOString() : currentAccount.relationshipStartDate,
         contractStartDate: data.clientData?.[0]?.points_mrr_start_date ? 
-          new Date(data.clientData[0].points_mrr_start_date.replace('/', '-')) : currentAccount.contractStartDate,
+          new Date(data.clientData[0].points_mrr_start_date.replace('/', '-')).toISOString() : currentAccount.contractStartDate,
         contractRenewalEnd: data.clientData?.[0]?.contract_renewal_end ? 
-          new Date(data.clientData[0].contract_renewal_end.replace('/', '-')) : currentAccount.contractRenewalEnd,
+          new Date(data.clientData[0].contract_renewal_end.replace('/', '-')).toISOString() : currentAccount.contractRenewalEnd,
         pointsPurchased: data.points?.[0]?.points_purchased ? 
-          Number(String(data.points[0].points_purchased).replace(/,/g, '')) : currentAccount.pointsPurchased,
+          parseInt(String(data.points[0].points_purchased).replace(/,/g, ''), 10) : currentAccount.pointsPurchased,
         pointsDelivered: data.points?.[0]?.points_delivered ? 
-          Number(String(data.points[0].points_delivered).replace(/,/g, '')) : currentAccount.pointsDelivered,
+          parseInt(String(data.points[0].points_delivered).replace(/,/g, ''), 10) : currentAccount.pointsDelivered,
         recurringPointsAllotment: data.clientData?.[0]?.recurring_points_allotment ? 
-          Number(data.clientData[0].recurring_points_allotment.replace(/,/g, '')) : currentAccount.recurringPointsAllotment,
+          parseInt(String(data.clientData[0].recurring_points_allotment).replace(/,/g, ''), 10) : currentAccount.recurringPointsAllotment,
         mrr: data.clientData?.[0]?.mrr ? 
-          Number(data.clientData[0].mrr.replace(/,/g, '')) : currentAccount.mrr,
+          parseInt(String(data.clientData[0].mrr).replace(/,/g, ''), 10) : currentAccount.mrr,
         goals: data.goals?.map((goal: any) => ({
           id: goal.id,
           description: goal.task_description || '',
           task_name: goal.task_name || '',
           due_date: goal.due_date || '',
-          progress: Number(goal.progress) || 0,
+          progress: parseInt(String(goal.progress || '0').replace(/%/g, ''), 10),
           status: goal.status || ''
-        }))
+        })) || currentAccount.goals
       };
       
       console.log('3. Update data prepared:', JSON.stringify(updateData, null, 2));
@@ -147,7 +147,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
       // Update local state
       setCurrentAccount(updatedAccount);
       
-      // Notify parent component
+      // Notify parent component to update the main table
       if (onUpdate) {
         onUpdate(updatedAccount);
       }
