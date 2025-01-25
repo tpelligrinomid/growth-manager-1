@@ -243,9 +243,22 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
       pointsPurchased: typeof updateData.pointsPurchased === 'number' ? updateData.pointsPurchased : undefined,
       pointsDelivered: typeof updateData.pointsDelivered === 'number' ? updateData.pointsDelivered : undefined,
       recurringPointsAllotment: typeof updateData.recurringPointsAllotment === 'number' ? updateData.recurringPointsAllotment : undefined,
-      mrr: typeof updateData.mrr === 'number' ? updateData.mrr : undefined,
-      goals: updateData.goals
+      mrr: typeof updateData.mrr === 'number' ? updateData.mrr : undefined
     };
+
+    // Transform goals data to match Prisma schema
+    if (updateData.goals) {
+      sanitizedData.goals = {
+        deleteMany: {}, // Clear existing goals
+        create: updateData.goals.map(goal => ({
+          id: goal.id,
+          description: goal.task_name,
+          status: goal.status.toUpperCase().replace(' ', '_'),
+          dueDate: new Date(goal.due_date),
+          progress: goal.progress || 0
+        }))
+      };
+    }
 
     // Remove undefined values
     Object.keys(sanitizedData).forEach(key => {
