@@ -385,32 +385,46 @@ function App() {
           <div className="error-message">{error}</div>
         ) : (
           <div className="accounts-section">
-            <div className="metrics-container">
+            <div className="metrics-summary">
               <div className="metric-card">
                 <div className="metric-label">Total Accounts</div>
-                <div className="metric-value">{filteredAccounts.length}</div>
+                <div className="metric-value">
+                  <div>{filteredAccounts.length}</div>
+                </div>
               </div>
-              
+
               <div className="metric-card">
                 <div className="metric-label">Total MRR</div>
                 <div className="metric-value">
-                  ${filteredAccounts.reduce((sum, account) => sum + account.mrr, 0).toLocaleString()}
+                  <div>
+                    ${filteredAccounts.reduce((sum, account) => sum + account.mrr, 0).toLocaleString()}
+                  </div>
                 </div>
               </div>
 
               <div className="metric-card">
                 <div className="metric-label">Average MRR</div>
                 <div className="metric-value">
-                  ${averageMRR.toLocaleString()}
+                  <div>
+                    ${filteredAccounts.length > 0
+                      ? Math.round(
+                          filteredAccounts.reduce((sum, account) => {
+                            const mrrValue = parseInt(account.mrr.toString().replace(/[$,]/g, ''));
+                            return sum + (isNaN(mrrValue) ? 0 : mrrValue);
+                          }, 0) / filteredAccounts.length
+                        ).toLocaleString()
+                      : 0}
+                  </div>
                 </div>
               </div>
-              
+
               <div className="metric-card warning">
                 <div className="metric-label">Accounts Off Track</div>
                 <div className="metric-value">
                   <div>{filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length}</div>
                 </div>
               </div>
+
               <div className="metric-card warning">
                 <div className="metric-label">% Off Track</div>
                 <div className="metric-value">
@@ -428,12 +442,14 @@ function App() {
                   </span>
                 </div>
               </div>
+
               <div className="metric-card priority">
                 <div className="metric-label">Tier 1 Accounts</div>
                 <div className="metric-value">
                   <div>{filteredAccounts.filter(account => account.priority === 'TIER_1').length}</div>
                 </div>
               </div>
+
               <div className="metric-card priority">
                 <div className="metric-label">% Tier 1</div>
                 <div className="metric-value">
@@ -451,6 +467,7 @@ function App() {
                   </span>
                 </div>
               </div>
+
               <div className="metric-card">
                 <div className="metric-label">Average Points Burden</div>
                 <div className="metric-value">
@@ -458,7 +475,6 @@ function App() {
                     {filteredAccounts.length > 0
                       ? Math.round(
                           filteredAccounts.reduce((sum, account) => {
-                            // Ensure we're working with clean numbers
                             const strikingDistance = Number(account.pointsStrikingDistance) || 0;
                             return sum + strikingDistance;
                           }, 0) / filteredAccounts.length
@@ -468,6 +484,7 @@ function App() {
                 </div>
               </div>
             </div>
+
             <div className="filters-container">
               <div className="filters-section">
                 <div className="view-toggle-container">

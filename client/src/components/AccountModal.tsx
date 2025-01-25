@@ -297,7 +297,7 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                                 style={{ width: `${Number(String(goal.progress || '0').replace(/%/g, ''))}%` }}
                               />
                             </div>
-                            <span className="progress-text">{goal.progress || 0}%</span>
+                            <span className="progress-text">{goal.progress || 0}</span>
                           </div>
                         </td>
                       </tr>
