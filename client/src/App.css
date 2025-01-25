@@ -1035,37 +1035,53 @@ html, body, #root {
 /* Goals table styling */
 .goals-table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
+  margin-top: 1rem;
 }
 
-.goals-table tr {
-  border-bottom: 1px solid rgba(92, 41, 197, 0.1);
+.goals-table th {
+  text-align: left;
+  padding: 0.5rem;
+  color: var(--nn-text-secondary);
+  font-weight: 500;
 }
 
 .goals-table td {
-  padding: 12px 0;
-  text-align: left;
+  padding: 0.5rem;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(92, 41, 197, 0.1);
 }
 
-.goals-table td:first-child {
-  width: 50%;
-  padding-right: 16px;
-}
-
-.goals-table td:nth-child(2) {
-  width: 25%;
-  color: #6b7280;
-}
-
-.goals-table td:last-child {
-  width: 25%;
-  text-align: right;
-}
-
-/* Ensure last row doesn't have a border */
-.goals-table tr:last-child {
+.goals-table tr:last-child td {
   border-bottom: none;
+}
+
+.goals-table .progress-cell {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progress-bar-container {
+  width: 100px;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--nn-primary);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  min-width: 2.5rem;
+  text-align: right;
+  color: var(--nn-text-secondary);
 }
 
 .main-content-wrapper {

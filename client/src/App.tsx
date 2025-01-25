@@ -17,6 +17,7 @@ import {
   calculateClientTenure
 } from './utils/calculations';
 import { LoadingSpinner } from './components/LoadingSpinner';
+import { syncAccountWithBigQuery } from './utils/bigQuerySync';
 
 // Fix the type definition
 type ViewType = 'manager' | 'finance';
@@ -69,63 +70,11 @@ function App() {
         
         const accountsData = await response.json();
         
-        // For each account, fetch BigQuery data if we have ClickUp IDs
+        // For each account, sync with BigQuery if we have a folder ID
         const accountsWithBigQueryData = await Promise.all(
           accountsData.data.map(async (account: AccountResponse) => {
             if (account.clientFolderId) {
-              try {
-                console.log(`Fetching BigQuery data for ${account.accountName}...`);
-                const bigQueryResponse = await fetch(`${API_URL}/api/bigquery/account/${account.clientFolderId}`);
-                if (!bigQueryResponse.ok) {
-                  console.error(`Failed to fetch BigQuery data for ${account.accountName}`);
-                  return account;
-                }
-                
-                const bigQueryData = await bigQueryResponse.json();
-                console.log(`BigQuery data received for ${account.accountName}:`, bigQueryData);
-                
-                // Update account with BigQuery data
-                const updateData = {
-                  ...account,
-                  pointsPurchased: bigQueryData.points?.[0]?.points_purchased ? 
-                    parseInt(bigQueryData.points[0].points_purchased.toString(), 10) : account.pointsPurchased,
-                  pointsDelivered: bigQueryData.points?.[0]?.points_delivered ? 
-                    parseInt(bigQueryData.points[0].points_delivered.toString(), 10) : account.pointsDelivered,
-                  recurringPointsAllotment: bigQueryData.clientData?.[0]?.recurring_points_allotment ? 
-                    parseInt(bigQueryData.clientData[0].recurring_points_allotment.toString(), 10) : account.recurringPointsAllotment,
-                  goals: bigQueryData.goals?.map((goal: any) => ({
-                    id: goal.id,
-                    task_name: goal.task_name || '',
-                    task_description: goal.task_description,
-                    status: goal.status || '',
-                    progress: parseInt(goal.progress?.toString() || '0', 10),
-                    assignee: goal.assignee,
-                    created_date: goal.created_date,
-                    due_date: goal.due_date,
-                    date_done: goal.date_done,
-                    created_by: goal.created_by
-                  })) || []
-                };
-                
-                // Update the account in the database
-                const updateResponse = await fetch(`${API_URL}/api/accounts/${account.id}`, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(updateData)
-                });
-                
-                if (!updateResponse.ok) {
-                  console.error(`Failed to update account ${account.accountName} with BigQuery data`);
-                  return account;
-                }
-                
-                const { data: updatedAccount } = await updateResponse.json();
-                console.log(`Successfully updated ${account.accountName} with BigQuery data:`, updatedAccount);
-                return updatedAccount;
-              } catch (error) {
-                console.error(`Error processing BigQuery data for ${account.accountName}:`, error);
-                return account;
-              }
+              return syncAccountWithBigQuery(account);
             }
             return account;
           })
@@ -197,39 +146,17 @@ function App() {
       // Add the new account to state immediately
       setAccounts(prevAccounts => [...prevAccounts, newAccount]);
 
-      // Then immediately fetch BigQuery data if we have a folder ID
+      // Then immediately sync with BigQuery if we have a folder ID
       if (formData.clientFolderId) {
         try {
-          const bigQueryResponse = await fetch(`${API_URL}/api/bigquery/account/${formData.clientFolderId}`);
-          if (bigQueryResponse.ok) {
-            const bigQueryData = await bigQueryResponse.json();
-            
-            // Update the account with BigQuery data
-            const updateResponse = await fetch(`${API_URL}/api/accounts/${newAccount.id}`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                ...newAccount,
-                accountName: bigQueryData.clientData?.[0]?.client_name || newAccount.accountName,
-                points: bigQueryData.points,
-                growthTasks: bigQueryData.growthTasks,
-                goals: bigQueryData.goals,
-                clientData: bigQueryData.clientData
-              })
-            });
-
-            if (updateResponse.ok) {
-              const { data: updatedAccount } = await updateResponse.json();
-              // Update the account in state with the synced data
-              setAccounts(prevAccounts => 
-                prevAccounts.map(account => 
-                  account.id === updatedAccount.id ? updatedAccount : account
-                )
-              );
-            }
-          }
+          const updatedAccount = await syncAccountWithBigQuery(newAccount);
+          setAccounts(prevAccounts => 
+            prevAccounts.map(account => 
+              account.id === updatedAccount.id ? updatedAccount : account
+            )
+          );
         } catch (error) {
-          console.error('Error fetching BigQuery data:', error);
+          console.error('Error syncing with BigQuery:', error);
         }
       }
 
