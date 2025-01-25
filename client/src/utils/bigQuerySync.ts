@@ -1,6 +1,5 @@
 import { AccountResponse } from '../types';
 import { API_URL } from '../config/api';
-import { calculatePotentialMrr } from './calculations';
 
 export const syncAccountWithBigQuery = async (
   account: AccountResponse,
@@ -28,6 +27,9 @@ export const syncAccountWithBigQuery = async (
     const newMrr = bigQueryData.clientData?.[0]?.mrr ?
       Number(String(bigQueryData.clientData[0].mrr).replace(/,/g, '')) : account.mrr;
 
+    // Get the growth in MRR value
+    const growthInMrr = account.growthInMrr || 0;
+
     // Prepare update data with consistent transformation logic
     const updateData = {
       ...account,
@@ -41,7 +43,8 @@ export const syncAccountWithBigQuery = async (
       recurringPointsAllotment: bigQueryData.clientData?.[0]?.recurring_points_allotment ? 
         Number(String(bigQueryData.clientData[0].recurring_points_allotment).replace(/,/g, '')) : account.recurringPointsAllotment,
       mrr: newMrr,
-      potentialMrr: calculatePotentialMrr(newMrr, account.growthInMrr),
+      growthInMrr: growthInMrr,
+      potentialMrr: newMrr + growthInMrr,
       relationshipStartDate: bigQueryData.clientData?.[0]?.original_contract_start_date ? 
         new Date(bigQueryData.clientData[0].original_contract_start_date) : account.relationshipStartDate || new Date(),
       contractStartDate: bigQueryData.clientData?.[0]?.points_mrr_start_date ? 
