@@ -358,10 +358,6 @@ function App() {
     );
   };
 
-  const averageMRR = filteredAccounts.length > 0
-    ? filteredAccounts.reduce((sum, account) => sum + account.mrr, 0) / filteredAccounts.length
-    : 0;
-
   return (
     <div className="app-container">
       <header className="app-header">
