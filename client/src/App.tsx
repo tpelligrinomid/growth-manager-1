@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   AccountResponse,
   AddAccountForm
@@ -321,11 +321,11 @@ function App() {
             <header className="app-header">
               <div className="header-content">
                 <img 
-                  src="/mid-logo-dark.png"
+                  src="/logo.png"
                   alt="Marketers in Demand" 
                   className="header-logo" 
                 />
-                <div>
+                <div className="title-container">
                   <h1>Growth Manager</h1>
                   <div className="role-badge">{userRole}</div>
                 </div>
