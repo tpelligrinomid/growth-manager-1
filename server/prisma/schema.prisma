@@ -137,3 +137,14 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
+
+model Invitation {
+  id            String    @id @default(cuid())
+  email         String
+  role          Role
+  token         String    @unique
+  expires       DateTime
+  accepted      Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
