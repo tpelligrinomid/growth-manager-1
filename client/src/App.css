@@ -38,8 +38,9 @@ html, body, #root {
 
 .header-content {
   display: flex;
-  align-items: center;
-  gap: 1.5rem;  /* Slightly reduced gap */
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
 }
 
 .header-logo {
@@ -52,21 +53,50 @@ html, body, #root {
   margin: 0;
   color: #111827;
   font-size: 1.5rem;
+  line-height: 1.2;
 }
 
-.logout-button {
-  padding: 0.5rem 1rem;
-  background-color: #ef4444;
+.role-badge {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.add-account-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #5C29C5;
   color: white;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
   font-weight: 500;
+  cursor: pointer;
   transition: background-color 0.2s;
 }
 
+.add-account-button:hover {
+  background-color: #4a21a0;
+}
+
+.button-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.logout-button {
+  padding: 0.75rem 1.5rem;
+  background-color: white;
+  color: #5C29C5;
+  border: 1px solid #5C29C5;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
 .logout-button:hover {
-  background-color: #dc2626;
+  background-color: #f9fafb;
 }
 
 .content-container {
@@ -81,7 +111,6 @@ html, body, #root {
   margin-bottom: 2rem;
 }
 
-.add-account-button,
 .sync-button {
   padding: 0.75rem 1.5rem;
   background-color: #6366f1;
@@ -91,11 +120,6 @@ html, body, #root {
   cursor: pointer;
   font-weight: 500;
   transition: background-color 0.2s;
-}
-
-.add-account-button:hover,
-.sync-button:hover {
-  background-color: #4f46e5;
 }
 
 .sync-button:disabled {
@@ -1223,4 +1247,10 @@ html, body, #root {
 .settings-section p {
   color: #666;
   font-size: 1rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
