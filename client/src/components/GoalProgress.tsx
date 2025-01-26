@@ -47,13 +47,26 @@ export const GoalProgress: React.FC<GoalProgressProps> = ({ goals, detailed = fa
   return (
     <table className="goals-table">
       <tbody>
-        {goals.map((goal, index) => (
-          <tr key={index}>
-            <td>{goal.task_name}</td>
-            <td>{new Date(goal.due_date).toLocaleDateString()}</td>
-            <td>{goal.progress || 0}%</td>
-          </tr>
-        ))}
+        {goals.map((goal, index) => {
+          const isOverdue = new Date(goal.due_date) < new Date() && (goal.progress ?? 0) < 100;
+          return (
+            <tr key={index}>
+              <td>{goal.task_name}</td>
+              <td>{new Date(goal.due_date).toLocaleDateString()}</td>
+              <td className="progress-cell">
+                <div className="goal-progress">
+                  <div className="progress-bar">
+                    <div 
+                      className={`progress-fill ${isOverdue ? 'overdue' : ''}`}
+                      style={{ width: `${goal.progress ?? 0}%` }}
+                    />
+                  </div>
+                  <span className="progress-text">{goal.progress || 0}%</span>
+                </div>
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );

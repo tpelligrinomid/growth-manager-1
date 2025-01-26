@@ -1146,9 +1146,21 @@ html, body, #root {
 }
 
 .progress-bar {
+  height: 8px;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
   height: 100%;
-  background-color: #7c3aed;
+  background-color: var(--nn-primary);
+  border-radius: 4px;
   transition: width 0.3s ease;
+}
+
+.progress-fill.overdue {
+  background-color: #dc2626;
 }
 
 .progress-text {
