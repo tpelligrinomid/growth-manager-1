@@ -3,7 +3,7 @@ import {
   AccountResponse,
   AddAccountForm
 } from './types';
-import { PlusIcon, ChartPieIcon, ClipboardDocumentListIcon, BanknotesIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ChartPieIcon, ClipboardDocumentListIcon, BanknotesIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import './App.css';
 import AccountModal from './components/AccountModal';
 import { AddAccountModal } from './components/AddAccountModal';
@@ -19,6 +19,7 @@ import {
 import LoadingSpinner from './components/LoadingSpinner';
 import { syncAccountWithBigQuery } from './utils/bigQuerySync';
 import Tasks from './components/Tasks';
+import Settings from './components/Settings';
 
 // Fix the type definition
 type ViewType = 'manager' | 'finance';
@@ -57,8 +58,9 @@ function App() {
     direction: 'asc'
   });
   const [currentView, setCurrentView] = useState<ViewType>('manager');
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'tasks'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'tasks' | 'settings'>('dashboard');
   const [isSyncing, setIsSyncing] = useState(false);
+  const [userRole, setUserRole] = useState<'ADMINISTRATOR' | 'GROWTH_MANAGER' | 'GROWTH_ADVISOR'>('GROWTH_ADVISOR');
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -312,6 +314,21 @@ function App() {
             className="header-logo" 
           />
           <h1>Growth Manager</h1>
+          {/* Temporary role toggle button */}
+          <button 
+            onClick={() => {
+              setUserRole(current => {
+                switch (current) {
+                  case 'ADMINISTRATOR': return 'GROWTH_MANAGER';
+                  case 'GROWTH_MANAGER': return 'GROWTH_ADVISOR';
+                  case 'GROWTH_ADVISOR': return 'ADMINISTRATOR';
+                }
+              });
+            }}
+            style={{ marginLeft: '1rem', padding: '0.5rem', fontSize: '0.8rem' }}
+          >
+            Role: {userRole}
+          </button>
         </div>
         <button className="add-account-button" onClick={() => setIsAddModalOpen(true)}>
           <PlusIcon className="button-icon" />
@@ -334,6 +351,15 @@ function App() {
             <ClipboardDocumentListIcon className="nav-icon" />
             <span className="nav-tooltip">Tasks</span>
           </button>
+          {userRole === 'ADMINISTRATOR' && (
+            <button 
+              className={`nav-button ${currentPage === 'settings' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('settings')}
+            >
+              <Cog6ToothIcon className="nav-icon" />
+              <span className="nav-tooltip">Settings</span>
+            </button>
+          )}
         </nav>
         <main className="app-content">
           {isLoading ? (
@@ -635,8 +661,10 @@ function App() {
                 </tbody>
               </table>
             </div>
-          ) : (
+          ) : currentPage === 'tasks' ? (
             <Tasks accounts={accounts} />
+          ) : (
+            <Settings userRole={userRole} />
           )}
         </main>
       </div>
