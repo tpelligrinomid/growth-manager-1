@@ -38,7 +38,7 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
         }
       });
       if (!response.ok) throw new Error('Failed to fetch users');
-      const data = await response.json();
+      const { data } = await response.json();
       setUsers(data);
     } catch (err) {
       setError('Failed to load users');
