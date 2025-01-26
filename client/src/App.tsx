@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AccountResponse,
   AddAccountForm
@@ -26,6 +26,7 @@ import { Routes, Route } from 'react-router-dom';
 import AcceptInvitation from './components/AcceptInvitation';
 import Tasks from './components/Tasks';
 import Settings from './components/Settings';
+import Login from './components/Login';
 
 // Fix the type definition
 type ViewType = 'manager' | 'finance';
@@ -67,63 +68,56 @@ function App() {
   const [isSyncing, setIsSyncing] = useState(false);
   const userRole: 'ADMINISTRATOR' | 'GROWTH_MANAGER' | 'GROWTH_ADVISOR' = 'ADMINISTRATOR';
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'tasks' | 'settings'>('dashboard');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
 
   useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        console.log('Fetching accounts...');
-        const response = await fetch(`${API_URL}/api/accounts`);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const accountsData = await response.json();
-        
-        // For each account, sync with BigQuery if we have a folder ID
-        const accountsWithBigQueryData = await Promise.all(
-          accountsData.data.map(async (account: AccountResponse) => {
-            if (account.clientFolderId) {
-              return syncAccountWithBigQuery(account);
-            }
-            return account;
-          })
-        );
-        
-        setAccounts(accountsWithBigQueryData);
-        setError(null);
-      } catch (error) {
-        console.error('Error fetching accounts:', error);
-        setError(error instanceof Error ? error.message : 'Failed to load accounts');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAccounts();
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      setToken(storedToken);
+      setIsAuthenticated(true);
+    }
   }, []);
 
-  const filteredAccounts = accounts.filter(account => {
-    return (
-      (!filters.businessUnit || account.businessUnit === filters.businessUnit) &&
-      (!filters.engagementType || account.engagementType === filters.engagementType) &&
-      (!filters.priority || account.priority === filters.priority) &&
-      (!filters.delivery || account.delivery === filters.delivery) &&
-      (!filters.accountManager || account.accountManager === filters.accountManager) &&
-      (!filters.teamManager || account.teamManager === filters.teamManager)
-    );
-  });
-
   useEffect(() => {
-    // Add 'changed' class when filters change
-    const elements = document.querySelectorAll('.metric-value');
-    elements.forEach((el) => {
-      if (el instanceof HTMLElement) {
-        el.classList.add('changed');
-        setTimeout(() => el.classList.remove('changed'), 300);
+    if (isAuthenticated && token) {
+      fetchAccounts();
+    }
+  }, [isAuthenticated, token]);
+
+  const handleLogin = (newToken: string) => {
+    localStorage.setItem('token', newToken);
+    setToken(newToken);
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setIsAuthenticated(false);
+    setAccounts([]);
+  };
+
+  const fetchAccounts = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await fetch(`${API_URL}/api/accounts`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    });
-  }, [filters]); // Only depend on filters changes
+      const data = await response.json();
+      setAccounts(data);
+    } catch (err) {
+      setError(`Error fetching accounts: ${err}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleAddAccount = async (formData: AddAccountForm) => {
     try {
@@ -136,7 +130,10 @@ function App() {
       // First create the account
       const response = await fetch(`${API_URL}/api/accounts`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           ...formData,
           // Add default values for required fields
@@ -192,6 +189,7 @@ function App() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(accountData),
       });
@@ -246,7 +244,7 @@ function App() {
     }));
   };
 
-  const sortedAccounts = [...filteredAccounts].sort((a, b) => {
+  const sortedAccounts = [...accounts].sort((a, b) => {
     if (!sortConfig.key || !sortConfig.direction) return 0;
 
     if (sortConfig.key === 'priority') {
@@ -309,6 +307,10 @@ function App() {
     );
   };
 
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
+
   return (
     <div className="app-container">
       {isSyncing && <LoadingSpinner />}
@@ -330,6 +332,7 @@ function App() {
                 <PlusIcon className="button-icon" />
                 Add Account
               </button>
+              <button onClick={handleLogout} className="logout-button">Logout</button>
             </header>
             <div className="main-content-wrapper">
               <nav className="sidebar">
@@ -367,13 +370,13 @@ function App() {
                     <div className="metrics-container">
                       <div className="metric-card">
                         <div className="metric-label">Total Accounts</div>
-                        <div className="metric-value">{filteredAccounts.length}</div>
+                        <div className="metric-value">{accounts.length}</div>
                       </div>
 
                       <div className="metric-card">
                         <div className="metric-label">Total MRR</div>
                         <div className="metric-value">
-                          ${filteredAccounts.reduce((sum, account) => {
+                          ${accounts.reduce((sum, account) => {
                             const mrrValue = String(account.mrr).replace(/[^0-9.-]+/g, '');
                             return sum + (parseFloat(mrrValue) || 0);
                           }, 0).toLocaleString()}
@@ -383,11 +386,11 @@ function App() {
                       <div className="metric-card">
                         <div className="metric-label">Average MRR</div>
                         <div className="metric-value">
-                          ${filteredAccounts.length > 0 
-                            ? Math.round(filteredAccounts.reduce((sum, account) => {
+                          ${accounts.length > 0 
+                            ? Math.round(accounts.reduce((sum, account) => {
                                 const mrrValue = String(account.mrr).replace(/[^0-9.-]+/g, '');
                                 return sum + (parseFloat(mrrValue) || 0);
-                              }, 0) / filteredAccounts.length).toLocaleString()
+                              }, 0) / accounts.length).toLocaleString()
                             : 0}
                         </div>
                       </div>
@@ -395,7 +398,7 @@ function App() {
                       <div className="metric-card warning">
                         <div className="metric-label">Accounts Off Track</div>
                         <div className="metric-value">
-                          <div>{filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length}</div>
+                          <div>{accounts.filter(account => account.delivery === 'OFF_TRACK').length}</div>
                         </div>
                       </div>
 
@@ -404,14 +407,14 @@ function App() {
                         <div className="metric-value">
                           <PieChart 
                             percentage={calculatePercentage(
-                              filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length,
-                              filteredAccounts.length
+                              accounts.filter(account => account.delivery === 'OFF_TRACK').length,
+                              accounts.length
                             )} 
                           />
                           <span>
                             {calculatePercentage(
-                              filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length,
-                              filteredAccounts.length
+                              accounts.filter(account => account.delivery === 'OFF_TRACK').length,
+                              accounts.length
                             )}%
                           </span>
                         </div>
@@ -420,7 +423,7 @@ function App() {
                       <div className="metric-card priority">
                         <div className="metric-label">Tier 1 Accounts</div>
                         <div className="metric-value">
-                          <div>{filteredAccounts.filter(account => account.priority === 'TIER_1').length}</div>
+                          <div>{accounts.filter(account => account.priority === 'TIER_1').length}</div>
                         </div>
                       </div>
 
@@ -429,14 +432,14 @@ function App() {
                         <div className="metric-value">
                           <PieChart 
                             percentage={calculatePercentage(
-                              filteredAccounts.filter(account => account.priority === 'TIER_1').length,
-                              filteredAccounts.length
+                              accounts.filter(account => account.priority === 'TIER_1').length,
+                              accounts.length
                             )} 
                           />
                           <span>
                             {calculatePercentage(
-                              filteredAccounts.filter(account => account.priority === 'TIER_1').length,
-                              filteredAccounts.length
+                              accounts.filter(account => account.priority === 'TIER_1').length,
+                              accounts.length
                             )}%
                           </span>
                         </div>
@@ -446,12 +449,12 @@ function App() {
                         <div className="metric-label">Average Points Burden</div>
                         <div className="metric-value">
                           <div>
-                            {filteredAccounts.length > 0
+                            {accounts.length > 0
                               ? Math.round(
-                                  filteredAccounts.reduce((sum, account) => {
+                                  accounts.reduce((sum, account) => {
                                     const strikingDistance = Number(account.pointsStrikingDistance) || 0;
                                     return sum + strikingDistance;
-                                  }, 0) / filteredAccounts.length
+                                  }, 0) / accounts.length
                                 )
                               : 0}
                           </div>
