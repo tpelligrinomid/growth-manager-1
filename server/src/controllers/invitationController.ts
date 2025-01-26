@@ -7,10 +7,12 @@ const prisma = new PrismaClient();
 // Create a new invitation
 export const createInvitation = async (req: Request, res: Response) => {
   try {
+    console.log('Received invitation request:', req.body);
     const { email, role } = req.body;
 
     // Validate input
     if (!email || !role) {
+      console.log('Validation failed - missing email or role');
       return res.status(400).json({ error: 'Email and role are required' });
     }
 
@@ -26,9 +28,11 @@ export const createInvitation = async (req: Request, res: Response) => {
     });
 
     if (existingInvitation) {
+      console.log('Found existing invitation for email:', email);
       return res.status(400).json({ error: 'An active invitation already exists for this email' });
     }
 
+    console.log('Creating new invitation with role:', role);
     // Create new invitation
     const invitation = await prisma.invitation.create({
       data: {
@@ -40,9 +44,10 @@ export const createInvitation = async (req: Request, res: Response) => {
       }
     });
 
+    console.log('Invitation created successfully:', invitation);
     res.status(201).json({ data: invitation });
   } catch (error) {
-    console.error('Error creating invitation:', error);
+    console.error('Detailed error creating invitation:', error);
     res.status(500).json({ 
       error: 'Failed to create invitation',
       details: error instanceof Error ? error.message : 'Unknown error'
