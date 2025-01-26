@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import InviteUserModal from './InviteUserModal';
+import { API_URL } from '../config/api';
 
 interface SettingsProps {
   userRole?: 'ADMINISTRATOR' | 'GROWTH_MANAGER' | 'GROWTH_ADVISOR';
@@ -10,8 +11,26 @@ const Settings: React.FC<SettingsProps> = ({ userRole }) => {
 
   const handleInviteUser = async (data: { email: string; role: string }) => {
     try {
-      // TODO: Implement the API call to send invitation
-      console.log('Sending invitation to:', data);
+      console.log('Sending invitation request to:', `${API_URL}/api/invitations`);
+      console.log('Request data:', data);
+      
+      const response = await fetch(`${API_URL}/api/invitations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      console.log('Response status:', response.status);
+      const responseData = await response.json();
+      console.log('Response data:', responseData);
+
+      if (!response.ok) {
+        throw new Error(responseData.error || 'Failed to send invitation');
+      }
+
+      setIsInviteModalOpen(false);
       alert('Invitation sent successfully!');
     } catch (error) {
       console.error('Error sending invitation:', error);
