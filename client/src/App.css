@@ -70,18 +70,25 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
   background-color: var(--nn-primary);
   color: white;
   border: none;
   border-radius: 4px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .add-account-button:hover {
   background-color: var(--nn-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-account-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .button-icon {
@@ -90,7 +97,7 @@ html, body, #root {
 }
 
 .logout-button {
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
   background-color: white;
   color: #5C29C5;
   border: 1px solid #5C29C5;
@@ -372,6 +379,21 @@ html, body, #root {
   max-height: 90vh;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+}
+
+.modal-content .header-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 1.5rem;
+}
+
+.modal-content h2 {
+  margin-bottom: 2rem;
+  color: var(--nn-text);
+  font-size: 1.5rem;
 }
 
 .modal-header {
@@ -474,37 +496,6 @@ html, body, #root {
 
 .modal-body:not(:scrollTop) + .modal-header::after {
   opacity: 1;
-}
-
-.add-account-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: var(--nn-white);
-  color: var(--nn-primary);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.add-account-button:hover {
-  background-color: #f8f5ff;  /* Lighter, more solid background */
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.add-account-button:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.button-icon {
-  width: 1.25rem;
-  height: 1.25rem;
 }
 
 /* Form styles */
