@@ -1,0 +1,49 @@
+.tasks-container {
+  padding: 2rem;
+}
+
+.tasks-container h2 {
+  color: var(--nn-text);
+  margin-bottom: 1.5rem;
+}
+
+.tasks-table-container {
+  background: var(--nn-white);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px var(--nn-shadow);
+  overflow: auto;
+}
+
+.tasks-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.tasks-table th,
+.tasks-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--nn-border);
+}
+
+.tasks-table th {
+  background-color: var(--nn-light);
+  font-weight: 600;
+  color: var(--nn-text);
+}
+
+.tasks-table tr:hover {
+  background-color: var(--nn-light);
+}
+
+.tasks-loading,
+.tasks-error {
+  padding: 2rem;
+  text-align: center;
+  color: var(--nn-text);
+}
+
+.tasks-error {
+  color: #e53e3e;
+} 
