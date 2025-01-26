@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
 
     // Calculate averages first
     const totalMrr = accounts.reduce((sum: number, account: any) => {
-      return sum + account.mrr;
+      return sum + Number(account.mrr);
     }, 0);
     const averageMrr = accounts.length > 0 ? totalMrr / accounts.length : 0;
 
@@ -43,20 +43,22 @@ router.get('/', async (req, res) => {
         pointsDelivered: account.pointsDelivered
       });
 
+      // Calculate potential MRR
       const potentialMrr = calculatePotentialMrr({
-        mrr: account.mrr,
-        growthInMrr: account.growthInMrr
+        mrr: Number(account.mrr),
+        growthInMrr: Number(account.growthInMrr)
       });
 
       return {
         ...account,
         mrr: formatNumber(account.mrr),
+        growthInMrr: formatNumber(account.growthInMrr),
+        potentialMrr: formatNumber(potentialMrr),
         pointsPurchased: formatNumber(account.pointsPurchased),
         pointsDelivered: formatNumber(account.pointsDelivered),
         recurringPointsAllotment: formatNumber(account.recurringPointsAllotment),
         pointsStrikingDistance: formatNumber(pointsStrikingDistance),
         pointsBalance: formatNumber(pointsBalance),
-        potentialMrr: formatNumber(potentialMrr),
         annualRevenue: formatNumber(account.annualRevenue),
         employees: formatNumber(account.employees),
         delivery: determineDeliveryStatus(pointsStrikingDistance),
@@ -246,6 +248,16 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
       mrr: typeof updateData.mrr === 'number' ? updateData.mrr : undefined
     };
 
+    // Calculate potential MRR if either MRR or Growth in MRR is being updated
+    if (sanitizedData.mrr !== undefined || sanitizedData.growthInMrr !== undefined) {
+      const newMrr = sanitizedData.mrr !== undefined ? sanitizedData.mrr : currentAccount.mrr;
+      const newGrowthInMrr = sanitizedData.growthInMrr !== undefined ? sanitizedData.growthInMrr : currentAccount.growthInMrr;
+      sanitizedData.potentialMrr = calculatePotentialMrr({
+        mrr: Number(newMrr),
+        growthInMrr: Number(newGrowthInMrr)
+      });
+    }
+
     // Transform goals data to match Prisma schema
     if (updateData.goals) {
       sanitizedData.goals = {
@@ -296,13 +308,24 @@ router.put('/:id', async (req: Request<{id: string}, {}, AccountUpdateBody>, res
 
     console.log('Calculated points striking distance:', pointsStrikingDistance);
 
+    // Format numeric values for response
+    const formattedAccount = {
+      ...account,
+      mrr: formatNumber(account.mrr),
+      growthInMrr: formatNumber(account.growthInMrr),
+      potentialMrr: formatNumber(account.potentialMrr),
+      pointsPurchased: formatNumber(account.pointsPurchased),
+      pointsDelivered: formatNumber(account.pointsDelivered),
+      recurringPointsAllotment: formatNumber(account.recurringPointsAllotment),
+      pointsStrikingDistance: formatNumber(pointsStrikingDistance),
+      annualRevenue: formatNumber(account.annualRevenue),
+      employees: formatNumber(account.employees),
+      delivery: determineDeliveryStatus(pointsStrikingDistance)
+    };
+
     // Return the updated account with delivery status
     const response = {
-      data: { 
-        ...account,
-        pointsStrikingDistance,
-        delivery: determineDeliveryStatus(pointsStrikingDistance)
-      }
+      data: formattedAccount
     };
 
     console.log('Final response:', response);
