@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 
-type Role = 'ADMINISTRATOR' | 'GROWTH_MANAGER';
+type Role = 'ADMINISTRATOR' | 'GROWTH_MANAGER' | 'GROWTH_ADVISOR';
 
 interface User {
   id: string;
@@ -153,6 +153,7 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
               className="form-select"
             >
               <option value="GROWTH_MANAGER">Growth Manager</option>
+              <option value="GROWTH_ADVISOR">Growth Advisor</option>
               <option value="ADMINISTRATOR">Administrator</option>
             </select>
             <button type="submit" className="button-primary">Send Invitation</button>
@@ -223,6 +224,7 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
                     disabled={userRole !== 'ADMINISTRATOR'}
                   >
                     <option value="GROWTH_MANAGER">Growth Manager</option>
+                    <option value="GROWTH_ADVISOR">Growth Advisor</option>
                     <option value="ADMINISTRATOR">Administrator</option>
                   </select>
                 </td>
