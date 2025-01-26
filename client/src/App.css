@@ -1407,3 +1407,27 @@ html, body, #root {
 .button-secondary:hover {
   background-color: var(--nn-light);
 }
+
+.settings-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--nn-border);
+}
+
+.settings-table td button {
+  margin-right: 0.5rem;
+}
+
+.settings-table td button:last-child {
+  margin-right: 0;
+}
+
+.button-secondary.delete {
+  background-color: white;
+  border: 1px solid #dc2626;
+  color: #dc2626;
+}
+
+.button-secondary.delete:hover {
+  background-color: #dc2626;
+  color: white;
+}
