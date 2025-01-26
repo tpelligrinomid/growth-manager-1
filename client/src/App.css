@@ -1250,3 +1250,47 @@ html, body, #root {
   align-items: center;
   gap: 1rem;
 }
+
+.login-modal {
+  max-width: 400px;
+  padding: 2rem;
+}
+
+.login-modal .header-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 1.5rem;
+}
+
+.login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.login-form .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.login-form label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--nn-text);
+}
+
+.login-form input {
+  padding: 0.5rem;
+  border: 1px solid var(--nn-border);
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.login-form .button-primary {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.75rem;
+}
