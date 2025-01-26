@@ -3,7 +3,11 @@ import {
   AccountResponse,
   AddAccountForm
 } from './types';
-import { PlusIcon, ChartPieIcon, ClipboardDocumentListIcon, BanknotesIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+import {
+  PlusIcon,
+  ClipboardDocumentListIcon,
+  BanknotesIcon
+} from '@heroicons/react/24/outline';
 import './App.css';
 import AccountModal from './components/AccountModal';
 import { AddAccountModal } from './components/AddAccountModal';
@@ -13,13 +17,11 @@ import { Filters } from './components/Filters';
 import { PieChart } from './components/PieChart';
 import { GoalProgress } from './components/GoalProgress';
 import { API_URL } from './config/api';
-import { 
-  calculateClientTenure
-} from './utils/calculations';
+import { calculateClientTenure } from './utils/calculations';
 import LoadingSpinner from './components/LoadingSpinner';
 import { syncAccountWithBigQuery } from './utils/bigQuerySync';
-import Tasks from './components/Tasks';
-import Settings from './components/Settings';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import AcceptInvitation from './components/AcceptInvitation';
 
 // Fix the type definition
 type ViewType = 'manager' | 'finance';
@@ -58,7 +60,6 @@ function App() {
     direction: 'asc'
   });
   const [currentView, setCurrentView] = useState<ViewType>('manager');
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'tasks' | 'settings'>('dashboard');
   const [isSyncing, setIsSyncing] = useState(false);
   const [userRole, setUserRole] = useState<'ADMINISTRATOR' | 'GROWTH_MANAGER' | 'GROWTH_ADVISOR'>('GROWTH_ADVISOR');
 
@@ -304,369 +305,347 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      {isSyncing && <LoadingSpinner />}
-      <header className="app-header">
-        <div className="header-content">
-          <img 
-            src="/mid-logo.png"
-            alt="Marketers in Demand" 
-            className="header-logo" 
-          />
-          <h1>Growth Manager</h1>
-          {/* Temporary role toggle button */}
-          <button 
-            onClick={() => {
-              setUserRole(current => {
-                switch (current) {
-                  case 'ADMINISTRATOR': return 'GROWTH_MANAGER';
-                  case 'GROWTH_MANAGER': return 'GROWTH_ADVISOR';
-                  case 'GROWTH_ADVISOR': return 'ADMINISTRATOR';
-                }
-              });
-            }}
-            style={{ marginLeft: '1rem', padding: '0.5rem', fontSize: '0.8rem' }}
-          >
-            Role: {userRole}
-          </button>
-        </div>
-        <button className="add-account-button" onClick={() => setIsAddModalOpen(true)}>
-          <PlusIcon className="button-icon" />
-          Add Account
-        </button>
-      </header>
-      <div className="main-content-wrapper">
-        <nav className="sidebar">
-          <button 
-            className={`nav-button ${currentPage === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setCurrentPage('dashboard')}
-          >
-            <ChartPieIcon className="nav-icon" />
-            <span className="nav-tooltip">Dashboard</span>
-          </button>
-          <button 
-            className={`nav-button ${currentPage === 'tasks' ? 'active' : ''}`}
-            onClick={() => setCurrentPage('tasks')}
-          >
-            <ClipboardDocumentListIcon className="nav-icon" />
-            <span className="nav-tooltip">Tasks</span>
-          </button>
-          {userRole === 'ADMINISTRATOR' && (
-            <button 
-              className={`nav-button ${currentPage === 'settings' ? 'active' : ''}`}
-              onClick={() => setCurrentPage('settings')}
-            >
-              <Cog6ToothIcon className="nav-icon" />
-              <span className="nav-tooltip">Settings</span>
-            </button>
-          )}
-        </nav>
-        <main className="app-content">
-          {isLoading ? (
-            <LoadingSpinner />
-          ) : error ? (
-            <div className="error-message">{error}</div>
-          ) : currentPage === 'dashboard' ? (
-            <div className="accounts-section">
-              <div className="metrics-container">
-                <div className="metric-card">
-                  <div className="metric-label">Total Accounts</div>
-                  <div className="metric-value">{filteredAccounts.length}</div>
+    <Router>
+      <div className="app-container">
+        {isSyncing && <LoadingSpinner />}
+        <Routes>
+          <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
+          <Route path="/" element={
+            <>
+              <header className="app-header">
+                <div className="header-content">
+                  <img 
+                    src="/mid-logo.png"
+                    alt="Marketers in Demand" 
+                    className="header-logo" 
+                  />
+                  <h1>Growth Manager</h1>
+                  {/* Temporary role toggle button */}
+                  <button 
+                    onClick={() => {
+                      setUserRole(current => {
+                        switch (current) {
+                          case 'ADMINISTRATOR': return 'GROWTH_MANAGER';
+                          case 'GROWTH_MANAGER': return 'GROWTH_ADVISOR';
+                          case 'GROWTH_ADVISOR': return 'ADMINISTRATOR';
+                        }
+                      });
+                    }}
+                    style={{ marginLeft: '1rem', padding: '0.5rem', fontSize: '0.8rem' }}
+                  >
+                    Role: {userRole}
+                  </button>
                 </div>
+                <button className="add-account-button" onClick={() => setIsAddModalOpen(true)}>
+                  <PlusIcon className="button-icon" />
+                  Add Account
+                </button>
+              </header>
+              <main className="app-content">
+                {isLoading ? (
+                  <LoadingSpinner />
+                ) : error ? (
+                  <div className="error-message">{error}</div>
+                ) : (
+                  <div className="accounts-section">
+                    <div className="metrics-container">
+                      <div className="metric-card">
+                        <div className="metric-label">Total Accounts</div>
+                        <div className="metric-value">{filteredAccounts.length}</div>
+                      </div>
 
-                <div className="metric-card">
-                  <div className="metric-label">Total MRR</div>
-                  <div className="metric-value">
-                    ${filteredAccounts.reduce((sum, account) => {
-                      const mrrValue = String(account.mrr).replace(/[^0-9.-]+/g, '');
-                      return sum + (parseFloat(mrrValue) || 0);
-                    }, 0).toLocaleString()}
-                  </div>
-                </div>
+                      <div className="metric-card">
+                        <div className="metric-label">Total MRR</div>
+                        <div className="metric-value">
+                          ${filteredAccounts.reduce((sum, account) => {
+                            const mrrValue = String(account.mrr).replace(/[^0-9.-]+/g, '');
+                            return sum + (parseFloat(mrrValue) || 0);
+                          }, 0).toLocaleString()}
+                        </div>
+                      </div>
 
-                <div className="metric-card">
-                  <div className="metric-label">Average MRR</div>
-                  <div className="metric-value">
-                    ${filteredAccounts.length > 0 
-                      ? Math.round(filteredAccounts.reduce((sum, account) => {
-                          const mrrValue = String(account.mrr).replace(/[^0-9.-]+/g, '');
-                          return sum + (parseFloat(mrrValue) || 0);
-                        }, 0) / filteredAccounts.length).toLocaleString()
-                      : 0}
-                  </div>
-                </div>
+                      <div className="metric-card">
+                        <div className="metric-label">Average MRR</div>
+                        <div className="metric-value">
+                          ${filteredAccounts.length > 0 
+                            ? Math.round(filteredAccounts.reduce((sum, account) => {
+                                const mrrValue = String(account.mrr).replace(/[^0-9.-]+/g, '');
+                                return sum + (parseFloat(mrrValue) || 0);
+                              }, 0) / filteredAccounts.length).toLocaleString()
+                            : 0}
+                        </div>
+                      </div>
 
-                <div className="metric-card warning">
-                  <div className="metric-label">Accounts Off Track</div>
-                  <div className="metric-value">
-                    <div>{filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length}</div>
-                  </div>
-                </div>
+                      <div className="metric-card warning">
+                        <div className="metric-label">Accounts Off Track</div>
+                        <div className="metric-value">
+                          <div>{filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length}</div>
+                        </div>
+                      </div>
 
-                <div className="metric-card warning">
-                  <div className="metric-label">% Off Track</div>
-                  <div className="metric-value">
-                    <PieChart 
-                      percentage={calculatePercentage(
-                        filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length,
-                        filteredAccounts.length
-                      )} 
-                    />
-                    <span>
-                      {calculatePercentage(
-                        filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length,
-                        filteredAccounts.length
-                      )}%
-                    </span>
-                  </div>
-                </div>
+                      <div className="metric-card warning">
+                        <div className="metric-label">% Off Track</div>
+                        <div className="metric-value">
+                          <PieChart 
+                            percentage={calculatePercentage(
+                              filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length,
+                              filteredAccounts.length
+                            )} 
+                          />
+                          <span>
+                            {calculatePercentage(
+                              filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length,
+                              filteredAccounts.length
+                            )}%
+                          </span>
+                        </div>
+                      </div>
 
-                <div className="metric-card priority">
-                  <div className="metric-label">Tier 1 Accounts</div>
-                  <div className="metric-value">
-                    <div>{filteredAccounts.filter(account => account.priority === 'TIER_1').length}</div>
-                  </div>
-                </div>
+                      <div className="metric-card priority">
+                        <div className="metric-label">Tier 1 Accounts</div>
+                        <div className="metric-value">
+                          <div>{filteredAccounts.filter(account => account.priority === 'TIER_1').length}</div>
+                        </div>
+                      </div>
 
-                <div className="metric-card priority">
-                  <div className="metric-label">% Tier 1</div>
-                  <div className="metric-value">
-                    <PieChart 
-                      percentage={calculatePercentage(
-                        filteredAccounts.filter(account => account.priority === 'TIER_1').length,
-                        filteredAccounts.length
-                      )} 
-                    />
-                    <span>
-                      {calculatePercentage(
-                        filteredAccounts.filter(account => account.priority === 'TIER_1').length,
-                        filteredAccounts.length
-                      )}%
-                    </span>
-                  </div>
-                </div>
+                      <div className="metric-card priority">
+                        <div className="metric-label">% Tier 1</div>
+                        <div className="metric-value">
+                          <PieChart 
+                            percentage={calculatePercentage(
+                              filteredAccounts.filter(account => account.priority === 'TIER_1').length,
+                              filteredAccounts.length
+                            )} 
+                          />
+                          <span>
+                            {calculatePercentage(
+                              filteredAccounts.filter(account => account.priority === 'TIER_1').length,
+                              filteredAccounts.length
+                            )}%
+                          </span>
+                        </div>
+                      </div>
 
-                <div className="metric-card">
-                  <div className="metric-label">Average Points Burden</div>
-                  <div className="metric-value">
-                    <div>
-                      {filteredAccounts.length > 0
-                        ? Math.round(
-                            filteredAccounts.reduce((sum, account) => {
-                              const strikingDistance = Number(account.pointsStrikingDistance) || 0;
-                              return sum + strikingDistance;
-                            }, 0) / filteredAccounts.length
-                          )
-                        : 0}
+                      <div className="metric-card">
+                        <div className="metric-label">Average Points Burden</div>
+                        <div className="metric-value">
+                          <div>
+                            {filteredAccounts.length > 0
+                              ? Math.round(
+                                  filteredAccounts.reduce((sum, account) => {
+                                    const strikingDistance = Number(account.pointsStrikingDistance) || 0;
+                                    return sum + strikingDistance;
+                                  }, 0) / filteredAccounts.length
+                                )
+                              : 0}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </div>
 
-              <div className="filters-container">
-                <div className="filters-section">
-                  <div className="view-toggle-container">
-                    <button 
-                      className={currentView === 'manager' ? 'active' : ''} 
-                      onClick={() => setCurrentView('manager')}
-                    >
-                      <ClipboardDocumentListIcon className="h-4 w-4" />
-                      Manager
-                    </button>
-                    <button 
-                      className={currentView === 'finance' ? 'active' : ''} 
-                      onClick={() => setCurrentView('finance')}
-                    >
-                      <BanknotesIcon className="h-4 w-4" />
-                      Finance
-                    </button>
+                    <div className="filters-container">
+                      <div className="filters-section">
+                        <div className="view-toggle-container">
+                          <button 
+                            className={currentView === 'manager' ? 'active' : ''} 
+                            onClick={() => setCurrentView('manager')}
+                          >
+                            <ClipboardDocumentListIcon className="h-4 w-4" />
+                            Manager
+                          </button>
+                          <button 
+                            className={currentView === 'finance' ? 'active' : ''} 
+                            onClick={() => setCurrentView('finance')}
+                          >
+                            <BanknotesIcon className="h-4 w-4" />
+                            Finance
+                          </button>
+                        </div>
+                        <div className="filters-group">
+                          <Filters
+                            filters={filters}
+                            onFilterChange={handleFilterChange}
+                            view={currentView}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <table className="accounts-table">
+                      <thead>
+                        <tr>
+                          {currentView === 'manager' ? (
+                            <>
+                              <th className="sortable-header wide-header" onClick={() => handleSort('accountName')}>
+                                Account<br/>Name
+                                {sortConfig.key === 'accountName' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('businessUnit')}>
+                                Business<br/>Unit
+                                {sortConfig.key === 'businessUnit' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('engagementType')}>
+                                Engagement<br/>Type
+                                {sortConfig.key === 'engagementType' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('priority')}>
+                                <div className="header-with-tooltip">
+                                  Priority
+                                  {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  <span className="tooltip">
+                                    • Tier 1 = Actively working<br/>
+                                    • Tier 2 = Client or delivery issues<br/>
+                                    • Tier 3 = Smooth<br/>
+                                    • Tier 4 = Low risk and low reward
+                                  </span>
+                                </div>
+                              </th>
+                              <th className="sortable-header wide-header" onClick={() => handleSort('accountManager')}>
+                                Account<br/>Manager
+                                {sortConfig.key === 'accountManager' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('mrr')}>
+                                MRR
+                                {sortConfig.key === 'mrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th>
+                                Recurring<br/>Points
+                              </th>
+                              <th>
+                                Points<br/>Purchased
+                              </th>
+                              <th>
+                                Points<br/>Delivered
+                              </th>
+                              <th>
+                                Points<br/>Balance
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('pointsStrikingDistance')}>
+                                <div className="header-with-tooltip">
+                                  Points<br/>Burden
+                                  <span className="tooltip">
+                                    Points Balance - (1.5 × Recurring Points)<br/>
+                                    Positive = Off Track, Negative = On Track
+                                  </span>
+                                  {sortConfig.key === 'pointsStrikingDistance' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                </div>
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('delivery')}>
+                                <div className="header-with-tooltip">
+                                  Delivery
+                                  {sortConfig.key === 'delivery' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  <span className="tooltip">
+                                    Based on Points Burden:<br/>
+                                    • Off Track if &gt; 0<br/>
+                                    • On Track if ≤ 0
+                                  </span>
+                                </div>
+                              </th>
+                              <th>Goals</th>
+                            </>
+                          ) : (
+                            <>
+                              <th className="sortable-header wide-header" onClick={() => handleSort('accountName')}>
+                                Account<br/>Name
+                                {sortConfig.key === 'accountName' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('businessUnit')}>
+                                Business<br/>Unit
+                                {sortConfig.key === 'businessUnit' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('engagementType')}>
+                                Engagement<br/>Type
+                                {sortConfig.key === 'engagementType' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('priority')}>
+                                Priority
+                                {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('mrr')}>
+                                MRR
+                                {sortConfig.key === 'mrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('growthInMrr')}>
+                                Growth in<br/>MRR
+                                {sortConfig.key === 'growthInMrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('potentialMrr')}>
+                                Potential<br/>MRR
+                                {sortConfig.key === 'potentialMrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('relationshipStartDate')}>
+                                Relationship<br/>Start
+                                {sortConfig.key === 'relationshipStartDate' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('clientTenure')}>
+                                Client<br/>Tenure
+                                {sortConfig.key === 'clientTenure' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('contractStartDate')}>
+                                Contract<br/>Start
+                                {sortConfig.key === 'contractStartDate' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                              <th className="sortable-header" onClick={() => handleSort('contractRenewalEnd')}>
+                                Contract<br/>End
+                                {sortConfig.key === 'contractRenewalEnd' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                              </th>
+                            </>
+                          )}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sortedAccounts.map((account) => (
+                          <tr key={account.id} onClick={() => setSelectedAccount(account)}>
+                            {currentView === 'manager' ? (
+                              <>
+                                <td>{account.accountName}</td>
+                                <td>{formatBusinessUnit(account.businessUnit)}</td>
+                                <td>{formatEngagementType(account.engagementType)}</td>
+                                <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
+                                  {formatPriority(account.priority)}
+                                </td>
+                                <td>{account.accountManager}</td>
+                                <td className="number-cell">${account.mrr.toLocaleString()}</td>
+                                <td className="number-cell">{account.recurringPointsAllotment}</td>
+                                <td className="number-cell">{account.pointsPurchased}</td>
+                                <td className="number-cell">{account.pointsDelivered}</td>
+                                <td className="number-cell">
+                                  {calculatePointsBalance(account)}
+                                </td>
+                                <td className="number-cell">{account.pointsStrikingDistance}</td>
+                                <td className={`delivery-${account.delivery.toLowerCase().replace('_', '-')}`}>
+                                  {formatDelivery(account.delivery)}
+                                </td>
+                                <td>
+                                  <GoalProgress goals={account.goals || []} />
+                                </td>
+                              </>
+                            ) : (
+                              <>
+                                <td>{account.accountName}</td>
+                                <td>{formatBusinessUnit(account.businessUnit)}</td>
+                                <td>{formatEngagementType(account.engagementType)}</td>
+                                <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
+                                  {formatPriority(account.priority)}
+                                </td>
+                                <td className="number-cell">${account.mrr.toLocaleString()}</td>
+                                <td className="number-cell">${account.growthInMrr.toLocaleString()}</td>
+                                <td className="number-cell">${account.potentialMrr.toLocaleString()}</td>
+                                <td>{new Date(account.relationshipStartDate).toLocaleDateString()}</td>
+                                <td>{calculateClientTenure(account.relationshipStartDate)} months</td>
+                                <td>{new Date(account.contractStartDate).toLocaleDateString()}</td>
+                                <td>{new Date(account.contractRenewalEnd).toLocaleDateString()}</td>
+                              </>
+                            )}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                  <div className="filters-group">
-                    <Filters
-                      filters={filters}
-                      onFilterChange={handleFilterChange}
-                      view={currentView}
-                    />
-                  </div>
-                </div>
-              </div>
-              <table className="accounts-table">
-                <thead>
-                  <tr>
-                    {currentView === 'manager' ? (
-                      <>
-                        <th className="sortable-header wide-header" onClick={() => handleSort('accountName')}>
-                          Account<br/>Name
-                          {sortConfig.key === 'accountName' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('businessUnit')}>
-                          Business<br/>Unit
-                          {sortConfig.key === 'businessUnit' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('engagementType')}>
-                          Engagement<br/>Type
-                          {sortConfig.key === 'engagementType' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('priority')}>
-                          <div className="header-with-tooltip">
-                            Priority
-                            {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                            <span className="tooltip">
-                              • Tier 1 = Actively working<br/>
-                              • Tier 2 = Client or delivery issues<br/>
-                              • Tier 3 = Smooth<br/>
-                              • Tier 4 = Low risk and low reward
-                            </span>
-                          </div>
-                        </th>
-                        <th className="sortable-header wide-header" onClick={() => handleSort('accountManager')}>
-                          Account<br/>Manager
-                          {sortConfig.key === 'accountManager' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('mrr')}>
-                          MRR
-                          {sortConfig.key === 'mrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th>
-                          Recurring<br/>Points
-                        </th>
-                        <th>
-                          Points<br/>Purchased
-                        </th>
-                        <th>
-                          Points<br/>Delivered
-                        </th>
-                        <th>
-                          Points<br/>Balance
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('pointsStrikingDistance')}>
-                          <div className="header-with-tooltip">
-                            Points<br/>Burden
-                            <span className="tooltip">
-                              Points Balance - (1.5 × Recurring Points)<br/>
-                              Positive = Off Track, Negative = On Track
-                            </span>
-                            {sortConfig.key === 'pointsStrikingDistance' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                          </div>
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('delivery')}>
-                          <div className="header-with-tooltip">
-                            Delivery
-                            {sortConfig.key === 'delivery' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                            <span className="tooltip">
-                              Based on Points Burden:<br/>
-                              • Off Track if &gt; 0<br/>
-                              • On Track if ≤ 0
-                            </span>
-                          </div>
-                        </th>
-                        <th>Goals</th>
-                      </>
-                    ) : (
-                      <>
-                        <th className="sortable-header wide-header" onClick={() => handleSort('accountName')}>
-                          Account<br/>Name
-                          {sortConfig.key === 'accountName' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('businessUnit')}>
-                          Business<br/>Unit
-                          {sortConfig.key === 'businessUnit' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('engagementType')}>
-                          Engagement<br/>Type
-                          {sortConfig.key === 'engagementType' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('priority')}>
-                          Priority
-                          {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('mrr')}>
-                          MRR
-                          {sortConfig.key === 'mrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('growthInMrr')}>
-                          Growth in<br/>MRR
-                          {sortConfig.key === 'growthInMrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('potentialMrr')}>
-                          Potential<br/>MRR
-                          {sortConfig.key === 'potentialMrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('relationshipStartDate')}>
-                          Relationship<br/>Start
-                          {sortConfig.key === 'relationshipStartDate' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('clientTenure')}>
-                          Client<br/>Tenure
-                          {sortConfig.key === 'clientTenure' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('contractStartDate')}>
-                          Contract<br/>Start
-                          {sortConfig.key === 'contractStartDate' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                        <th className="sortable-header" onClick={() => handleSort('contractRenewalEnd')}>
-                          Contract<br/>End
-                          {sortConfig.key === 'contractRenewalEnd' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                        </th>
-                      </>
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedAccounts.map((account) => (
-                    <tr key={account.id} onClick={() => setSelectedAccount(account)}>
-                      {currentView === 'manager' ? (
-                        <>
-                          <td>{account.accountName}</td>
-                          <td>{formatBusinessUnit(account.businessUnit)}</td>
-                          <td>{formatEngagementType(account.engagementType)}</td>
-                          <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
-                            {formatPriority(account.priority)}
-                          </td>
-                          <td>{account.accountManager}</td>
-                          <td className="number-cell">${account.mrr.toLocaleString()}</td>
-                          <td className="number-cell">{account.recurringPointsAllotment}</td>
-                          <td className="number-cell">{account.pointsPurchased}</td>
-                          <td className="number-cell">{account.pointsDelivered}</td>
-                          <td className="number-cell">
-                            {calculatePointsBalance(account)}
-                          </td>
-                          <td className="number-cell">{account.pointsStrikingDistance}</td>
-                          <td className={`delivery-${account.delivery.toLowerCase().replace('_', '-')}`}>
-                            {formatDelivery(account.delivery)}
-                          </td>
-                          <td>
-                            <GoalProgress goals={account.goals || []} />
-                          </td>
-                        </>
-                      ) : (
-                        <>
-                          <td>{account.accountName}</td>
-                          <td>{formatBusinessUnit(account.businessUnit)}</td>
-                          <td>{formatEngagementType(account.engagementType)}</td>
-                          <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
-                            {formatPriority(account.priority)}
-                          </td>
-                          <td className="number-cell">${account.mrr.toLocaleString()}</td>
-                          <td className="number-cell">${account.growthInMrr.toLocaleString()}</td>
-                          <td className="number-cell">${account.potentialMrr.toLocaleString()}</td>
-                          <td>{new Date(account.relationshipStartDate).toLocaleDateString()}</td>
-                          <td>{calculateClientTenure(account.relationshipStartDate)} months</td>
-                          <td>{new Date(account.contractStartDate).toLocaleDateString()}</td>
-                          <td>{new Date(account.contractRenewalEnd).toLocaleDateString()}</td>
-                        </>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : currentPage === 'tasks' ? (
-            <Tasks accounts={accounts} />
-          ) : (
-            <Settings userRole={userRole} />
-          )}
-        </main>
+                )}
+              </main>
+            </>
+          } />
+        </Routes>
       </div>
       {selectedAccount && (
         <AccountModal
@@ -692,7 +671,7 @@ function App() {
           onSubmit={handleEditAccount}
         />
       )}
-    </div>
+    </Router>
   );
 }
 
