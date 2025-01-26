@@ -9,6 +9,12 @@
   margin-bottom: 2rem;
 }
 
+.tasks-filters {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
 .view-toggle-container {
   display: flex;
   background: var(--nn-white);
@@ -35,7 +41,13 @@
 
 .date-range-picker {
   display: flex;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.date-label {
+  color: var(--nn-text);
+  font-weight: 500;
 }
 
 .date-picker {
@@ -43,6 +55,7 @@
   border: 1px solid var(--nn-border);
   border-radius: 6px;
   background: var(--nn-white);
+  width: 120px;
 }
 
 .tasks-grid {

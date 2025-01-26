@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { API_URL } from '../config/api';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
+import LoadingSpinner from './LoadingSpinner';
 import './Tasks.css';
 
 interface Task {
@@ -92,7 +93,7 @@ const Tasks: React.FC<TasksProps> = ({ accounts }) => {
   }).sort((a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime());
 
   if (isLoading) {
-    return <div className="tasks-loading">Loading tasks...</div>;
+    return <LoadingSpinner />;
   }
 
   if (error) {
@@ -102,46 +103,49 @@ const Tasks: React.FC<TasksProps> = ({ accounts }) => {
   return (
     <div className="tasks-container">
       <div className="tasks-header">
-        <div className="view-toggle-container">
-          <button 
-            className={currentView === 'ALL' ? 'active' : ''} 
-            onClick={() => setCurrentView('ALL')}
-          >
-            All Tasks
-          </button>
-          <button 
-            className={currentView === 'WORKING' ? 'active' : ''} 
-            onClick={() => setCurrentView('WORKING')}
-          >
-            Working
-          </button>
-          <button 
-            className={currentView === 'DELIVERED' ? 'active' : ''} 
-            onClick={() => setCurrentView('DELIVERED')}
-          >
-            Delivered
-          </button>
-        </div>
-        <div className="date-range-picker">
-          <DatePicker
-            selected={startDate}
-            onChange={(date: Date | null) => setStartDate(date)}
-            selectsStart
-            startDate={startDate}
-            endDate={endDate}
-            placeholderText="Start Date"
-            className="date-picker"
-          />
-          <DatePicker
-            selected={endDate}
-            onChange={(date: Date | null) => setEndDate(date)}
-            selectsEnd
-            startDate={startDate}
-            endDate={endDate}
-            minDate={startDate}
-            placeholderText="End Date"
-            className="date-picker"
-          />
+        <div className="tasks-filters">
+          <div className="view-toggle-container">
+            <button 
+              className={currentView === 'ALL' ? 'active' : ''} 
+              onClick={() => setCurrentView('ALL')}
+            >
+              All Tasks
+            </button>
+            <button 
+              className={currentView === 'WORKING' ? 'active' : ''} 
+              onClick={() => setCurrentView('WORKING')}
+            >
+              Working
+            </button>
+            <button 
+              className={currentView === 'DELIVERED' ? 'active' : ''} 
+              onClick={() => setCurrentView('DELIVERED')}
+            >
+              Delivered
+            </button>
+          </div>
+          <div className="date-range-picker">
+            <span className="date-label">Due Date:</span>
+            <DatePicker
+              selected={startDate}
+              onChange={(date: Date | null) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              placeholderText="Start Date"
+              className="date-picker"
+            />
+            <DatePicker
+              selected={endDate}
+              onChange={(date: Date | null) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              placeholderText="End Date"
+              className="date-picker"
+            />
+          </div>
         </div>
       </div>
 
