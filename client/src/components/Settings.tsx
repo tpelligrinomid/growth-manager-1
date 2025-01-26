@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Role } from '@prisma/client';
+
+type Role = 'ADMINISTRATOR' | 'GROWTH_MANAGER';
 
 interface User {
   id: string;
@@ -18,7 +19,11 @@ interface Invitation {
   createdAt: string;
 }
 
-export const Settings: React.FC = () => {
+interface SettingsProps {
+  userRole: string;
+}
+
+export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [newInvite, setNewInvite] = useState({ email: '', role: 'GROWTH_MANAGER' as Role });
@@ -215,6 +220,7 @@ export const Settings: React.FC = () => {
                     value={user.role}
                     onChange={(e) => handleUpdateRole(user.id, e.target.value as Role)}
                     className="role-select"
+                    disabled={userRole !== 'ADMINISTRATOR'}
                   >
                     <option value="GROWTH_MANAGER">Growth Manager</option>
                     <option value="ADMINISTRATOR">Administrator</option>
@@ -236,4 +242,6 @@ export const Settings: React.FC = () => {
       </div>
     </div>
   );
-}; 
+};
+
+export default Settings; 
