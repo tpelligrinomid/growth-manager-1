@@ -132,7 +132,7 @@ model User {
   id            String    @id @default(cuid())
   email         String    @unique
   name          String?
-  googleId      String    @unique
+  password      String    // Hashed password
   role          Role      @default(GROWTH_ADVISOR)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
