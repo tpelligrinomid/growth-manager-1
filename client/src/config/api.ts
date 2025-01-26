@@ -1,1 +1,1 @@
-export const API_URL = 'https://growth-manager-1-backend.onrender.com'; 
+export const API_URL = 'https://growth-manager-1.onrender.com'; 
