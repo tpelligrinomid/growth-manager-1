@@ -5,7 +5,15 @@ import bigQueryRoutes from './routes/bigQueryRoutes';
 import invitationRoutes from './routes/invitationRoutes';
 
 const app = express();
-app.use(cors());
+
+// Configure CORS with specific options
+app.use(cors({
+  origin: 'https://growth-manager-1.onrender.com',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
 // Add a root test route
