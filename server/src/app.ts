@@ -7,7 +7,11 @@ import userRoutes from './routes/userRoutes';
 
 const app = express();
 
-app.use(cors());
+// Configure CORS to allow requests from your frontend
+app.use(cors({
+  origin: 'https://growth-manager-1-frontend.onrender.com',
+  credentials: true
+}));
 app.use(express.json());
 
 // Add a test route
@@ -16,6 +20,7 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' });
 });
 
+// Register routes
 app.use('/api/accounts', accountRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/invitations', invitationRoutes);
