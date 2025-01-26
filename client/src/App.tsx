@@ -110,7 +110,7 @@ function App() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
+      const { data } = await response.json();
       setAccounts(data);
     } catch (err) {
       setError(`Error fetching accounts: ${err}`);
