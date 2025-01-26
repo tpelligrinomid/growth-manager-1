@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import accountRoutes from './routes/accountRoutes';
 import bigQueryRoutes from './routes/bigQueryRoutes';
+import invitationRoutes from './routes/invitationRoutes';
 
 const app = express();
 app.use(cors());
@@ -14,6 +15,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/accounts', accountRoutes);
 app.use('/api/bigquery', bigQueryRoutes);
+app.use('/api/invitations', invitationRoutes);
 
 const port = process.env.PORT || 3001;
 
