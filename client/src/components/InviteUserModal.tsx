@@ -16,7 +16,6 @@ export const InviteUserModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await onSubmit(formData);
-    onClose();
   };
 
   if (!isOpen) return null;
@@ -54,19 +53,18 @@ export const InviteUserModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
                     onChange={e => setFormData({...formData, role: e.target.value})}
                     required
                   >
-                    <option value="ADMINISTRATOR">Administrator</option>
-                    <option value="GROWTH_MANAGER">Growth Manager</option>
                     <option value="GROWTH_ADVISOR">Growth Advisor</option>
+                    <option value="GROWTH_MANAGER">Growth Manager</option>
+                    <option value="ADMINISTRATOR">Administrator</option>
                   </select>
                 </div>
               </div>
             </div>
-
-            <div className="form-actions">
-              <button type="button" onClick={onClose} className="button-secondary">
+            <div className="modal-footer">
+              <button type="button" onClick={onClose} className="secondary-button">
                 Cancel
               </button>
-              <button type="submit" className="button-primary">
+              <button type="submit" className="primary-button">
                 Send Invitation
               </button>
             </div>
@@ -75,6 +73,6 @@ export const InviteUserModal: React.FC<Props> = ({ isOpen, onClose, onSubmit }) 
       </div>
     </div>
   );
-}
+};
 
 export default InviteUserModal; 
