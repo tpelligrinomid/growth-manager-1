@@ -170,6 +170,7 @@ function App() {
 
   const handleEditAccount = async (accountData: AccountResponse) => {
     try {
+      setIsSyncing(true);
       console.log('=== EDIT ACCOUNT START ===');
       console.log('Account being edited:', accountData.accountName);
       console.log('Current folder ID:', selectedAccount?.clientFolderId);
@@ -195,26 +196,29 @@ function App() {
       let { data: updatedAccount } = responseData;
       console.log('Manual edit successful:', updatedAccount);
 
-      // Step 2: Sync with BigQuery
+      // Step 2: Sync with BigQuery if we have both required IDs
       console.log('Step 2: Syncing with BigQuery...');
-      const syncedAccount = await syncAccountWithBigQuery(updatedAccount, setIsSyncing);
+      if (accountData.clientFolderId && accountData.clientListTaskId) {
+        updatedAccount = await syncAccountWithBigQuery(updatedAccount, setIsSyncing);
+      } else {
+        console.log('Skipping BigQuery sync - missing required IDs');
+      }
       
-      // Step 4: Update UI
-      console.log('Step 4: Updating UI with final data:', syncedAccount);
+      // Step 3: Update UI
+      console.log('Step 3: Updating UI with final data:', updatedAccount);
       setAccounts(prevAccounts => 
         prevAccounts.map(acc => 
-          acc.id === syncedAccount.id ? syncedAccount : acc
+          acc.id === updatedAccount.id ? updatedAccount : acc
         )
       );
-      setSelectedAccount(syncedAccount);
+      setSelectedAccount(updatedAccount);
       setIsEditModalOpen(false);
       console.log('=== EDIT ACCOUNT COMPLETE ===');
 
     } catch (error) {
-      console.error('=== EDIT ACCOUNT ERROR ===');
-      console.error('Error details:', error);
-      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error('Error updating account:', error);
       alert(error instanceof Error ? error.message : 'Failed to update account');
+    } finally {
       setIsSyncing(false);
     }
   };
