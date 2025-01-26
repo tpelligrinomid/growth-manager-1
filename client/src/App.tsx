@@ -321,18 +321,22 @@ function App() {
             <header className="app-header">
               <div className="header-content">
                 <img 
-                  src="/mid-logo.png"
+                  src="/mid-logo-dark.png"
                   alt="Marketers in Demand" 
                   className="header-logo" 
                 />
-                <h1>Growth Manager</h1>
-                <div className="role-badge">Role: {userRole}</div>
+                <div>
+                  <h1>Growth Manager</h1>
+                  <div className="role-badge">{userRole}</div>
+                </div>
               </div>
-              <button className="add-account-button" onClick={() => setIsAddModalOpen(true)}>
-                <PlusIcon className="button-icon" />
-                Add Account
-              </button>
-              <button onClick={handleLogout} className="logout-button">Logout</button>
+              <div className="header-actions">
+                <button className="add-account-button" onClick={() => setIsAddModalOpen(true)}>
+                  <PlusIcon className="button-icon" />
+                  Add Account
+                </button>
+                <button onClick={handleLogout} className="logout-button">Logout</button>
+              </div>
             </header>
             <div className="main-content-wrapper">
               <nav className="sidebar">
