@@ -1310,3 +1310,100 @@ html, body, #root {
   width: 100%;
   padding: 0.75rem;
 }
+
+/* Settings styles */
+.settings-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.settings-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px var(--nn-shadow);
+}
+
+.settings-section h2 {
+  color: var(--nn-text);
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.invite-form {
+  max-width: 800px;
+}
+
+.form-group {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.form-input,
+.form-select {
+  padding: 0.5rem;
+  border: 1px solid var(--nn-border);
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form-input {
+  flex: 2;
+}
+
+.form-select {
+  flex: 1;
+}
+
+.settings-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.settings-table th,
+.settings-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--nn-border);
+}
+
+.settings-table th {
+  font-weight: 600;
+  color: var(--nn-text);
+  background-color: var(--nn-light);
+}
+
+.role-select {
+  padding: 0.25rem;
+  border: 1px solid var(--nn-border);
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.success-message {
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.button-secondary {
+  padding: 0.25rem 0.75rem;
+  background-color: white;
+  color: var(--nn-primary);
+  border: 1px solid var(--nn-primary);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.button-secondary:hover {
+  background-color: var(--nn-light);
+}
