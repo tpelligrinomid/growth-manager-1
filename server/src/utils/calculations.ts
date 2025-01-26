@@ -79,6 +79,15 @@ export const getCalculatedFields = (account: AccountWithRelations) => {
   };
 };
 
-export const formatNumber = (num: number): string => {
-  return num.toLocaleString('en-US');
+export const formatNumber = (value: number | string | null | undefined): string => {
+  if (value === null || value === undefined) return '0';
+  
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(num)) return '0';
+
+  // Format with commas and no decimal places
+  return num.toLocaleString('en-US', { 
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  });
 };
