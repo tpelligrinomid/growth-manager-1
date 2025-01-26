@@ -18,6 +18,7 @@ import {
 } from './utils/calculations';
 import LoadingSpinner from './components/LoadingSpinner';
 import { syncAccountWithBigQuery } from './utils/bigQuerySync';
+import Tasks from './components/Tasks';
 
 // Fix the type definition
 type ViewType = 'manager' | 'finance';
@@ -339,7 +340,7 @@ function App() {
             <LoadingSpinner />
           ) : error ? (
             <div className="error-message">{error}</div>
-          ) : (
+          ) : currentPage === 'dashboard' ? (
             <div className="accounts-section">
               <div className="metrics-container">
                 <div className="metric-card">
@@ -634,6 +635,8 @@ function App() {
                 </tbody>
               </table>
             </div>
+          ) : (
+            <Tasks accounts={accounts} />
           )}
         </main>
       </div>
