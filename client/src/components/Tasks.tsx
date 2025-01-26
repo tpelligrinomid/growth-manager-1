@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { API_URL } from '../config/api';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 import './Tasks.css';
 
 interface Task {
@@ -13,7 +15,8 @@ interface Task {
   due_date: string;
   date_done: string | null;
   created_by: string;
-  accountName?: string; // Added from account data
+  accountName?: string;
+  priority?: string;
 }
 
 interface TasksProps {
@@ -21,19 +24,24 @@ interface TasksProps {
     accountName: string;
     clientFolderId: string;
     clientListTaskId: string;
+    priority: string;
   }>;
 }
+
+type TaskStatus = 'ALL' | 'WORKING' | 'DELIVERED';
 
 const Tasks: React.FC<TasksProps> = ({ accounts }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentView, setCurrentView] = useState<TaskStatus>('ALL');
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         setIsLoading(true);
-        // Fetch tasks for all accounts with clientFolderId
         const tasksPromises = accounts
           .filter(account => account.clientFolderId)
           .map(async (account) => {
@@ -44,22 +52,17 @@ const Tasks: React.FC<TasksProps> = ({ accounts }) => {
               throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            // Map account name to tasks
             return data.growthTasks.map((task: Task) => ({
               ...task,
-              accountName: account.accountName
+              accountName: account.accountName,
+              priority: account.priority
             }));
           });
 
         const allTasksArrays = await Promise.all(tasksPromises);
         const allTasks = allTasksArrays.flat();
         
-        // Sort tasks by created date (newest first)
-        const sortedTasks = allTasks.sort((a, b) => 
-          new Date(b.created_date).getTime() - new Date(a.created_date).getTime()
-        );
-        
-        setTasks(sortedTasks);
+        setTasks(allTasks);
         setError(null);
       } catch (error) {
         console.error('Error fetching tasks:', error);
@@ -72,6 +75,22 @@ const Tasks: React.FC<TasksProps> = ({ accounts }) => {
     fetchTasks();
   }, [accounts]);
 
+  const filteredTasks = tasks.filter(task => {
+    // Filter by status
+    if (currentView !== 'ALL') {
+      if (currentView === 'WORKING' && task.status !== 'In Progress') return false;
+      if (currentView === 'DELIVERED' && task.status !== 'Completed') return false;
+    }
+
+    // Filter by date range
+    if (startDate && endDate) {
+      const taskDate = new Date(task.due_date);
+      if (taskDate < startDate || taskDate > endDate) return false;
+    }
+
+    return true;
+  }).sort((a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime());
+
   if (isLoading) {
     return <div className="tasks-loading">Loading tasks...</div>;
   }
@@ -82,38 +101,88 @@ const Tasks: React.FC<TasksProps> = ({ accounts }) => {
 
   return (
     <div className="tasks-container">
-      <h2>Growth Tasks</h2>
-      <div className="tasks-table-container">
-        <table className="tasks-table">
-          <thead>
-            <tr>
-              <th>Account</th>
-              <th>Task Name</th>
-              <th>Status</th>
-              <th>Assignee</th>
-              <th>Created Date</th>
-              <th>Due Date</th>
-              <th>Completed Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tasks.map((task) => (
-              <tr key={task.id}>
-                <td>{task.accountName}</td>
-                <td>{task.task_name}</td>
-                <td>{task.status}</td>
-                <td>{task.assignee}</td>
-                <td>{new Date(task.created_date).toLocaleDateString()}</td>
-                <td>{new Date(task.due_date).toLocaleDateString()}</td>
-                <td>
-                  {task.date_done 
-                    ? new Date(task.date_done).toLocaleDateString() 
-                    : '-'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="tasks-header">
+        <div className="view-toggle-container">
+          <button 
+            className={currentView === 'ALL' ? 'active' : ''} 
+            onClick={() => setCurrentView('ALL')}
+          >
+            All Tasks
+          </button>
+          <button 
+            className={currentView === 'WORKING' ? 'active' : ''} 
+            onClick={() => setCurrentView('WORKING')}
+          >
+            Working
+          </button>
+          <button 
+            className={currentView === 'DELIVERED' ? 'active' : ''} 
+            onClick={() => setCurrentView('DELIVERED')}
+          >
+            Delivered
+          </button>
+        </div>
+        <div className="date-range-picker">
+          <DatePicker
+            selected={startDate}
+            onChange={(date: Date | null) => setStartDate(date)}
+            selectsStart
+            startDate={startDate}
+            endDate={endDate}
+            placeholderText="Start Date"
+            className="date-picker"
+          />
+          <DatePicker
+            selected={endDate}
+            onChange={(date: Date | null) => setEndDate(date)}
+            selectsEnd
+            startDate={startDate}
+            endDate={endDate}
+            minDate={startDate}
+            placeholderText="End Date"
+            className="date-picker"
+          />
+        </div>
+      </div>
+
+      <div className="tasks-grid">
+        {filteredTasks.map((task) => (
+          <div key={task.id} className="task-card">
+            <div className="task-card-header">
+              <div className="task-client">{task.accountName}</div>
+              <div className={`task-priority priority-${task.priority?.toLowerCase()}`}>
+                {task.priority}
+              </div>
+            </div>
+            <div className="task-name">{task.task_name}</div>
+            <div className="task-details">
+              <div className="task-detail">
+                <span className="detail-label">Status:</span>
+                <span className={`task-status status-${task.status.toLowerCase().replace(' ', '-')}`}>
+                  {task.status}
+                </span>
+              </div>
+              <div className="task-detail">
+                <span className="detail-label">Assignee:</span>
+                <span>{task.assignee}</span>
+              </div>
+              <div className="task-detail">
+                <span className="detail-label">Created:</span>
+                <span>{new Date(task.created_date).toLocaleDateString()}</span>
+              </div>
+              <div className="task-detail">
+                <span className="detail-label">Due:</span>
+                <span>{new Date(task.due_date).toLocaleDateString()}</span>
+              </div>
+              {task.date_done && (
+                <div className="task-detail">
+                  <span className="detail-label">Completed:</span>
+                  <span>{new Date(task.date_done).toLocaleDateString()}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
