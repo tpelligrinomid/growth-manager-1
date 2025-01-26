@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import accountRoutes from './routes/accountRoutes';
+import authRoutes from './routes/authRoutes';
+import invitationRoutes from './routes/invitationRoutes';
+import userRoutes from './routes/userRoutes';
 
 const app = express();
 
@@ -14,6 +17,9 @@ app.get('/api/test', (req, res) => {
 });
 
 app.use('/api/accounts', accountRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/invitations', invitationRoutes);
+app.use('/api/users', userRoutes);
 
 // Add error logging middleware
 app.use((err: any, req: any, res: any, next: any) => {
