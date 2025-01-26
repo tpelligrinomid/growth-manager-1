@@ -1,7 +1,13 @@
 import { Router } from 'express';
 import { authenticateToken, requireRole } from '../middleware/auth';
 import { Role } from '@prisma/client';
-import { createInvitation, verifyInvitation, acceptInvitation } from '../controllers/invitationController';
+import { 
+  createInvitation, 
+  verifyInvitation, 
+  acceptInvitation,
+  resendInvitation,
+  deleteInvitation
+} from '../controllers/invitationController';
 import { PrismaClient } from '@prisma/client';
 
 const router = Router();
@@ -31,5 +37,11 @@ router.get('/verify/:token', verifyInvitation);
 
 // Accept invitation
 router.post('/accept/:token', acceptInvitation);
+
+// Resend invitation - only ADMINISTRATOR
+router.post('/:id/resend', requireRole([Role.ADMINISTRATOR]), resendInvitation);
+
+// Delete invitation - only ADMINISTRATOR
+router.delete('/:id', requireRole([Role.ADMINISTRATOR]), deleteInvitation);
 
 export default router; 

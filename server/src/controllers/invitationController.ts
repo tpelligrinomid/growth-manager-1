@@ -121,4 +121,48 @@ export const acceptInvitation = async (req: Request, res: Response) => {
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
+};
+
+export const resendInvitation = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const invitation = await prisma.invitation.findUnique({
+      where: { id }
+    });
+
+    if (!invitation) {
+      return res.status(404).json({ error: 'Invitation not found' });
+    }
+
+    // Update invitation with new token and expiration
+    const updatedInvitation = await prisma.invitation.update({
+      where: { id },
+      data: {
+        token: uuidv4(),
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+        accepted: false
+      }
+    });
+
+    res.json({ data: updatedInvitation });
+  } catch (error) {
+    console.error('Error resending invitation:', error);
+    res.status(500).json({ error: 'Failed to resend invitation' });
+  }
+};
+
+export const deleteInvitation = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.invitation.delete({
+      where: { id }
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting invitation:', error);
+    res.status(500).json({ error: 'Failed to delete invitation' });
+  }
 }; 

@@ -15,7 +15,8 @@ interface Invitation {
   id: string;
   email: string;
   role: Role;
-  status: 'PENDING' | 'ACCEPTED';
+  accepted: boolean;
+  expires: string;
   createdAt: string;
 }
 
@@ -100,6 +101,22 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
     }
   };
 
+  const handleDeleteInvite = async (invitationId: string) => {
+    try {
+      const response = await fetch(`https://growth-manager-1.onrender.com/api/invitations/${invitationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to delete invitation');
+      setSuccess('Invitation deleted successfully');
+      fetchInvitations();
+    } catch (err) {
+      setError('Failed to delete invitation');
+    }
+  };
+
   const handleResetPassword = async (userId: string) => {
     try {
       const response = await fetch(`https://growth-manager-1.onrender.com/api/users/${userId}/reset-password`, {
@@ -173,28 +190,52 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
               <th>Role</th>
               <th>Status</th>
               <th>Sent</th>
+              <th>Expires</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {invitations.map(invitation => (
-              <tr key={invitation.id}>
-                <td>{invitation.email}</td>
-                <td>{invitation.role}</td>
-                <td>{invitation.status}</td>
-                <td>{new Date(invitation.createdAt).toLocaleDateString()}</td>
-                <td>
-                  {invitation.status === 'PENDING' && (
-                    <button
-                      onClick={() => handleResendInvite(invitation.id)}
-                      className="button-secondary"
-                    >
-                      Resend
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
+            {invitations.map(invitation => {
+              const isExpired = new Date(invitation.expires) < new Date();
+              const status = invitation.accepted ? 'Accepted' : 
+                           isExpired ? 'Expired' : 'Pending';
+              
+              return (
+                <tr key={invitation.id}>
+                  <td>{invitation.email}</td>
+                  <td>{invitation.role.replace('_', ' ')}</td>
+                  <td>{status}</td>
+                  <td>{new Date(invitation.createdAt).toLocaleDateString()}</td>
+                  <td>{new Date(invitation.expires).toLocaleDateString()}</td>
+                  <td>
+                    {!invitation.accepted && !isExpired && (
+                      <>
+                        <button
+                          onClick={() => handleResendInvite(invitation.id)}
+                          className="button-secondary"
+                        >
+                          Resend
+                        </button>
+                        <button
+                          onClick={() => handleDeleteInvite(invitation.id)}
+                          className="button-secondary delete"
+                        >
+                          Delete
+                        </button>
+                      </>
+                    )}
+                    {(invitation.accepted || isExpired) && (
+                      <button
+                        onClick={() => handleDeleteInvite(invitation.id)}
+                        className="button-secondary delete"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
