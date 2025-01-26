@@ -4,6 +4,7 @@ import accountRoutes from './routes/accountRoutes';
 import bigQueryRoutes from './routes/bigQueryRoutes';
 import invitationRoutes from './routes/invitationRoutes';
 import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/bigquery', bigQueryRoutes);
 app.use('/api/invitations', invitationRoutes);
+app.use('/api/users', userRoutes);
 
 const port = process.env.PORT || 3001;
 
