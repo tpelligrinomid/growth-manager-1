@@ -413,13 +413,13 @@ function App() {
                       <div className="metrics-container">
                         <div className="metric-card">
                           <div className="metric-label">Total Accounts</div>
-                          <div className="metric-value">{accounts.length}</div>
+                          <div className="metric-value">{filteredAccounts.length}</div>
                         </div>
 
                         <div className="metric-card">
                           <div className="metric-label">Total MRR</div>
                           <div className="metric-value">
-                            ${accounts.reduce((sum, account) => {
+                            ${filteredAccounts.reduce((sum, account) => {
                               const mrrValue = String(account.mrr).replace(/[^0-9.-]+/g, '');
                               return sum + (parseFloat(mrrValue) || 0);
                             }, 0).toLocaleString()}
@@ -429,11 +429,11 @@ function App() {
                         <div className="metric-card">
                           <div className="metric-label">Average MRR</div>
                           <div className="metric-value">
-                            ${accounts.length > 0 
-                              ? Math.round(accounts.reduce((sum, account) => {
+                            ${filteredAccounts.length > 0 
+                              ? Math.round(filteredAccounts.reduce((sum, account) => {
                                   const mrrValue = String(account.mrr).replace(/[^0-9.-]+/g, '');
                                   return sum + (parseFloat(mrrValue) || 0);
-                                }, 0) / accounts.length).toLocaleString()
+                                }, 0) / filteredAccounts.length).toLocaleString()
                               : 0}
                           </div>
                         </div>
@@ -441,7 +441,7 @@ function App() {
                         <div className="metric-card warning">
                           <div className="metric-label">Accounts Off Track</div>
                           <div className="metric-value">
-                            <div>{accounts.filter(account => account.delivery === 'OFF_TRACK').length}</div>
+                            <div>{filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length}</div>
                           </div>
                         </div>
 
@@ -450,14 +450,14 @@ function App() {
                           <div className="metric-value">
                             <PieChart 
                               percentage={calculatePercentage(
-                                accounts.filter(account => account.delivery === 'OFF_TRACK').length,
-                                accounts.length
+                                filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length,
+                                filteredAccounts.length
                               )} 
                             />
                             <span>
                               {calculatePercentage(
-                                accounts.filter(account => account.delivery === 'OFF_TRACK').length,
-                                accounts.length
+                                filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length,
+                                filteredAccounts.length
                               )}%
                             </span>
                           </div>
@@ -466,7 +466,7 @@ function App() {
                         <div className="metric-card priority">
                           <div className="metric-label">Tier 1 Accounts</div>
                           <div className="metric-value">
-                            <div>{accounts.filter(account => account.priority === 'TIER_1').length}</div>
+                            <div>{filteredAccounts.filter(account => account.priority === 'TIER_1').length}</div>
                           </div>
                         </div>
 
@@ -475,14 +475,14 @@ function App() {
                           <div className="metric-value">
                             <PieChart 
                               percentage={calculatePercentage(
-                                accounts.filter(account => account.priority === 'TIER_1').length,
-                                accounts.length
+                                filteredAccounts.filter(account => account.priority === 'TIER_1').length,
+                                filteredAccounts.length
                               )} 
                             />
                             <span>
                               {calculatePercentage(
-                                accounts.filter(account => account.priority === 'TIER_1').length,
-                                accounts.length
+                                filteredAccounts.filter(account => account.priority === 'TIER_1').length,
+                                filteredAccounts.length
                               )}%
                             </span>
                           </div>
@@ -492,12 +492,12 @@ function App() {
                           <div className="metric-label">Average Points Burden</div>
                           <div className="metric-value">
                             <div>
-                              {accounts.length > 0
+                              {filteredAccounts.length > 0
                                 ? Math.round(
-                                    accounts.reduce((sum, account) => {
+                                    filteredAccounts.reduce((sum, account) => {
                                       const strikingDistance = Number(account.pointsStrikingDistance) || 0;
                                       return sum + strikingDistance;
-                                    }, 0) / accounts.length
+                                    }, 0) / filteredAccounts.length
                                   )
                                 : 0}
                             </div>
