@@ -5,7 +5,9 @@ async function executeQuery(query: string, params: any = {}) {
   try {
     console.log('BigQuery params:', params);
     console.log('BigQuery query:', query);
-    const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS || '{}');
+    
+    // Use credentials from environment variable
+    const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS || '{}');
     const bigquery = new BigQuery({
       credentials,
       projectId: credentials.project_id

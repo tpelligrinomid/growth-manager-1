@@ -20,9 +20,12 @@ export const syncAccountWithBigQuery = async (
     // Get the current token from localStorage
     const token = localStorage.getItem('token');
     if (!token) {
+      console.error('No authentication token found');
       throw new Error('No authentication token found');
     }
 
+    console.log('Making BigQuery request with token:', token.substring(0, 20) + '...');
+    
     const bigQueryResponse = await fetch(
       `${API_URL}/api/bigquery/account/${account.clientFolderId}?clientListTaskId=${account.clientListTaskId}`,
       {
@@ -34,7 +37,12 @@ export const syncAccountWithBigQuery = async (
     );
     
     if (!bigQueryResponse.ok) {
-      console.error(`Failed to fetch BigQuery data for ${account.accountName}`);
+      const errorData = await bigQueryResponse.json().catch(() => ({}));
+      console.error(`Failed to fetch BigQuery data for ${account.accountName}:`, {
+        status: bigQueryResponse.status,
+        statusText: bigQueryResponse.statusText,
+        error: errorData
+      });
       onLoadingChange?.(false);
       return account;
     }
