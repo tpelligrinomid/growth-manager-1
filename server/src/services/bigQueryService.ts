@@ -80,39 +80,27 @@ export async function fetchGrowthTasksForAccountWithDateRange(clientFolderId: st
   }
 
   try {
-    // First, let's get a sample of the data to check date formats
-    const query = `
+    // Simplified diagnostic query
+    const diagnosticQuery = `
       SELECT 
-        id,
-        client_folder_id,
-        task_name,
-        task_description,
-        status,
-        assignee,
-        created_date,
-        due_date,
-        date_done,
-        created_by,
-        -- Add some debug information about dates
+        'SAMPLE DATES FROM BIGQUERY' as debug_header,
+        COUNT(*) as total_tasks,
+        MIN(due_date) as earliest_due_date,
+        MAX(due_date) as latest_due_date,
+        MIN(date_done) as earliest_done_date,
+        MAX(date_done) as latest_done_date,
         FORMAT_TIMESTAMP('%Y-%m-%d %H:%M:%S', CURRENT_TIMESTAMP()) as current_time,
-        CASE 
-          WHEN SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', due_date) IS NOT NULL THEN 'valid_due_date'
-          ELSE 'invalid_due_date'
-        END as due_date_check,
-        CASE 
-          WHEN SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', date_done) IS NOT NULL THEN 'valid_date_done'
-          ELSE 'invalid_date_done'
-        END as date_done_check
+        COUNT(CASE WHEN due_date IS NOT NULL THEN 1 END) as tasks_with_due_date,
+        COUNT(CASE WHEN date_done IS NOT NULL THEN 1 END) as tasks_with_done_date
       FROM \`clickup-data-448517.ClickupData.growth_tasks\`
       WHERE client_folder_id = @clientFolderId
-      LIMIT 5
     `;
     
-    console.log('Running diagnostic query for dates...');
-    const rows = await executeQuery(query, { clientFolderId });
-    console.log('Sample data with date checks:', JSON.stringify(rows, null, 2));
+    console.log('Running date format diagnostic...');
+    const diagnosticRows = await executeQuery(diagnosticQuery, { clientFolderId });
+    console.log('Date format check:', JSON.stringify(diagnosticRows, null, 2));
 
-    // Now run the actual filtered query
+    // Now run the actual filtered query without the PARSE_TIMESTAMP for now
     const filteredQuery = `
       SELECT 
         id,
@@ -127,21 +115,17 @@ export async function fetchGrowthTasksForAccountWithDateRange(clientFolderId: st
         created_by
       FROM \`clickup-data-448517.ClickupData.growth_tasks\`
       WHERE client_folder_id = @clientFolderId
-      AND (
-        -- Tasks due in the 90-day window (45 days past to 45 days future)
-        (SAFE.PARSE_TIMESTAMP('%Y-%m-%d', due_date) 
-          BETWEEN TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 45 DAY)
-          AND TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 45 DAY))
-        OR
-        -- Recently completed tasks (last 45 days)
-        (SAFE.PARSE_TIMESTAMP('%Y-%m-%d', date_done) 
-          BETWEEN TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 45 DAY)
-          AND CURRENT_TIMESTAMP())
-      )
       ORDER BY due_date ASC
     `;
     
     const filteredRows = await executeQuery(filteredQuery, { clientFolderId });
+    console.log('Number of tasks found:', filteredRows?.length || 0);
+    if (filteredRows?.length > 0) {
+      console.log('Sample task dates:', {
+        due_date: filteredRows[0].due_date,
+        date_done: filteredRows[0].date_done
+      });
+    }
     return filteredRows || [];
   } catch (error) {
     console.error('Error fetching growth tasks:', error);
