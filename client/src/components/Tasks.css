@@ -70,6 +70,7 @@
   padding: 1.5rem;
   box-shadow: 0 2px 4px var(--nn-shadow);
   transition: transform 0.2s ease;
+  border-left: 4px solid var(--nn-primary);
 }
 
 .task-card:hover {
@@ -97,13 +98,13 @@
 }
 
 .priority-tier_1 {
-  background: #FEF3C7;
-  color: #92400E;
+  background: #FEE2E2;
+  color: #991B1B;
 }
 
 .priority-tier_2 {
-  background: #FEE2E2;
-  color: #991B1B;
+  background: #FEF3C7;
+  color: #92400E;
 }
 
 .priority-tier_3 {
@@ -145,16 +146,18 @@
   border-radius: 999px;
   font-size: 0.875rem;
   font-weight: 500;
+  background: var(--nn-primary);
+  color: white;
 }
 
-.status-in-progress {
-  background: #FEF3C7;
-  color: #92400E;
+.status-working {
+  background: var(--nn-primary);
+  color: white;
 }
 
-.status-completed {
-  background: #D1FAE5;
-  color: #065F46;
+.status-delivered {
+  background: var(--nn-primary);
+  color: white;
 }
 
 .tasks-loading,
@@ -172,14 +175,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
+  color: var(--nn-text-light);
   padding: 4px;
   border-radius: 4px;
   transition: all 0.2s ease;
   margin-left: auto;
+  opacity: 0.8;
 }
 
 .clickup-link:hover {
-  color: #333;
+  color: var(--nn-primary);
   background-color: rgba(0, 0, 0, 0.05);
+  opacity: 1;
 } 
