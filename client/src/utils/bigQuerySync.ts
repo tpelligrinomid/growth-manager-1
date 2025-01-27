@@ -16,8 +16,21 @@ export const syncAccountWithBigQuery = async (
   try {
     onLoadingChange?.(true);
     console.log(`Fetching BigQuery data for ${account.accountName}...`);
+    
+    // Get the current token from localStorage
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
     const bigQueryResponse = await fetch(
-      `${API_URL}/api/bigquery/account/${account.clientFolderId}?clientListTaskId=${account.clientListTaskId}`
+      `${API_URL}/api/bigquery/account/${account.clientFolderId}?clientListTaskId=${account.clientListTaskId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
     );
     
     if (!bigQueryResponse.ok) {
@@ -78,7 +91,10 @@ export const syncAccountWithBigQuery = async (
     // Update the account in the database
     const updateResponse = await fetch(`${API_URL}/api/accounts/${account.id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify(updateData)
     });
 
