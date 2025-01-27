@@ -208,14 +208,21 @@ html, body, #root {
 }
 
 /* Add subtle hover effect */
+.accounts-table tbody tr {
+  background-color: var(--nn-white);
+}
+
 .accounts-table tbody tr:hover {
   background-color: rgba(92, 41, 197, 0.05);
 }
 
+/* Add a white background to the table wrapper to ensure clean scrolling */
 .accounts-table-wrapper {
   flex: 1;
   overflow-y: auto;
   border-radius: 8px;
+  background-color: var(--nn-white);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   /* Custom scrollbar for webkit browsers */
   &::-webkit-scrollbar {
     width: 8px;
