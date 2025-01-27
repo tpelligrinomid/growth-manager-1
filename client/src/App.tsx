@@ -1,4 +1,3 @@
-// Restored working version
 import { useState, useEffect } from 'react';
 import {
   AccountResponse,
@@ -10,9 +9,7 @@ import {
   BanknotesIcon,
   ChartPieIcon,
   Cog6ToothIcon,
-  UserCircleIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon
+  UserCircleIcon
 } from '@heroicons/react/24/outline';
 import './App.css';
 import AccountModal from './components/AccountModal';
@@ -26,16 +23,15 @@ import { API_URL } from './config/api';
 import { calculateClientTenure } from './utils/calculations';
 import LoadingSpinner from './components/LoadingSpinner';
 import { syncAccountWithBigQuery } from './utils/bigQuerySync';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import AcceptInvitation from './components/AcceptInvitation';
 import Tasks from './components/Tasks';
 import Settings from './components/Settings';
 import Login from './components/Login';
 import { jwtDecode } from 'jwt-decode';
 
-// Fix type definitions
+// Fix the type definition
 type ViewType = 'manager' | 'finance';
-type PageType = 'dashboard' | 'tasks' | 'settings';
 type UserRole = 'ADMINISTRATOR' | 'GROWTH_MANAGER' | 'GROWTH_ADVISOR';
 
 interface SortConfig {
@@ -49,8 +45,6 @@ interface JwtPayload {
   role: UserRole;
   name?: string;
 }
-
-type Page = 'dashboard' | 'tasks' | 'settings';
 
 function App() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
@@ -74,7 +68,7 @@ function App() {
   const [currentView, setCurrentView] = useState<ViewType>('manager');
   const [isSyncing, setIsSyncing] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>('GROWTH_ADVISOR');
-  const [currentPage, setCurrentPage] = useState<PageType>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'tasks' | 'settings'>('dashboard');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [userId, setUserId] = useState<string>('');
@@ -334,44 +328,38 @@ function App() {
     );
   };
 
-  // Filter and pagination logic
-  const filteredAccounts = accounts.filter(account => {
-    const matchesBusinessUnit = filters.businessUnit === 'All Business Units' || account.businessUnit === filters.businessUnit;
-    const matchesEngagementType = filters.engagementType === 'All Engagement Types' || account.engagementType === filters.engagementType;
-    const matchesPriority = filters.priority === 'All Priorities' || account.priority === filters.priority;
-    const matchesDeliveryStatus = filters.delivery === 'All Delivery Status' || account.delivery === filters.delivery;
-    const matchesAccountManager = filters.accountManager === 'All Account Managers' || account.accountManager === filters.accountManager;
-    const matchesTeamManager = filters.teamManager === 'All Team Managers' || account.teamManager === filters.teamManager;
-    
-    return matchesBusinessUnit && matchesEngagementType && matchesPriority && 
-           matchesDeliveryStatus && matchesAccountManager && matchesTeamManager;
-  });
-
-  // Get current accounts for the page
-  const indexOfLastAccount = pageNumber * rowsPerPage;
-  const indexOfFirstAccount = indexOfLastAccount - rowsPerPage;
-  const currentAccounts = sortedAccounts.slice(indexOfFirstAccount, indexOfLastAccount);
-  const totalPages = Math.ceil(sortedAccounts.length / rowsPerPage);
-
-  // Reset to first page when filters change
-  useEffect(() => {
-    setPageNumber(1);
-  }, [filters.businessUnit, filters.engagementType, filters.priority, 
-      filters.delivery, filters.accountManager, filters.teamManager]);
-
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="app-container">
       {isSyncing && <LoadingSpinner />}
       <Routes>
-        <Route path="/accept-invitation" element={<AcceptInvitation onLogin={handleLogin} />} />
-        <Route path="/login" element={<Login onLogin={handleLogin} />} />
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? (
-              <div className="flex flex-1">
-                {/* Sidebar */}
-                <div className="flex flex-col w-16 bg-white border-r border-gray-200">
+        <Route path="/accept-invitation/:token" element={<AcceptInvitation onLogin={handleLogin} />} />
+        <Route path="/" element={
+          !isAuthenticated ? (
+            <Login onLogin={handleLogin} />
+          ) : (
+            <>
+              <header className="app-header">
+                <div className="header-content">
+                  <img 
+                    src="/logo.png"
+                    alt="Marketers in Demand" 
+                    className="header-logo" 
+                  />
+                  <div className="title-container">
+                    <h1>Growth Manager</h1>
+                    <div className="role-badge">{userRole}</div>
+                  </div>
+                </div>
+                <div className="header-actions">
+                  <button className="add-account-button" onClick={() => setIsAddModalOpen(true)}>
+                    <PlusIcon className="button-icon" />
+                    Add Account
+                  </button>
+                  <button onClick={handleLogout} className="logout-button">Logout</button>
+                </div>
+              </header>
+              <div className="main-content-wrapper">
+                <nav className="sidebar">
                   <div>
                     <button 
                       className={`nav-button ${currentPage === 'dashboard' ? 'active' : ''}`}
@@ -396,33 +384,20 @@ function App() {
                         <span className="nav-tooltip">Settings</span>
                       </button>
                     )}
+                    <div className="profile-separator" />
+                    <div className="profile-icon">
+                      <UserCircleIcon className="nav-icon" />
+                      <span className="nav-tooltip">{userName || 'User Profile'}</span>
+                    </div>
                   </div>
-                  {/* Profile icon at bottom */}
-                  <div className="profile-separator"></div>
-                  <div className="profile-icon">
-                    <UserCircleIcon className="w-6 h-6" />
-                    <span className="nav-tooltip">{userName}</span>
-                  </div>
-                </div>
-
-                {/* Main content */}
-                <div className="flex-1 overflow-auto">
+                </nav>
+                <main className="app-content">
                   {isLoading ? (
                     <LoadingSpinner />
                   ) : error ? (
                     <div className="error-message">{error}</div>
                   ) : currentPage === 'dashboard' ? (
                     <div className="accounts-section">
-                      <div className="flex justify-between items-center p-4">
-                        <h1 className="text-2xl font-bold">Accounts</h1>
-                        <button 
-                          className="flex items-center px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-                          onClick={() => setIsAddModalOpen(true)}
-                        >
-                          <PlusIcon className="w-5 h-5 mr-2" />
-                          Add Account
-                        </button>
-                      </div>
                       <div className="metrics-container">
                         <div className="metric-card">
                           <div className="metric-label">Total Accounts</div>
@@ -667,220 +642,65 @@ function App() {
                             )}
                           </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody>
                           {sortedAccounts.map((account) => (
                             <tr key={account.id} onClick={() => setSelectedAccount(account)}>
                               {currentView === 'manager' ? (
                                 <>
-                                  <th className="sortable-header wide-header" onClick={() => handleSort('accountName')}>
-                                    Account<br/>Name
-                                    {sortConfig.key === 'accountName' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('businessUnit')}>
-                                    Business<br/>Unit
-                                    {sortConfig.key === 'businessUnit' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('engagementType')}>
-                                    Engagement<br/>Type
-                                    {sortConfig.key === 'engagementType' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('priority')}>
-                                    <div className="header-with-tooltip">
-                                      Priority
-                                      {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                      <span className="tooltip">
-                                        • Tier 1 = Actively working<br/>
-                                        • Tier 2 = Client or delivery issues<br/>
-                                        • Tier 3 = Smooth<br/>
-                                        • Tier 4 = Low risk and low reward
-                                      </span>
-                                    </div>
-                                  </th>
-                                  <th className="sortable-header wide-header" onClick={() => handleSort('accountManager')}>
-                                    Account<br/>Manager
-                                    {sortConfig.key === 'accountManager' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('mrr')}>
-                                    MRR
-                                    {sortConfig.key === 'mrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th>
-                                    Recurring<br/>Points
-                                  </th>
-                                  <th>
-                                    Points<br/>Purchased
-                                  </th>
-                                  <th>
-                                    Points<br/>Delivered
-                                  </th>
-                                  <th>
-                                    Points<br/>Balance
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('pointsStrikingDistance')}>
-                                    <div className="header-with-tooltip">
-                                      Points<br/>Burden
-                                      <span className="tooltip">
-                                        Points Balance - (1.5 × Recurring Points)<br/>
-                                        Positive = Off Track, Negative = On Track
-                                      </span>
-                                      {sortConfig.key === 'pointsStrikingDistance' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                    </div>
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('delivery')}>
-                                    <div className="header-with-tooltip">
-                                      Delivery
-                                      {sortConfig.key === 'delivery' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                      <span className="tooltip">
-                                        Based on Points Burden:<br/>
-                                        • Off Track if &gt; 0<br/>
-                                        • On Track if ≤ 0
-                                      </span>
-                                    </div>
-                                  </th>
-                                  <th>Goals</th>
+                                  <td>{account.accountName}</td>
+                                  <td>{formatBusinessUnit(account.businessUnit)}</td>
+                                  <td>{formatEngagementType(account.engagementType)}</td>
+                                  <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
+                                    {formatPriority(account.priority)}
+                                  </td>
+                                  <td>{account.accountManager}</td>
+                                  <td className="number-cell">${account.mrr.toLocaleString()}</td>
+                                  <td className="number-cell">{account.recurringPointsAllotment}</td>
+                                  <td className="number-cell">{account.pointsPurchased}</td>
+                                  <td className="number-cell">{account.pointsDelivered}</td>
+                                  <td className="number-cell">
+                                    {calculatePointsBalance(account)}
+                                  </td>
+                                  <td className="number-cell">{account.pointsStrikingDistance}</td>
+                                  <td className={`delivery-${account.delivery.toLowerCase().replace('_', '-')}`}>
+                                    {formatDelivery(account.delivery)}
+                                  </td>
+                                  <td>
+                                    <GoalProgress goals={account.goals || []} />
+                                  </td>
                                 </>
                               ) : (
                                 <>
-                                  <th className="sortable-header wide-header" onClick={() => handleSort('accountName')}>
-                                    Account<br/>Name
-                                    {sortConfig.key === 'accountName' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('businessUnit')}>
-                                    Business<br/>Unit
-                                    {sortConfig.key === 'businessUnit' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('engagementType')}>
-                                    Engagement<br/>Type
-                                    {sortConfig.key === 'engagementType' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('priority')}>
-                                    Priority
-                                    {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('mrr')}>
-                                    MRR
-                                    {sortConfig.key === 'mrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('growthInMrr')}>
-                                    Growth in<br/>MRR
-                                    {sortConfig.key === 'growthInMrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('potentialMrr')}>
-                                    Potential<br/>MRR
-                                    {sortConfig.key === 'potentialMrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('relationshipStartDate')}>
-                                    Relationship<br/>Start
-                                    {sortConfig.key === 'relationshipStartDate' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('clientTenure')}>
-                                    Client<br/>Tenure
-                                    {sortConfig.key === 'clientTenure' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('contractStartDate')}>
-                                    Contract<br/>Start
-                                    {sortConfig.key === 'contractStartDate' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
-                                  <th className="sortable-header" onClick={() => handleSort('contractRenewalEnd')}>
-                                    Contract<br/>End
-                                    {sortConfig.key === 'contractRenewalEnd' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </th>
+                                  <td>{account.accountName}</td>
+                                  <td>{formatBusinessUnit(account.businessUnit)}</td>
+                                  <td>{formatEngagementType(account.engagementType)}</td>
+                                  <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
+                                    {formatPriority(account.priority)}
+                                  </td>
+                                  <td className="number-cell">${account.mrr.toLocaleString()}</td>
+                                  <td className="number-cell">${account.growthInMrr.toLocaleString()}</td>
+                                  <td className="number-cell">${account.potentialMrr.toLocaleString()}</td>
+                                  <td>{new Date(account.relationshipStartDate).toLocaleDateString()}</td>
+                                  <td>{calculateClientTenure(account.relationshipStartDate)} months</td>
+                                  <td>{new Date(account.contractStartDate).toLocaleDateString()}</td>
+                                  <td>{new Date(account.contractRenewalEnd).toLocaleDateString()}</td>
                                 </>
                               )}
                             </tr>
-                          </thead>
-                          <tbody>
-                            {currentAccounts.map((account) => (
-                              <tr key={account.id} onClick={() => setSelectedAccount(account)}>
-                                {currentView === 'manager' ? (
-                                  <>
-                                    <td>{account.accountName}</td>
-                                    <td>{formatBusinessUnit(account.businessUnit)}</td>
-                                    <td>{formatEngagementType(account.engagementType)}</td>
-                                    <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
-                                      {formatPriority(account.priority)}
-                                    </td>
-                                    <td>{account.accountManager}</td>
-                                    <td className="number-cell">${account.mrr.toLocaleString()}</td>
-                                    <td className="number-cell">{account.recurringPointsAllotment}</td>
-                                    <td className="number-cell">{account.pointsPurchased}</td>
-                                    <td className="number-cell">{account.pointsDelivered}</td>
-                                    <td className="number-cell">
-                                      {calculatePointsBalance(account)}
-                                    </td>
-                                    <td className="number-cell">{account.pointsStrikingDistance}</td>
-                                    <td className={`delivery-${account.delivery.toLowerCase().replace('_', '-')}`}>
-                                      {formatDelivery(account.delivery)}
-                                    </td>
-                                    <td>
-                                      <GoalProgress goals={account.goals || []} />
-                                    </td>
-                                  </>
-                                ) : (
-                                  <>
-                                    <td>{account.accountName}</td>
-                                    <td>{formatBusinessUnit(account.businessUnit)}</td>
-                                    <td>{formatEngagementType(account.engagementType)}</td>
-                                    <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
-                                      {formatPriority(account.priority)}
-                                    </td>
-                                    <td className="number-cell">${account.mrr.toLocaleString()}</td>
-                                    <td className="number-cell">${account.growthInMrr.toLocaleString()}</td>
-                                    <td className="number-cell">${account.potentialMrr.toLocaleString()}</td>
-                                    <td>{new Date(account.relationshipStartDate).toLocaleDateString()}</td>
-                                    <td>{calculateClientTenure(account.relationshipStartDate)} months</td>
-                                    <td>{new Date(account.contractStartDate).toLocaleDateString()}</td>
-                                    <td>{new Date(account.contractRenewalEnd).toLocaleDateString()}</td>
-                                  </>
-                                )}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                        
-                        {/* Pagination Controls */}
-                        <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
-                          <div className="flex items-center">
-                            <span className="text-sm text-gray-700">
-                              Showing <span className="font-medium">{indexOfFirstAccount + 1}</span> to{' '}
-                              <span className="font-medium">{Math.min(indexOfLastAccount, filteredAccounts.length)}</span> of{' '}
-                              <span className="font-medium">{filteredAccounts.length}</span> results
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => setPageNumber(prev => Math.max(prev - 1, 1))}
-                              disabled={pageNumber === 1}
-                              className={`p-2 rounded ${pageNumber === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-purple-600 hover:bg-purple-50'}`}
-                            >
-                              <ChevronLeftIcon className="w-5 h-5" />
-                            </button>
-                            <span className="px-4 py-2 text-sm text-gray-700">
-                              Page {pageNumber} of {totalPages}
-                            </span>
-                            <button
-                              onClick={() => setPageNumber(prev => Math.min(prev + 1, totalPages))}
-                              disabled={pageNumber === totalPages}
-                              className={`p-2 rounded ${pageNumber === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-purple-600 hover:bg-purple-50'}`}
-                            >
-                              <ChevronRightIcon className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   ) : currentPage === 'tasks' ? (
                     <Tasks accounts={accounts} />
                   ) : (
                     <Settings userRole={userRole} userId={userId} />
                   )}
-                </div>
+                </main>
               </div>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
+            </>
+          )
+        } />
       </Routes>
       {selectedAccount && (
         <AccountModal
@@ -909,5 +729,5 @@ function App() {
     </div>
   );
 }
-export default App;
 
+export default App;
