@@ -1431,3 +1431,26 @@ html, body, #root {
   background-color: #dc2626;
   color: white;
 }
+
+.profile-icon {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 1rem;
+  padding: 0.5rem;
+  color: var(--nn-primary);
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  cursor: default;
+}
+
+.profile-icon:hover {
+  background-color: rgba(92, 41, 197, 0.1);
+}
+
+.profile-icon:hover .nav-tooltip {
+  opacity: 1;
+  visibility: visible;
+}

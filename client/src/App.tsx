@@ -8,7 +8,8 @@ import {
   ClipboardDocumentListIcon,
   BanknotesIcon,
   ChartPieIcon,
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  UserCircleIcon
 } from '@heroicons/react/24/outline';
 import './App.css';
 import AccountModal from './components/AccountModal';
@@ -42,6 +43,7 @@ interface JwtPayload {
   userId: string;
   email: string;
   role: UserRole;
+  name?: string;
 }
 
 function App() {
@@ -70,6 +72,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [userId, setUserId] = useState<string>('');
+  const [userName, setUserName] = useState<string>('');
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -80,6 +83,7 @@ function App() {
         setToken(storedToken);
         setIsAuthenticated(true);
         setUserId(decoded.userId);
+        setUserName(decoded.name || '');
       } catch (error) {
         console.error('Invalid token:', error);
         handleLogout();
@@ -101,6 +105,7 @@ function App() {
       setToken(newToken);
       setIsAuthenticated(true);
       setUserId(decoded.userId);
+      setUserName(decoded.name || '');
     } catch (error) {
       console.error('Invalid token:', error);
       handleLogout();
@@ -378,6 +383,10 @@ function App() {
                       <span className="nav-tooltip">Settings</span>
                     </button>
                   )}
+                  <div className="profile-icon" style={{ marginTop: 'auto' }}>
+                    <UserCircleIcon className="nav-icon" />
+                    <span className="nav-tooltip">{userName || 'User Profile'}</span>
+                  </div>
                 </nav>
                 <main className="app-content">
                   {isLoading ? (
