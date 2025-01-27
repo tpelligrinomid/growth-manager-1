@@ -96,12 +96,14 @@ export async function fetchGrowthTasksForAccountWithDateRange(clientFolderId: st
       WHERE client_folder_id = @clientFolderId
       AND (
         -- Tasks due in the 90-day window (45 days past to 45 days future)
-        (due_date BETWEEN TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 45 DAY)
-                      AND TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 45 DAY))
+        (PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', due_date) 
+          BETWEEN TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 45 DAY)
+          AND TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 45 DAY))
         OR
         -- Recently completed tasks (last 45 days)
-        (date_done BETWEEN TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 45 DAY)
-                      AND CURRENT_TIMESTAMP())
+        (PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', date_done) 
+          BETWEEN TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 45 DAY)
+          AND CURRENT_TIMESTAMP())
       )
       ORDER BY due_date ASC
     `;
