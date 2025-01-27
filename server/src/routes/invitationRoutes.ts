@@ -12,6 +12,10 @@ import { PrismaClient } from '@prisma/client';
 
 const router = Router();
 
+// Public routes for handling invitations
+router.get('/:token/verify', verifyInvitation);
+router.post('/:token/accept', acceptInvitation);
+
 // Protected routes
 router.use(authenticateToken);
 
@@ -31,10 +35,6 @@ router.get('/', requireRole([Role.ADMINISTRATOR]), async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch invitations' });
   }
 });
-
-// Public routes for handling invitations
-router.use('/:token/verify', verifyInvitation);
-router.post('/:token/accept', acceptInvitation);
 
 // Admin routes for managing invitations
 router.post('/:id/resend', requireRole([Role.ADMINISTRATOR]), resendInvitation);

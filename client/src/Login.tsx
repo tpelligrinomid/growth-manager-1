@@ -27,7 +27,7 @@ export const Login = ({ onLogin }: { onLogin: (token: string) => void }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content login-modal">
-        <img src="/logo.png?v=1" alt="Marketers In Demand" className="header-logo" />
+        <img src="/logo.png" alt="Marketers In Demand" className="header-logo" />
         <h2>Login to Growth Manager</h2>
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-field">
