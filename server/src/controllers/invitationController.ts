@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient, Role } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
+import { sendInvitationEmail } from '../services/emailService';
 
 const prisma = new PrismaClient();
 
@@ -33,16 +34,28 @@ export const createInvitation = async (req: Request, res: Response) => {
     }
 
     console.log('Creating new invitation with role:', role);
+    const token = uuidv4();
+    
     // Create new invitation
     const invitation = await prisma.invitation.create({
       data: {
         email,
         role: role as Role,
-        token: uuidv4(),
+        token,
         expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
         accepted: false
       }
     });
+
+    // Send invitation email
+    try {
+      await sendInvitationEmail(email, role, token);
+    } catch (emailError) {
+      console.error('Failed to send invitation email:', emailError);
+      // Delete the invitation if email fails
+      await prisma.invitation.delete({ where: { id: invitation.id } });
+      throw new Error('Failed to send invitation email');
+    }
 
     console.log('Invitation created successfully:', invitation);
     res.status(201).json({ data: invitation });
@@ -135,15 +148,25 @@ export const resendInvitation = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Invitation not found' });
     }
 
+    const token = uuidv4();
+    
     // Update invitation with new token and expiration
     const updatedInvitation = await prisma.invitation.update({
       where: { id },
       data: {
-        token: uuidv4(),
+        token,
         expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
         accepted: false
       }
     });
+
+    // Send invitation email
+    try {
+      await sendInvitationEmail(invitation.email, invitation.role, token);
+    } catch (emailError) {
+      console.error('Failed to send invitation email:', emailError);
+      throw new Error('Failed to send invitation email');
+    }
 
     res.json({ data: updatedInvitation });
   } catch (error) {
