@@ -533,176 +533,178 @@ function App() {
                           </div>
                         </div>
                       </div>
-                      <table className="accounts-table">
-                        <thead>
-                          <tr>
-                            {currentView === 'manager' ? (
-                              <>
-                                <th className="sortable-header wide-header" onClick={() => handleSort('accountName')}>
-                                  Account<br/>Name
-                                  {sortConfig.key === 'accountName' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('businessUnit')}>
-                                  Business<br/>Unit
-                                  {sortConfig.key === 'businessUnit' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('engagementType')}>
-                                  Engagement<br/>Type
-                                  {sortConfig.key === 'engagementType' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('priority')}>
-                                  <div className="header-with-tooltip">
-                                    Priority
-                                    {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                    <span className="tooltip">
-                                      • Tier 1 = Actively working<br/>
-                                      • Tier 2 = Client or delivery issues<br/>
-                                      • Tier 3 = Smooth<br/>
-                                      • Tier 4 = Low risk and low reward
-                                    </span>
-                                  </div>
-                                </th>
-                                <th className="sortable-header wide-header" onClick={() => handleSort('accountManager')}>
-                                  Account<br/>Manager
-                                  {sortConfig.key === 'accountManager' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('mrr')}>
-                                  MRR
-                                  {sortConfig.key === 'mrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th>
-                                  Recurring<br/>Points
-                                </th>
-                                <th>
-                                  Points<br/>Purchased
-                                </th>
-                                <th>
-                                  Points<br/>Delivered
-                                </th>
-                                <th>
-                                  Points<br/>Balance
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('pointsStrikingDistance')}>
-                                  <div className="header-with-tooltip">
-                                    Points<br/>Burden
-                                    <span className="tooltip">
-                                      Points Balance - (1.5 × Recurring Points)<br/>
-                                      Positive = Off Track, Negative = On Track
-                                    </span>
-                                    {sortConfig.key === 'pointsStrikingDistance' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                  </div>
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('delivery')}>
-                                  <div className="header-with-tooltip">
-                                    Delivery
-                                    {sortConfig.key === 'delivery' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                    <span className="tooltip">
-                                      Based on Points Burden:<br/>
-                                      • Off Track if &gt; 0<br/>
-                                      • On Track if ≤ 0
-                                    </span>
-                                  </div>
-                                </th>
-                                <th>Goals</th>
-                              </>
-                            ) : (
-                              <>
-                                <th className="sortable-header wide-header" onClick={() => handleSort('accountName')}>
-                                  Account<br/>Name
-                                  {sortConfig.key === 'accountName' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('businessUnit')}>
-                                  Business<br/>Unit
-                                  {sortConfig.key === 'businessUnit' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('engagementType')}>
-                                  Engagement<br/>Type
-                                  {sortConfig.key === 'engagementType' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('priority')}>
-                                  Priority
-                                  {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('mrr')}>
-                                  MRR
-                                  {sortConfig.key === 'mrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('growthInMrr')}>
-                                  Growth in<br/>MRR
-                                  {sortConfig.key === 'growthInMrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('potentialMrr')}>
-                                  Potential<br/>MRR
-                                  {sortConfig.key === 'potentialMrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('relationshipStartDate')}>
-                                  Relationship<br/>Start
-                                  {sortConfig.key === 'relationshipStartDate' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('clientTenure')}>
-                                  Client<br/>Tenure
-                                  {sortConfig.key === 'clientTenure' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('contractStartDate')}>
-                                  Contract<br/>Start
-                                  {sortConfig.key === 'contractStartDate' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                                <th className="sortable-header" onClick={() => handleSort('contractRenewalEnd')}>
-                                  Contract<br/>End
-                                  {sortConfig.key === 'contractRenewalEnd' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                                </th>
-                              </>
-                            )}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {sortedAccounts.map((account) => (
-                            <tr key={account.id} onClick={() => setSelectedAccount(account)}>
+                      <div className="accounts-table-wrapper">
+                        <table className="accounts-table">
+                          <thead>
+                            <tr>
                               {currentView === 'manager' ? (
                                 <>
-                                  <td>{account.accountName}</td>
-                                  <td>{formatBusinessUnit(account.businessUnit)}</td>
-                                  <td>{formatEngagementType(account.engagementType)}</td>
-                                  <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
-                                    {formatPriority(account.priority)}
-                                  </td>
-                                  <td>{account.accountManager}</td>
-                                  <td className="number-cell">${account.mrr.toLocaleString()}</td>
-                                  <td className="number-cell">{account.recurringPointsAllotment}</td>
-                                  <td className="number-cell">{account.pointsPurchased}</td>
-                                  <td className="number-cell">{account.pointsDelivered}</td>
-                                  <td className="number-cell">
-                                    {calculatePointsBalance(account)}
-                                  </td>
-                                  <td className="number-cell">{account.pointsStrikingDistance}</td>
-                                  <td className={`delivery-${account.delivery.toLowerCase().replace('_', '-')}`}>
-                                    {formatDelivery(account.delivery)}
-                                  </td>
-                                  <td>
-                                    <GoalProgress goals={account.goals || []} />
-                                  </td>
+                                  <th className="sortable-header wide-header" onClick={() => handleSort('accountName')}>
+                                    Account<br/>Name
+                                    {sortConfig.key === 'accountName' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('businessUnit')}>
+                                    Business<br/>Unit
+                                    {sortConfig.key === 'businessUnit' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('engagementType')}>
+                                    Engagement<br/>Type
+                                    {sortConfig.key === 'engagementType' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('priority')}>
+                                    <div className="header-with-tooltip">
+                                      Priority
+                                      {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                      <span className="tooltip">
+                                        • Tier 1 = Actively working<br/>
+                                        • Tier 2 = Client or delivery issues<br/>
+                                        • Tier 3 = Smooth<br/>
+                                        • Tier 4 = Low risk and low reward
+                                      </span>
+                                    </div>
+                                  </th>
+                                  <th className="sortable-header wide-header" onClick={() => handleSort('accountManager')}>
+                                    Account<br/>Manager
+                                    {sortConfig.key === 'accountManager' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('mrr')}>
+                                    MRR
+                                    {sortConfig.key === 'mrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th>
+                                    Recurring<br/>Points
+                                  </th>
+                                  <th>
+                                    Points<br/>Purchased
+                                  </th>
+                                  <th>
+                                    Points<br/>Delivered
+                                  </th>
+                                  <th>
+                                    Points<br/>Balance
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('pointsStrikingDistance')}>
+                                    <div className="header-with-tooltip">
+                                      Points<br/>Burden
+                                      <span className="tooltip">
+                                        Points Balance - (1.5 × Recurring Points)<br/>
+                                        Positive = Off Track, Negative = On Track
+                                      </span>
+                                      {sortConfig.key === 'pointsStrikingDistance' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                    </div>
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('delivery')}>
+                                    <div className="header-with-tooltip">
+                                      Delivery
+                                      {sortConfig.key === 'delivery' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                      <span className="tooltip">
+                                        Based on Points Burden:<br/>
+                                        • Off Track if &gt; 0<br/>
+                                        • On Track if ≤ 0
+                                      </span>
+                                    </div>
+                                  </th>
+                                  <th>Goals</th>
                                 </>
                               ) : (
                                 <>
-                                  <td>{account.accountName}</td>
-                                  <td>{formatBusinessUnit(account.businessUnit)}</td>
-                                  <td>{formatEngagementType(account.engagementType)}</td>
-                                  <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
-                                    {formatPriority(account.priority)}
-                                  </td>
-                                  <td className="number-cell">${account.mrr.toLocaleString()}</td>
-                                  <td className="number-cell">${account.growthInMrr.toLocaleString()}</td>
-                                  <td className="number-cell">${account.potentialMrr.toLocaleString()}</td>
-                                  <td>{new Date(account.relationshipStartDate).toLocaleDateString()}</td>
-                                  <td>{calculateClientTenure(account.relationshipStartDate)} months</td>
-                                  <td>{new Date(account.contractStartDate).toLocaleDateString()}</td>
-                                  <td>{new Date(account.contractRenewalEnd).toLocaleDateString()}</td>
+                                  <th className="sortable-header wide-header" onClick={() => handleSort('accountName')}>
+                                    Account<br/>Name
+                                    {sortConfig.key === 'accountName' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('businessUnit')}>
+                                    Business<br/>Unit
+                                    {sortConfig.key === 'businessUnit' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('engagementType')}>
+                                    Engagement<br/>Type
+                                    {sortConfig.key === 'engagementType' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('priority')}>
+                                    Priority
+                                    {sortConfig.key === 'priority' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('mrr')}>
+                                    MRR
+                                    {sortConfig.key === 'mrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('growthInMrr')}>
+                                    Growth in<br/>MRR
+                                    {sortConfig.key === 'growthInMrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('potentialMrr')}>
+                                    Potential<br/>MRR
+                                    {sortConfig.key === 'potentialMrr' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('relationshipStartDate')}>
+                                    Relationship<br/>Start
+                                    {sortConfig.key === 'relationshipStartDate' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('clientTenure')}>
+                                    Client<br/>Tenure
+                                    {sortConfig.key === 'clientTenure' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('contractStartDate')}>
+                                    Contract<br/>Start
+                                    {sortConfig.key === 'contractStartDate' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
+                                  <th className="sortable-header" onClick={() => handleSort('contractRenewalEnd')}>
+                                    Contract<br/>End
+                                    {sortConfig.key === 'contractRenewalEnd' && <span className="sort-arrow">{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                                  </th>
                                 </>
                               )}
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody>
+                            {sortedAccounts.map((account) => (
+                              <tr key={account.id} onClick={() => setSelectedAccount(account)}>
+                                {currentView === 'manager' ? (
+                                  <>
+                                    <td>{account.accountName}</td>
+                                    <td>{formatBusinessUnit(account.businessUnit)}</td>
+                                    <td>{formatEngagementType(account.engagementType)}</td>
+                                    <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
+                                      {formatPriority(account.priority)}
+                                    </td>
+                                    <td>{account.accountManager}</td>
+                                    <td className="number-cell">${account.mrr.toLocaleString()}</td>
+                                    <td className="number-cell">{account.recurringPointsAllotment}</td>
+                                    <td className="number-cell">{account.pointsPurchased}</td>
+                                    <td className="number-cell">{account.pointsDelivered}</td>
+                                    <td className="number-cell">
+                                      {calculatePointsBalance(account)}
+                                    </td>
+                                    <td className="number-cell">{account.pointsStrikingDistance}</td>
+                                    <td className={`delivery-${account.delivery.toLowerCase().replace('_', '-')}`}>
+                                      {formatDelivery(account.delivery)}
+                                    </td>
+                                    <td>
+                                      <GoalProgress goals={account.goals || []} />
+                                    </td>
+                                  </>
+                                ) : (
+                                  <>
+                                    <td>{account.accountName}</td>
+                                    <td>{formatBusinessUnit(account.businessUnit)}</td>
+                                    <td>{formatEngagementType(account.engagementType)}</td>
+                                    <td className={`priority-tier${account.priority.replace('TIER_', '')}`}>
+                                      {formatPriority(account.priority)}
+                                    </td>
+                                    <td className="number-cell">${account.mrr.toLocaleString()}</td>
+                                    <td className="number-cell">${account.growthInMrr.toLocaleString()}</td>
+                                    <td className="number-cell">${account.potentialMrr.toLocaleString()}</td>
+                                    <td>{new Date(account.relationshipStartDate).toLocaleDateString()}</td>
+                                    <td>{calculateClientTenure(account.relationshipStartDate)} months</td>
+                                    <td>{new Date(account.contractStartDate).toLocaleDateString()}</td>
+                                    <td>{new Date(account.contractRenewalEnd).toLocaleDateString()}</td>
+                                  </>
+                                )}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   ) : currentPage === 'tasks' ? (
                     <Tasks accounts={accounts} />
