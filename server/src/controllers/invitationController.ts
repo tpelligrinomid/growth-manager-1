@@ -103,10 +103,14 @@ export const verifyInvitation = async (req: Request, res: Response) => {
 export const acceptInvitation = async (req: Request, res: Response) => {
   try {
     const { token } = req.params;
-    const { password } = req.body;
+    const { password, name } = req.body;
 
     if (!password) {
       return res.status(400).json({ error: 'Password is required' });
+    }
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: 'Name is required' });
     }
 
     // Find the invitation
@@ -132,14 +136,14 @@ export const acceptInvitation = async (req: Request, res: Response) => {
       data: {
         email: invitation.email,
         password: hashedPassword,
-        role: invitation.role
+        role: invitation.role,
+        name: name.trim()
       }
     });
 
-    // Mark invitation as accepted
-    await prisma.invitation.update({
-      where: { id: invitation.id },
-      data: { accepted: true }
+    // Delete the invitation since it's been accepted
+    await prisma.invitation.delete({
+      where: { id: invitation.id }
     });
 
     // Create JWT token
@@ -155,6 +159,7 @@ export const acceptInvitation = async (req: Request, res: Response) => {
       user: {
         id: user.id,
         email: user.email,
+        name: user.name,
         role: user.role
       }
     });
