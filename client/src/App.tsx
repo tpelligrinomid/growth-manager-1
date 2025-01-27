@@ -1,3 +1,4 @@
+// Restored working version
 import { useState, useEffect } from 'react';
 import {
   AccountResponse,
