@@ -80,7 +80,40 @@ export async function fetchGrowthTasksForAccountWithDateRange(clientFolderId: st
   }
 
   try {
+    // First, let's get a sample of the data to check date formats
     const query = `
+      SELECT 
+        id,
+        client_folder_id,
+        task_name,
+        task_description,
+        status,
+        assignee,
+        created_date,
+        due_date,
+        date_done,
+        created_by,
+        -- Add some debug information about dates
+        FORMAT_TIMESTAMP('%Y-%m-%d %H:%M:%S', CURRENT_TIMESTAMP()) as current_time,
+        CASE 
+          WHEN SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', due_date) IS NOT NULL THEN 'valid_due_date'
+          ELSE 'invalid_due_date'
+        END as due_date_check,
+        CASE 
+          WHEN SAFE.PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', date_done) IS NOT NULL THEN 'valid_date_done'
+          ELSE 'invalid_date_done'
+        END as date_done_check
+      FROM \`clickup-data-448517.ClickupData.growth_tasks\`
+      WHERE client_folder_id = @clientFolderId
+      LIMIT 5
+    `;
+    
+    console.log('Running diagnostic query for dates...');
+    const rows = await executeQuery(query, { clientFolderId });
+    console.log('Sample data with date checks:', JSON.stringify(rows, null, 2));
+
+    // Now run the actual filtered query
+    const filteredQuery = `
       SELECT 
         id,
         client_folder_id,
@@ -96,20 +129,20 @@ export async function fetchGrowthTasksForAccountWithDateRange(clientFolderId: st
       WHERE client_folder_id = @clientFolderId
       AND (
         -- Tasks due in the 90-day window (45 days past to 45 days future)
-        (PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', due_date) 
+        (SAFE.PARSE_TIMESTAMP('%Y-%m-%d', due_date) 
           BETWEEN TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 45 DAY)
           AND TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 45 DAY))
         OR
         -- Recently completed tasks (last 45 days)
-        (PARSE_TIMESTAMP('%Y-%m-%d %H:%M:%S', date_done) 
+        (SAFE.PARSE_TIMESTAMP('%Y-%m-%d', date_done) 
           BETWEEN TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 45 DAY)
           AND CURRENT_TIMESTAMP())
       )
       ORDER BY due_date ASC
     `;
     
-    const rows = await executeQuery(query, { clientFolderId });
-    return rows || [];
+    const filteredRows = await executeQuery(filteredQuery, { clientFolderId });
+    return filteredRows || [];
   } catch (error) {
     console.error('Error fetching growth tasks:', error);
     return []; // Return empty array instead of throwing
