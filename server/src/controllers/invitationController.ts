@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { PrismaClient, Role } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { sendInvitationEmail } from '../services/emailService';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();

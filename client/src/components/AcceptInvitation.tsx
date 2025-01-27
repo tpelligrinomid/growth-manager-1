@@ -15,7 +15,7 @@ export const AcceptInvitation = ({ onLogin }: { onLogin: (token: string) => void
   useEffect(() => {
     const verifyInvitation = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/invitations/verify/${token}`);
+        const response = await fetch(`${API_URL}/api/invitations/${token}/verify`);
         const data = await response.json();
         
         if (!response.ok) {
@@ -47,7 +47,7 @@ export const AcceptInvitation = ({ onLogin }: { onLogin: (token: string) => void
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/invitations/accept/${token}`, {
+      const response = await fetch(`${API_URL}/api/invitations/${token}/accept`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -56,7 +56,8 @@ export const AcceptInvitation = ({ onLogin }: { onLogin: (token: string) => void
       });
 
       if (!response.ok) {
-        throw new Error('Failed to accept invitation');
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to accept invitation');
       }
 
       const { token: jwtToken } = await response.json();

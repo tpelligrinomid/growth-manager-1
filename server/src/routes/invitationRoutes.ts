@@ -11,16 +11,16 @@ import {
 import { PrismaClient } from '@prisma/client';
 
 const router = Router();
-const prisma = new PrismaClient();
 
-// Protect all invitation routes
+// Protected routes
 router.use(authenticateToken);
 
-// Create invitation - only ADMINISTRATOR
+// Create invitation (admin only)
 router.post('/', requireRole([Role.ADMINISTRATOR]), createInvitation);
 
-// Get all invitations - only ADMINISTRATOR
+// Get all invitations (admin only)
 router.get('/', requireRole([Role.ADMINISTRATOR]), async (req, res) => {
+  const prisma = new PrismaClient();
   try {
     const invitations = await prisma.invitation.findMany({
       orderBy: { createdAt: 'desc' }
@@ -32,16 +32,12 @@ router.get('/', requireRole([Role.ADMINISTRATOR]), async (req, res) => {
   }
 });
 
-// Verify invitation token
-router.get('/verify/:token', verifyInvitation);
+// Public routes for handling invitations
+router.use('/:token/verify', verifyInvitation);
+router.post('/:token/accept', acceptInvitation);
 
-// Accept invitation
-router.post('/accept/:token', acceptInvitation);
-
-// Resend invitation - only ADMINISTRATOR
+// Admin routes for managing invitations
 router.post('/:id/resend', requireRole([Role.ADMINISTRATOR]), resendInvitation);
-
-// Delete invitation - only ADMINISTRATOR
 router.delete('/:id', requireRole([Role.ADMINISTRATOR]), deleteInvitation);
 
 export default router; 
