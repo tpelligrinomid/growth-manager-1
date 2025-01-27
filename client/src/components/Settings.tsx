@@ -35,9 +35,10 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get<{ data: User[] }>('/api/users');
-      setUsers(response.data.data || []);
+      const response = await axios.get<User[]>('/api/users');
+      setUsers(response.data || []);
     } catch (err) {
+      console.error('Error fetching users:', err);
       setError('Failed to fetch users');
       setUsers([]);
     }
@@ -45,9 +46,10 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
 
   const fetchInvitations = async () => {
     try {
-      const response = await axios.get<{ data: Invitation[] }>('/api/invitations');
-      setInvitations((response.data.data || []).filter((inv: Invitation) => !inv.accepted));
+      const response = await axios.get<Invitation[]>('/api/invitations');
+      setInvitations((response.data || []).filter((inv: Invitation) => !inv.accepted));
     } catch (err) {
+      console.error('Error fetching invitations:', err);
       setError('Failed to fetch invitations');
       setInvitations([]);
     }
