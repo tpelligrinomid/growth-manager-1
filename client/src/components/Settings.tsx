@@ -96,6 +96,7 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
       });
       if (!response.ok) throw new Error('Failed to resend invitation');
       setSuccess('Invitation resent successfully');
+      await fetchInvitations();
     } catch (err) {
       setError('Failed to resend invitation');
     }
