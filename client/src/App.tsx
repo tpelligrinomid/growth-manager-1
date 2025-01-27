@@ -360,34 +360,34 @@ function App() {
               </header>
               <div className="main-content-wrapper">
                 <nav className="sidebar">
-                  <button 
-                    className={`nav-button ${currentPage === 'dashboard' ? 'active' : ''}`}
-                    onClick={() => setCurrentPage('dashboard')}
-                  >
-                    <ChartPieIcon className="nav-icon" />
-                    <span className="nav-tooltip">Dashboard</span>
-                  </button>
-                  <button 
-                    className={`nav-button ${currentPage === 'tasks' ? 'active' : ''}`}
-                    onClick={() => setCurrentPage('tasks')}
-                  >
-                    <ClipboardDocumentListIcon className="nav-icon" />
-                    <span className="nav-tooltip">Tasks</span>
-                  </button>
-                  {userRole === 'ADMINISTRATOR' && (
+                  <div>
                     <button 
-                      className={`nav-button ${currentPage === 'settings' ? 'active' : ''}`}
-                      onClick={() => setCurrentPage('settings')}
+                      className={`nav-button ${currentPage === 'dashboard' ? 'active' : ''}`}
+                      onClick={() => setCurrentPage('dashboard')}
                     >
-                      <Cog6ToothIcon className="nav-icon" />
-                      <span className="nav-tooltip">Settings</span>
+                      <ChartPieIcon className="nav-icon" />
+                      <span className="nav-tooltip">Dashboard</span>
                     </button>
-                  )}
-                  <div style={{ marginTop: 'auto' }}>
+                    <button 
+                      className={`nav-button ${currentPage === 'tasks' ? 'active' : ''}`}
+                      onClick={() => setCurrentPage('tasks')}
+                    >
+                      <ClipboardDocumentListIcon className="nav-icon" />
+                      <span className="nav-tooltip">Tasks</span>
+                    </button>
+                    {userRole === 'ADMINISTRATOR' && (
+                      <button 
+                        className={`nav-button ${currentPage === 'settings' ? 'active' : ''}`}
+                        onClick={() => setCurrentPage('settings')}
+                      >
+                        <Cog6ToothIcon className="nav-icon" />
+                        <span className="nav-tooltip">Settings</span>
+                      </button>
+                    )}
                     <div className="profile-separator" />
                     <div className="profile-icon">
                       <UserCircleIcon className="nav-icon" />
-                      <span className="nav-tooltip">{userName}</span>
+                      <span className="nav-tooltip">{userName || 'User Profile'}</span>
                     </div>
                   </div>
                 </nav>
