@@ -9,7 +9,7 @@ const app = express();
 
 // Configure CORS to allow requests from your frontend
 app.use(cors({
-  origin: 'https://growth-manager-1-frontend.onrender.com',
+  origin: ['https://growth-manager-1-frontend.onrender.com', 'https://growth-manager-1.onrender.com'],
   credentials: true
 }));
 app.use(express.json());
