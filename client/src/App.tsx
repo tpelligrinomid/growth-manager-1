@@ -265,7 +265,19 @@ function App() {
     }));
   };
 
-  const sortedAccounts = [...accounts].sort((a, b) => {
+  // Filter accounts before sorting
+  const filteredAccounts = accounts.filter(account => {
+    return (
+      (!filters.businessUnit || account.businessUnit === filters.businessUnit) &&
+      (!filters.engagementType || account.engagementType === filters.engagementType) &&
+      (!filters.priority || account.priority === filters.priority) &&
+      (!filters.delivery || account.delivery === filters.delivery) &&
+      (!filters.accountManager || account.accountManager === filters.accountManager) &&
+      (!filters.teamManager || account.teamManager === filters.teamManager)
+    );
+  });
+
+  const sortedAccounts = [...filteredAccounts].sort((a, b) => {
     if (!sortConfig.key || !sortConfig.direction) return 0;
 
     if (sortConfig.key === 'priority') {
