@@ -1,5 +1,5 @@
 import React from 'react';
-import { BusinessUnit, EngagementType, Priority } from '../types';
+import { BusinessUnit, EngagementType, Priority, AccountResponse } from '../types';
 import { formatBusinessUnit, formatEngagementType, formatPriority } from '../utils/formatters';
 
 interface FiltersProps {
@@ -13,16 +13,17 @@ interface FiltersProps {
   };
   onFilterChange: (filterName: string, value: string) => void;
   view: 'manager' | 'finance';
+  accounts: AccountResponse[];
 }
 
-export const Filters: React.FC<FiltersProps> = ({ filters, onFilterChange, view }) => {
+export const Filters: React.FC<FiltersProps> = ({ filters, onFilterChange, view, accounts }) => {
   const businessUnits = Object.values(BusinessUnit);
   const engagementTypes = Object.values(EngagementType);
   const priorities = Object.values(Priority);
   
-  // Get unique account managers and team managers from the data
-  const accountManagers = ['Spencer Hertle', 'Nathalie Mintjens', 'Gracie Diamond', 'Mia Mixan'];
-  const teamManagers = ['Colin Costigan'];
+  // Get unique account managers and team managers from the accounts data
+  const accountManagers = Array.from(new Set(accounts.map(account => account.accountManager))).sort();
+  const teamManagers = Array.from(new Set(accounts.map(account => account.teamManager).filter(Boolean))).sort();
 
   return (
     <div className="filters-group">

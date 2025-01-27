@@ -773,77 +773,48 @@ html, body, #root {
 }
 
 .metrics-container {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 24px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  padding: 8px 4px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 .metric-card {
   background: white;
+  padding: 1.5rem;
   border-radius: 8px;
-  padding: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  min-width: 140px;
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Add colored borders for card groups */
-.metric-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: transparent;
-}
-
-/* Single cards - lightest purple */
-.metric-card:nth-child(1)::before {
-  background: rgba(92, 41, 197, 0.2);  /* --nn-primary with 0.2 opacity */
-}
-
-/* MRR group - light purple */
-.metric-card:nth-child(2)::before,
-.metric-card:nth-child(3)::before {
-  background: rgba(92, 41, 197, 0.4);  /* --nn-primary with 0.4 opacity */
-}
-
-/* Off Track group - dark red */
-.metric-card:nth-child(4)::before,
-.metric-card:nth-child(5)::before {
-  background: #7f1d1d;  /* Even darker red than the table's #991b1b */
-}
-
-/* Tier 1 group - match table Tier 1 color */
-.metric-card:nth-child(6)::before,
-.metric-card:nth-child(7)::before {
-  background: #991b1b;
-}
-
-/* Points burden - very light purple */
-.metric-card:nth-child(8)::before {
-  background: rgba(92, 41, 197, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .metric-label {
+  font-size: 0.875rem;
   color: #6b7280;
-  font-size: 14px;
-  margin-bottom: 8px;
 }
 
 .metric-value {
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #111827;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
+  transition: all 0.3s ease-out;
+}
+
+.metric-value span {
+  transition: all 0.3s ease-out;
+}
+
+/* Pie chart animations */
+.pie-chart {
+  transition: all 0.3s ease-out;
+}
+
+.percentage-fill {
+  transition: all 0.3s ease-out;
 }
 
 /* Update toggle button active color to match table header */
