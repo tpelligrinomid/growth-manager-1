@@ -30,9 +30,8 @@ import Settings from './components/Settings';
 import Login from './components/Login';
 import { jwtDecode } from 'jwt-decode';
 
-// Fix type definitions
+// Fix the type definition
 type ViewType = 'manager' | 'finance';
-type PageType = 'dashboard' | 'tasks' | 'settings';
 type UserRole = 'ADMINISTRATOR' | 'GROWTH_MANAGER' | 'GROWTH_ADVISOR';
 
 interface SortConfig {
@@ -69,7 +68,7 @@ function App() {
   const [currentView, setCurrentView] = useState<ViewType>('manager');
   const [isSyncing, setIsSyncing] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>('GROWTH_ADVISOR');
-  const [currentPage, setCurrentPage] = useState<PageType>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'tasks' | 'settings'>('dashboard');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [userId, setUserId] = useState<string>('');
@@ -643,7 +642,7 @@ function App() {
                             )}
                           </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody>
                           {sortedAccounts.map((account) => (
                             <tr key={account.id} onClick={() => setSelectedAccount(account)}>
                               {currentView === 'manager' ? (
@@ -730,5 +729,5 @@ function App() {
     </div>
   );
 }
-export default App;
 
+export default App;
