@@ -162,6 +162,9 @@ html, body, #root {
 
 .accounts-section {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 220px); /* Account for header, metrics, and filters */
 }
 
 .accounts-section h2 {
@@ -174,35 +177,63 @@ html, body, #root {
 /* Modern table styling */
 .accounts-table {
   width: 100%;
-  background: var(--nn-white);
-  border-radius: 8px;
-  box-shadow: 0 4px 6px var(--nn-shadow);
-  overflow: hidden;
   border-collapse: separate;
   border-spacing: 0;
 }
 
-/* Ensure top header cells have rounded corners */
-.accounts-table th:first-child {
-  border-top-left-radius: 8px;
+.accounts-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--nn-primary);
 }
 
-.accounts-table th:last-child {
-  border-top-right-radius: 8px;
+.accounts-table th {
+  background-color: var(--nn-primary);
+  color: var(--nn-white);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  white-space: normal;
+  line-height: 1.2;
+  padding: 0.75rem 0.5rem;
+  min-width: 100px;
+  max-width: 120px;
 }
 
-/* Ensure bottom cells have rounded corners */
-.accounts-table tr:last-child td:first-child {
-  border-bottom-left-radius: 8px;
+/* Ensure the last row has a border-bottom */
+.accounts-table tbody tr:last-child td {
+  border-bottom: 1px solid var(--nn-border);
 }
 
-.accounts-table tr:last-child td:last-child {
-  border-bottom-right-radius: 8px;
+/* Add subtle hover effect */
+.accounts-table tbody tr:hover {
+  background-color: rgba(92, 41, 197, 0.05);
 }
 
 .accounts-table-wrapper {
-  width: 100%;
-  overflow-x: auto;
+  flex: 1;
+  overflow-y: auto;
+  border-radius: 8px;
+  /* Custom scrollbar for webkit browsers */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(92, 41, 197, 0.3);
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(92, 41, 197, 0.5);
+  }
 }
 
 .accounts-table th,
@@ -787,14 +818,15 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  border-left: 4px solid rgba(92, 41, 197, 0.2);  /* Adding subtle purple border */
 }
 
 .metric-card.warning {
-  border-left: 4px solid #dc2626;  /* Red border for warning metrics */
+  border-left: 4px solid #dc2626;  /* Keep existing red border for warning metrics */
 }
 
 .metric-card.priority {
-  border-left: 4px solid #8b5cf6;  /* Purple border for priority metrics */
+  border-left: 4px solid #8b5cf6;  /* Keep existing purple border for priority metrics */
 }
 
 .metric-label {
