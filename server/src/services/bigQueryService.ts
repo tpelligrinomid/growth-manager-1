@@ -73,6 +73,35 @@ export async function fetchGrowthTasksForAccount(clientFolderId: string) {
   return executeQuery(query, { clientFolderId });
 }
 
+export async function fetchGrowthTasksForAccountWithDateRange(clientFolderId: string) {
+  const query = `
+    SELECT 
+      id,
+      client_folder_id,
+      task_name,
+      task_description,
+      status,
+      assignee,
+      created_date,
+      due_date,
+      date_done,
+      created_by
+    FROM \`clickup-data-448517.ClickupData.growth_tasks\`
+    WHERE client_folder_id = @clientFolderId
+    AND (
+      -- Tasks due in the 90-day window (45 days past to 45 days future)
+      (due_date BETWEEN TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 45 DAY)
+                    AND TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 45 DAY))
+      OR
+      -- Recently completed tasks (last 45 days)
+      (date_done BETWEEN TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 45 DAY)
+                    AND CURRENT_TIMESTAMP())
+    )
+    ORDER BY due_date ASC
+  `;
+  return executeQuery(query, { clientFolderId });
+}
+
 export async function fetchGoalsForAccount(clientFolderId: string) {
   const query = `
     SELECT 
