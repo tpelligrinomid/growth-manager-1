@@ -40,7 +40,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     <div className="login-container">
       <div className="login-box">
         <img 
-          src="/mid-logo.png"
+          src="/logo.png"
           alt="Marketers in Demand" 
           className="login-logo" 
         />
