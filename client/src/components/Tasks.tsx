@@ -43,11 +43,23 @@ const Tasks: React.FC<TasksProps> = ({ accounts }) => {
     const fetchTasks = async () => {
       try {
         setIsLoading(true);
+        // Get the authentication token
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+
         const tasksPromises = accounts
           .filter(account => account.clientFolderId)
           .map(async (account) => {
             const response = await fetch(
-              `${API_URL}/api/bigquery/account/${account.clientFolderId}?clientListTaskId=${account.clientListTaskId}`
+              `${API_URL}/api/bigquery/account/${account.clientFolderId}?clientListTaskId=${account.clientListTaskId}`,
+              {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                }
+              }
             );
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
