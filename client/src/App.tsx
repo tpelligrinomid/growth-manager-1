@@ -383,9 +383,12 @@ function App() {
                       <span className="nav-tooltip">Settings</span>
                     </button>
                   )}
-                  <div className="profile-icon" style={{ marginTop: 'auto' }}>
-                    <UserCircleIcon className="nav-icon" />
-                    <span className="nav-tooltip">{userName || 'User Profile'}</span>
+                  <div style={{ marginTop: 'auto' }}>
+                    <div className="profile-separator" />
+                    <div className="profile-icon">
+                      <UserCircleIcon className="nav-icon" />
+                      <span className="nav-tooltip">{userName}</span>
+                    </div>
                   </div>
                 </nav>
                 <main className="app-content">
