@@ -91,6 +91,36 @@ function App() {
     }
   }, []);
 
+  // Add new effect for auto-syncing accounts
+  useEffect(() => {
+    const syncAllAccounts = async () => {
+      if (!isAuthenticated || !token || !accounts.length) return;
+      
+      setIsSyncing(true);
+      try {
+        const syncPromises = accounts.map(async (account) => {
+          if (account.clientFolderId && account.clientListTaskId) {
+            const updatedAccount = await syncAccountWithBigQuery(account, () => {});
+            return updatedAccount;
+          }
+          return account;
+        });
+
+        const updatedAccounts = await Promise.all(syncPromises);
+        setAccounts(updatedAccounts);
+      } catch (error) {
+        console.error('Error syncing accounts:', error);
+      } finally {
+        setIsSyncing(false);
+      }
+    };
+
+    // Sync when first authenticated or when returning to dashboard
+    if (isAuthenticated && (currentPage === 'dashboard' || accounts.length === 0)) {
+      syncAllAccounts();
+    }
+  }, [isAuthenticated, currentPage, token]);
+
   useEffect(() => {
     if (isAuthenticated && token) {
       fetchAccounts();
