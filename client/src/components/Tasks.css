@@ -176,15 +176,27 @@
   align-items: center;
   justify-content: center;
   color: var(--nn-text-light);
-  padding: 4px;
+  padding: 8px;
   border-radius: 4px;
   transition: all 0.2s ease;
   margin-left: auto;
-  opacity: 0.8;
+  cursor: pointer;
+  min-width: 32px;
+  min-height: 32px;
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.clickup-link svg {
+  width: 20px;
+  height: 20px;
+  color: var(--nn-text);
 }
 
 .clickup-link:hover {
   color: var(--nn-primary);
-  background-color: rgba(0, 0, 0, 0.05);
-  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.clickup-link:hover svg {
+  color: var(--nn-primary);
 } 
