@@ -4,6 +4,7 @@ import accountRoutes from './routes/accountRoutes';
 import authRoutes from './routes/authRoutes';
 import invitationRoutes from './routes/invitationRoutes';
 import userRoutes from './routes/userRoutes';
+import bigQueryRoutes from './routes/bigQueryRoutes';
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/accounts', accountRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/bigquery', bigQueryRoutes);
 
 // Add error logging middleware
 app.use((err: any, req: any, res: any, next: any) => {
