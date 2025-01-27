@@ -148,7 +148,7 @@ export const acceptInvitation = async (req: Request, res: Response) => {
 
     // Create JWT token
     const jwtToken = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
+      { userId: user.id, email: user.email, role: user.role, name: user.name },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
