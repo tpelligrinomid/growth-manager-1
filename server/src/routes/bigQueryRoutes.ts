@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { authenticateToken } from '../middleware/auth';
 import { 
   fetchPointsForAccount, 
   fetchGrowthTasksForAccount, 
@@ -10,6 +11,9 @@ import { Prisma } from '@prisma/client';
 import { Account } from '@prisma/client';
 
 const router = Router();
+
+// Protect all BigQuery routes
+router.use(authenticateToken);
 
 // Add a test endpoint
 router.get('/test', (req, res) => {
