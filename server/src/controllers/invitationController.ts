@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { PrismaClient, Role } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { sendInvitationEmail } from '../services/emailService';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 
@@ -101,8 +103,13 @@ export const verifyInvitation = async (req: Request, res: Response) => {
 export const acceptInvitation = async (req: Request, res: Response) => {
   try {
     const { token } = req.params;
+    const { password } = req.body;
 
-    // Find and update the invitation
+    if (!password) {
+      return res.status(400).json({ error: 'Password is required' });
+    }
+
+    // Find the invitation
     const invitation = await prisma.invitation.findFirst({
       where: {
         token,
@@ -117,16 +124,40 @@ export const acceptInvitation = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Invalid or expired invitation' });
     }
 
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create the user account
+    const user = await prisma.user.create({
+      data: {
+        email: invitation.email,
+        password: hashedPassword,
+        role: invitation.role
+      }
+    });
+
     // Mark invitation as accepted
     await prisma.invitation.update({
       where: { id: invitation.id },
       data: { accepted: true }
     });
 
-    // Here you would typically create a user account
-    // This will be implemented later when we add user authentication
+    // Create JWT token
+    const jwtToken = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
 
-    res.json({ message: 'Invitation accepted successfully' });
+    res.json({ 
+      message: 'Invitation accepted successfully',
+      token: jwtToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      }
+    });
   } catch (error) {
     console.error('Error accepting invitation:', error);
     res.status(500).json({ 

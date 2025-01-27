@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { API_URL } from '../config/api';
 
-const AcceptInvitation: React.FC = () => {
+export const AcceptInvitation = ({ onLogin }: { onLogin: (token: string) => void }) => {
   const { token } = useParams();
   const navigate = useNavigate();
-  const [invitation, setInvitation] = useState<any>(null);
-  const [error, setError] = useState<string>('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [invitation, setInvitation] = useState<{ email: string; role: string } | null>(null);
 
   useEffect(() => {
     const verifyInvitation = async () => {
@@ -32,19 +35,33 @@ const AcceptInvitation: React.FC = () => {
     }
   }, [token]);
 
-  const handleAcceptInvitation = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+
     try {
       const response = await fetch(`${API_URL}/api/invitations/accept/${token}`, {
-        method: 'POST'
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ password })
       });
-      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to accept invitation');
+        throw new Error('Failed to accept invitation');
       }
 
-      // Redirect to Google sign-in
-      window.location.href = `${API_URL}/auth/google`;
+      const { token: jwtToken } = await response.json();
+      onLogin(jwtToken);
+      navigate('/');
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to accept invitation');
     }
@@ -88,14 +105,35 @@ const AcceptInvitation: React.FC = () => {
               </span>
             </p>
             <p className="text-gray-600">Email: {invitation.email}</p>
-            <button
-              onClick={handleAcceptInvitation}
-              className="w-full px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-            >
-              Accept & Continue to Sign In
-            </button>
           </div>
         )}
+        <form onSubmit={handleSubmit} className="mt-6">
+          <div className="form-field">
+            <label htmlFor="password">Create Password</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+            />
+          </div>
+          <div className="form-field">
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              minLength={8}
+            />
+          </div>
+          <button type="submit" className="w-full px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+            Accept & Continue to Sign In
+          </button>
+        </form>
       </div>
     </div>
   );
