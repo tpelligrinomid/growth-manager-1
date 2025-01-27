@@ -789,6 +789,14 @@ html, body, #root {
   gap: 0.5rem;
 }
 
+.metric-card.warning {
+  border-left: 4px solid #dc2626;  /* Red border for warning metrics */
+}
+
+.metric-card.priority {
+  border-left: 4px solid #8b5cf6;  /* Purple border for priority metrics */
+}
+
 .metric-label {
   font-size: 0.875rem;
   color: #6b7280;
