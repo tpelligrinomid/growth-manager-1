@@ -53,34 +53,53 @@ const Tasks: React.FC<TasksProps> = ({ accounts }) => {
         const tasksPromises = accounts
           .filter(account => account.clientFolderId)
           .map(async (account) => {
-            const response = await fetch(
-              `${API_URL}/api/bigquery/account/${account.clientFolderId}?clientListTaskId=${account.clientListTaskId}`,
-              {
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json'
+            try {
+              const response = await fetch(
+                `${API_URL}/api/bigquery/account/${account.clientFolderId}?clientListTaskId=${account.clientListTaskId}`,
+                {
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                  }
                 }
+              );
+              
+              if (!response.ok) {
+                console.error(`Failed to fetch tasks for account ${account.accountName}:`, response.status);
+                return []; // Return empty array instead of throwing
               }
-            );
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
+              
+              const data = await response.json();
+              if (!data.growthTasks || !Array.isArray(data.growthTasks)) {
+                console.error(`Invalid growth tasks data for account ${account.accountName}:`, data);
+                return [];
+              }
+              
+              return data.growthTasks.map((task: Task) => ({
+                ...task,
+                accountName: account.accountName,
+                priority: account.priority
+              }));
+            } catch (error) {
+              console.error(`Error fetching tasks for account ${account.accountName}:`, error);
+              return []; // Return empty array on error
             }
-            const data = await response.json();
-            return data.growthTasks.map((task: Task) => ({
-              ...task,
-              accountName: account.accountName,
-              priority: account.priority
-            }));
           });
 
         const allTasksArrays = await Promise.all(tasksPromises);
         const allTasks = allTasksArrays.flat();
         
+        if (allTasks.length === 0) {
+          setError('No tasks found or error loading tasks');
+        } else {
+          setError(null);
+        }
+        
         setTasks(allTasks);
-        setError(null);
       } catch (error) {
-        console.error('Error fetching tasks:', error);
+        console.error('Error in task fetching:', error);
         setError(error instanceof Error ? error.message : 'Failed to load tasks');
+        setTasks([]);
       } finally {
         setIsLoading(false);
       }
