@@ -35,8 +35,14 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get<User[]>('/api/users');
-      setUsers(response.data || []);
+      const response = await axios.get<{ data: User[] }>('/api/users');
+      console.log('Users response:', response);
+      if (Array.isArray(response.data.data)) {
+        setUsers(response.data.data);
+      } else {
+        console.error('Unexpected users response format:', response.data);
+        setUsers([]);
+      }
     } catch (err) {
       console.error('Error fetching users:', err);
       setError('Failed to fetch users');
@@ -46,8 +52,14 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
 
   const fetchInvitations = async () => {
     try {
-      const response = await axios.get<Invitation[]>('/api/invitations');
-      setInvitations((response.data || []).filter((inv: Invitation) => !inv.accepted));
+      const response = await axios.get<{ data: Invitation[] }>('/api/invitations');
+      console.log('Invitations response:', response);
+      if (Array.isArray(response.data.data)) {
+        setInvitations(response.data.data.filter((inv: Invitation) => !inv.accepted));
+      } else {
+        console.error('Unexpected invitations response format:', response.data);
+        setInvitations([]);
+      }
     } catch (err) {
       console.error('Error fetching invitations:', err);
       setError('Failed to fetch invitations');
