@@ -78,4 +78,26 @@
   border-radius: 4px;
   margin-bottom: 1rem;
   text-align: center;
+}
+
+.invitation-info {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+}
+
+.invitation-info p {
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.invitation-info .font-semibold {
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+.email-info {
+  font-size: 0.9rem;
+  color: #6b7280;
 } 

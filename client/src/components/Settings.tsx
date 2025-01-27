@@ -1,5 +1,6 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import './Settings.css';
 
 type Role = 'ADMINISTRATOR' | 'GROWTH_MANAGER' | 'GROWTH_ADVISOR';
 
@@ -22,9 +23,10 @@ interface Invitation {
 
 interface SettingsProps {
   userRole: string;
+  userId: string;
 }
 
-export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
+const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [newInvite, setNewInvite] = useState({ email: '', role: 'GROWTH_MANAGER' as Role });
@@ -33,31 +35,19 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('https://growth-manager-1.onrender.com/api/users', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch users');
-      const { data } = await response.json();
-      setUsers(data);
+      const response = await axios.get<{ data: User[] }>('/api/users');
+      setUsers(response.data.data);
     } catch (err) {
-      setError('Failed to load users');
+      setError('Failed to fetch users');
     }
   };
 
   const fetchInvitations = async () => {
     try {
-      const response = await fetch('https://growth-manager-1.onrender.com/api/invitations', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch invitations');
-      const { data } = await response.json();
-      setInvitations(data);
+      const response = await axios.get<{ data: Invitation[] }>('/api/invitations');
+      setInvitations(response.data.data.filter((inv: Invitation) => !inv.accepted));
     } catch (err) {
-      setError('Failed to load invitations');
+      setError('Failed to fetch invitations');
     }
   };
 
@@ -69,15 +59,7 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('https://growth-manager-1.onrender.com/api/invitations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(newInvite)
-      });
-      if (!response.ok) throw new Error('Failed to send invitation');
+      await axios.post('/api/invitations', { email: newInvite.email, role: newInvite.role });
       setSuccess('Invitation sent successfully');
       setNewInvite({ email: '', role: 'GROWTH_MANAGER' });
       fetchInvitations();
@@ -88,15 +70,9 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
 
   const handleResendInvite = async (invitationId: string) => {
     try {
-      const response = await fetch(`https://growth-manager-1.onrender.com/api/invitations/${invitationId}/resend`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to resend invitation');
+      await axios.post(`/api/invitations/${invitationId}/resend`);
       setSuccess('Invitation resent successfully');
-      await fetchInvitations();
+      fetchInvitations();
     } catch (err) {
       setError('Failed to resend invitation');
     }
@@ -104,13 +80,7 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
 
   const handleDeleteInvite = async (invitationId: string) => {
     try {
-      const response = await fetch(`https://growth-manager-1.onrender.com/api/invitations/${invitationId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to delete invitation');
+      await axios.delete(`/api/invitations/${invitationId}`);
       setSuccess('Invitation deleted successfully');
       fetchInvitations();
     } catch (err) {
@@ -120,30 +90,16 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
 
   const handleResetPassword = async (userId: string) => {
     try {
-      const response = await fetch(`https://growth-manager-1.onrender.com/api/users/${userId}/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to reset password');
+      await axios.post(`/api/users/${userId}/reset-password`);
       setSuccess('Password reset email sent');
     } catch (err) {
-      setError('Failed to reset password');
+      setError('Failed to send password reset email');
     }
   };
 
   const handleUpdateRole = async (userId: string, newRole: Role) => {
     try {
-      const response = await fetch(`https://growth-manager-1.onrender.com/api/users/${userId}/role`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ role: newRole })
-      });
-      if (!response.ok) throw new Error('Failed to update role');
+      await axios.put(`/api/users/${userId}/role`, { role: newRole });
       setSuccess('Role updated successfully');
       fetchUsers();
     } catch (err) {
@@ -151,10 +107,35 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
     }
   };
 
+  const handleDeleteUser = async (userToDelete: User) => {
+    if (userToDelete.id === userId) {
+      setError('You cannot delete your own account');
+      return;
+    }
+
+    const confirmDelete = window.confirm(`Are you sure you want to delete ${userToDelete.name || userToDelete.email}?`);
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`/api/users/${userToDelete.id}`);
+      setSuccess('User deleted successfully');
+      fetchUsers();
+    } catch (err) {
+      setError('Failed to delete user');
+    }
+  };
+
+  if (userRole !== 'ADMINISTRATOR') {
+    return <div className="settings-container">You do not have permission to access this page.</div>;
+  }
+
   return (
     <div className="settings-container">
+      {error && <div className="error-message">{error}</div>}
+      {success && <div className="success-message">{success}</div>}
+
       <div className="settings-section">
-        <h2>Invite New User</h2>
+        <h2>Send Invitation</h2>
         <form onSubmit={handleInvite} className="invite-form">
           <div className="form-group">
             <input
@@ -174,13 +155,10 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
               <option value="GROWTH_ADVISOR">Growth Advisor</option>
               <option value="ADMINISTRATOR">Administrator</option>
             </select>
-            <button type="submit" className="button-primary">Send Invitation</button>
           </div>
+          <button type="submit" className="button-primary">Send Invitation</button>
         </form>
       </div>
-
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">{success}</div>}
 
       <div className="settings-section">
         <h2>Pending Invitations</h2>
@@ -242,7 +220,7 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
       </div>
 
       <div className="settings-section">
-        <h2>Existing Users</h2>
+        <h2>Users</h2>
         <table className="settings-table">
           <thead>
             <tr>
@@ -254,16 +232,15 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
             </tr>
           </thead>
           <tbody>
-            {users.map(user => (
+            {users.map((user) => (
               <tr key={user.id}>
-                <td>{user.name}</td>
+                <td>{user.name || '-'}</td>
                 <td>{user.email}</td>
                 <td>
                   <select
                     value={user.role}
                     onChange={(e) => handleUpdateRole(user.id, e.target.value as Role)}
                     className="role-select"
-                    disabled={userRole !== 'ADMINISTRATOR'}
                   >
                     <option value="GROWTH_MANAGER">Growth Manager</option>
                     <option value="GROWTH_ADVISOR">Growth Advisor</option>
@@ -272,12 +249,22 @@ export const Settings: React.FC<SettingsProps> = ({ userRole }) => {
                 </td>
                 <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                 <td>
-                  <button
-                    onClick={() => handleResetPassword(user.id)}
-                    className="button-secondary"
-                  >
-                    Reset Password
-                  </button>
+                  <div className="action-buttons">
+                    <button
+                      onClick={() => handleResetPassword(user.id)}
+                      className="button-secondary"
+                    >
+                      Reset Password
+                    </button>
+                    {user.id !== userId && (
+                      <button
+                        onClick={() => handleDeleteUser(user)}
+                        className="button-secondary delete"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

@@ -27,22 +27,21 @@ import AcceptInvitation from './components/AcceptInvitation';
 import Tasks from './components/Tasks';
 import Settings from './components/Settings';
 import Login from './components/Login';
+import { jwtDecode } from 'jwt-decode';
 
 // Fix the type definition
 type ViewType = 'manager' | 'finance';
+type UserRole = 'ADMINISTRATOR' | 'GROWTH_MANAGER' | 'GROWTH_ADVISOR';
 
 interface SortConfig {
   key: keyof AccountResponse | 'pointsBalance' | 'clientTenure' | null;
   direction: 'asc' | 'desc' | null;
 }
 
-interface Filters {
-  businessUnit: string;
-  engagementType: string;
-  priority: string;
-  delivery: string;
-  accountManager: string;
-  teamManager: string;
+interface JwtPayload {
+  userId: string;
+  email: string;
+  role: UserRole;
 }
 
 function App() {
@@ -66,16 +65,25 @@ function App() {
   });
   const [currentView, setCurrentView] = useState<ViewType>('manager');
   const [isSyncing, setIsSyncing] = useState(false);
-  const userRole: 'ADMINISTRATOR' | 'GROWTH_MANAGER' | 'GROWTH_ADVISOR' = 'ADMINISTRATOR';
+  const [userRole, setUserRole] = useState<UserRole>('GROWTH_ADVISOR');
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'tasks' | 'settings'>('dashboard');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [userId, setUserId] = useState<string>('');
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
-      setToken(storedToken);
-      setIsAuthenticated(true);
+      try {
+        const decoded = jwtDecode<JwtPayload>(storedToken);
+        setUserRole(decoded.role);
+        setToken(storedToken);
+        setIsAuthenticated(true);
+        setUserId(decoded.userId);
+      } catch (error) {
+        console.error('Invalid token:', error);
+        handleLogout();
+      }
     }
   }, []);
 
@@ -86,9 +94,17 @@ function App() {
   }, [isAuthenticated, token]);
 
   const handleLogin = (newToken: string) => {
-    localStorage.setItem('token', newToken);
-    setToken(newToken);
-    setIsAuthenticated(true);
+    try {
+      const decoded = jwtDecode<JwtPayload>(newToken);
+      setUserRole(decoded.role);
+      localStorage.setItem('token', newToken);
+      setToken(newToken);
+      setIsAuthenticated(true);
+      setUserId(decoded.userId);
+    } catch (error) {
+      console.error('Invalid token:', error);
+      handleLogout();
+    }
   };
 
   const handleLogout = () => {
@@ -666,7 +682,7 @@ function App() {
                   ) : currentPage === 'tasks' ? (
                     <Tasks accounts={accounts} />
                   ) : (
-                    <Settings userRole={userRole} />
+                    <Settings userRole={userRole} userId={userId} />
                   )}
                 </main>
               </div>
