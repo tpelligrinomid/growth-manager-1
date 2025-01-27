@@ -3,6 +3,7 @@ import { API_URL } from '../config/api';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import LoadingSpinner from './LoadingSpinner';
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import './Tasks.css';
 
 interface Task {
@@ -91,8 +92,8 @@ const Tasks: React.FC<TasksProps> = ({ accounts }) => {
   const filteredTasks = tasks.filter(task => {
     // Filter by status
     if (currentView !== 'ALL') {
-      if (currentView === 'WORKING' && task.status !== 'In Progress') return false;
-      if (currentView === 'DELIVERED' && task.status !== 'Completed') return false;
+      if (currentView === 'WORKING' && task.status !== 'Working') return false;
+      if (currentView === 'DELIVERED' && task.status !== 'Delivered') return false;
     }
 
     // Filter by date range
@@ -169,6 +170,15 @@ const Tasks: React.FC<TasksProps> = ({ accounts }) => {
               <div className={`task-priority priority-${task.priority?.toLowerCase()}`}>
                 {task.priority}
               </div>
+              <a 
+                href={`https://app.clickup.com/t/${task.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="clickup-link"
+                title="Open in ClickUp"
+              >
+                <ArrowTopRightOnSquareIcon className="h-5 w-5" />
+              </a>
             </div>
             <div className="task-name">{task.task_name}</div>
             <div className="task-details">

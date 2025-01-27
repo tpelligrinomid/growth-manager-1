@@ -2,7 +2,8 @@ import { Router, Request, Response } from 'express';
 import { authenticateToken } from '../middleware/auth';
 import { 
   fetchPointsForAccount, 
-  fetchGrowthTasksForAccount, 
+  fetchGrowthTasksForAccount,
+  fetchGrowthTasksForAccountWithDateRange,
   fetchGoalsForAccount,
   fetchClientListData 
 } from '../services/bigQueryService';
@@ -70,7 +71,8 @@ router.get<AccountParams>('/account/:clientFolderId', async (
     const pointsData = await fetchPointsForAccount(clientFolderId);
     console.log('Points data:', pointsData);
     
-    const growthTasks = await fetchGrowthTasksForAccount(clientFolderId);
+    // Use the new date-filtered function for growth tasks
+    const growthTasks = await fetchGrowthTasksForAccountWithDateRange(clientFolderId);
     const goals = await fetchGoalsForAccount(clientFolderId);
     
     // Fetch client list data directly using the provided clientListTaskId
