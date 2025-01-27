@@ -528,6 +528,7 @@ function App() {
                               filters={filters}
                               onFilterChange={handleFilterChange}
                               view={currentView}
+                              accounts={accounts}
                             />
                           </div>
                         </div>
