@@ -7,17 +7,31 @@ async function executeQuery(query: string, params: any = {}) {
     console.log('BigQuery query:', query);
     
     // Use credentials from environment variable
-    const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS || '{}');
-    const bigquery = new BigQuery({
-      credentials,
-      projectId: credentials.project_id
-    });
+    const rawCredentials = process.env.GOOGLE_APPLICATION_CREDENTIALS || '{}';
+    console.log('Raw credentials length:', rawCredentials.length);
     
-    const [rows] = await bigquery.query({ 
-      query,
-      params
-    });
-    return rows;
+    try {
+      const credentials = JSON.parse(rawCredentials);
+      console.log('Parsed credentials keys:', Object.keys(credentials));
+      
+      if (!credentials.client_email) {
+        throw new Error('Missing client_email in credentials');
+      }
+      
+      const bigquery = new BigQuery({
+        credentials,
+        projectId: credentials.project_id
+      });
+      
+      const [rows] = await bigquery.query({ 
+        query,
+        params
+      });
+      return rows;
+    } catch (parseError) {
+      console.error('Error parsing or using credentials:', parseError);
+      throw parseError;
+    }
   } catch (error) {
     console.error('BigQuery execution error:', error);
     throw error;
