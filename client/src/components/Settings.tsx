@@ -36,18 +36,20 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
   const fetchUsers = async () => {
     try {
       const response = await axios.get<{ data: User[] }>('/api/users');
-      setUsers(response.data.data);
+      setUsers(response.data.data || []);
     } catch (err) {
       setError('Failed to fetch users');
+      setUsers([]);
     }
   };
 
   const fetchInvitations = async () => {
     try {
       const response = await axios.get<{ data: Invitation[] }>('/api/invitations');
-      setInvitations(response.data.data.filter((inv: Invitation) => !inv.accepted));
+      setInvitations((response.data.data || []).filter((inv: Invitation) => !inv.accepted));
     } catch (err) {
       setError('Failed to fetch invitations');
+      setInvitations([]);
     }
   };
 
