@@ -3,7 +3,7 @@ import axios from 'axios';
 import './Settings.css';
 
 // Configure axios defaults
-axios.defaults.baseURL = window.location.origin;
+axios.defaults.baseURL = 'https://growth-manager-1.onrender.com';
 axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
@@ -40,16 +40,9 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get<User[] | { data: User[] }>('/api/users');
+      const response = await axios.get<{ data: User[] }>('/api/users');
       console.log('Users response:', response);
-      if (response.data && Array.isArray(response.data)) {
-        setUsers(response.data);
-      } else if (response.data && 'data' in response.data && Array.isArray(response.data.data)) {
-        setUsers(response.data.data);
-      } else {
-        console.error('Unexpected users response format:', response.data);
-        setUsers([]);
-      }
+      setUsers(response.data.data || []);
     } catch (err) {
       console.error('Error fetching users:', err);
       setError('Failed to fetch users');
@@ -59,16 +52,9 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
 
   const fetchInvitations = async () => {
     try {
-      const response = await axios.get<Invitation[] | { data: Invitation[] }>('/api/invitations');
+      const response = await axios.get<{ data: Invitation[] }>('/api/invitations');
       console.log('Invitations response:', response);
-      if (response.data && Array.isArray(response.data)) {
-        setInvitations(response.data.filter(inv => !inv.accepted));
-      } else if (response.data && 'data' in response.data && Array.isArray(response.data.data)) {
-        setInvitations(response.data.data.filter(inv => !inv.accepted));
-      } else {
-        console.error('Unexpected invitations response format:', response.data);
-        setInvitations([]);
-      }
+      setInvitations((response.data.data || []).filter(inv => !inv.accepted));
     } catch (err) {
       console.error('Error fetching invitations:', err);
       setError('Failed to fetch invitations');
