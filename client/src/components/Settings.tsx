@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Settings.css';
 
-// Configure axios defaults
-axios.defaults.baseURL = 'https://growth-manager-1.onrender.com';
-axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
-axios.defaults.headers.common['Content-Type'] = 'application/json';
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('token')}`
+  }
+});
 
 type Role = 'ADMINISTRATOR' | 'GROWTH_MANAGER' | 'GROWTH_ADVISOR';
 
@@ -40,7 +43,7 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get<{ data: User[] }>('/api/users');
+      const response = await apiClient.get<{ data: User[] }>('/api/users');
       console.log('Users response:', response);
       setUsers(response.data.data || []);
     } catch (err) {
@@ -52,7 +55,7 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
 
   const fetchInvitations = async () => {
     try {
-      const response = await axios.get<{ data: Invitation[] }>('/api/invitations');
+      const response = await apiClient.get<{ data: Invitation[] }>('/api/invitations');
       console.log('Invitations response:', response);
       setInvitations((response.data.data || []).filter(inv => !inv.accepted));
     } catch (err) {
@@ -70,7 +73,7 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('/api/invitations', { email: newInvite.email, role: newInvite.role });
+      await apiClient.post('/api/invitations', { email: newInvite.email, role: newInvite.role });
       setSuccess('Invitation sent successfully');
       setNewInvite({ email: '', role: 'GROWTH_MANAGER' });
       fetchInvitations();
@@ -81,7 +84,7 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
 
   const handleResendInvite = async (invitationId: string) => {
     try {
-      await axios.post(`/api/invitations/${invitationId}/resend`);
+      await apiClient.post(`/api/invitations/${invitationId}/resend`);
       setSuccess('Invitation resent successfully');
       fetchInvitations();
     } catch (err) {
@@ -91,7 +94,7 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
 
   const handleDeleteInvite = async (invitationId: string) => {
     try {
-      await axios.delete(`/api/invitations/${invitationId}`);
+      await apiClient.delete(`/api/invitations/${invitationId}`);
       setSuccess('Invitation deleted successfully');
       fetchInvitations();
     } catch (err) {
@@ -101,7 +104,7 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
 
   const handleResetPassword = async (userId: string) => {
     try {
-      await axios.post(`/api/users/${userId}/reset-password`);
+      await apiClient.post(`/api/users/${userId}/reset-password`);
       setSuccess('Password reset email sent');
     } catch (err) {
       setError('Failed to send password reset email');
@@ -110,7 +113,7 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
 
   const handleUpdateRole = async (userId: string, newRole: Role) => {
     try {
-      await axios.put(`/api/users/${userId}/role`, { role: newRole });
+      await apiClient.put(`/api/users/${userId}/role`, { role: newRole });
       setSuccess('Role updated successfully');
       fetchUsers();
     } catch (err) {
@@ -128,7 +131,7 @@ const Settings: React.FC<SettingsProps> = ({ userRole, userId }) => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`/api/users/${userToDelete.id}`);
+      await apiClient.delete(`/api/users/${userToDelete.id}`);
       setSuccess('User deleted successfully');
       fetchUsers();
     } catch (err) {
