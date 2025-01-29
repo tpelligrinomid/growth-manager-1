@@ -3,7 +3,7 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  color-scheme: light;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
 
@@ -11,6 +11,18 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Base colors */
+  --text-color: #413547;
+  --background-color: #ffffff;
+  
+  /* Other variables */
+  --nn-primary: #7C3AED;
+  --nn-border: #E5E7EB;
+  --nn-shadow: rgba(0, 0, 0, 0.1);
+  --nn-text: #413547;
+  --nn-text-light: #6B7280;
+  --nn-white: #FFFFFF;
 }
 
 a {
@@ -64,5 +76,12 @@ button:focus-visible {
   }
   button {
     background-color: #f9f9f9;
+  }
+}
+
+/* Explicitly prevent dark mode color inversions */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light;
   }
 }
