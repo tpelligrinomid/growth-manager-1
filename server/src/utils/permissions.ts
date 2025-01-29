@@ -2,7 +2,7 @@ import { Role } from '../types';
 
 export const Permissions = {
   // Account permissions
-  CREATE_ACCOUNT: [Role.ADMINISTRATOR, Role.GROWTH_MANAGER],
+  CREATE_ACCOUNT: [Role.ADMINISTRATOR],
   EDIT_ACCOUNT: [Role.ADMINISTRATOR, Role.GROWTH_MANAGER],
   VIEW_ACCOUNT: [Role.ADMINISTRATOR, Role.GROWTH_MANAGER, Role.GROWTH_ADVISOR],
   DELETE_ACCOUNT: [Role.ADMINISTRATOR],
