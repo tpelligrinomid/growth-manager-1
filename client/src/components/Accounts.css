@@ -2,27 +2,41 @@
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  background-color: var(--background-color);
+  background-color: #ffffff !important;
+  color: #413547 !important;
+}
+
+.accounts-table td,
+.accounts-table td *,
+.accounts-table th,
+.accounts-table th * {
+  color: #413547 !important;
+  background-color: #ffffff !important;
 }
 
 .accounts-table td {
   padding: 1rem;
   border-bottom: 1px solid var(--nn-border);
-  color: var(--text-color) !important;
 }
 
 .accounts-table th {
   padding: 1rem;
   text-align: left;
   font-weight: 500;
-  color: var(--text-color) !important;
   border-bottom: 2px solid var(--nn-border);
 }
 
-/* Ensure number cells are also properly colored */
 .number-cell {
-  color: var(--text-color) !important;
+  color: #413547 !important;
   text-align: right;
+  background-color: #ffffff !important;
+}
+
+/* Target all text elements within the table */
+.accounts-table span,
+.accounts-table div,
+.accounts-table p {
+  color: #413547 !important;
 }
 
 /* Force light mode for the table */
