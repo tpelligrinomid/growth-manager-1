@@ -324,6 +324,12 @@ function App() {
       return sortConfig.direction === 'asc' ? aBalance - bBalance : bBalance - aBalance;
     }
 
+    if (sortConfig.key === 'pointsStrikingDistance') {
+      const aValue = Number(a.pointsStrikingDistance) || 0;
+      const bValue = Number(b.pointsStrikingDistance) || 0;
+      return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+    }
+
     if (sortConfig.key === 'mrr' || sortConfig.key === 'growthInMrr' || sortConfig.key === 'potentialMrr') {
       // Convert currency strings to numbers for comparison
       const aValue = Number(String(a[sortConfig.key]).replace(/[^0-9.-]+/g, ''));
