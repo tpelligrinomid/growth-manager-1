@@ -4,7 +4,6 @@ import {
   AddAccountForm
 } from './types';
 import {
-  PlusIcon,
   ClipboardDocumentListIcon,
   BanknotesIcon,
   ChartPieIcon,
