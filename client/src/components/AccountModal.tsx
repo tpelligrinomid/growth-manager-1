@@ -188,7 +188,8 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                       
                       // Hide goals if:
                       // 1. Status is Complete/Closed regardless of progress
-                      if (goal.status === 'Complete' || goal.status === 'Closed') {
+                      const upperStatus = goal.status?.toUpperCase();
+                      if (upperStatus === 'COMPLETE' || upperStatus === 'CLOSED') {
                         console.log('Filtering out goal due to status:', goal.status);
                         return false;
                       }
