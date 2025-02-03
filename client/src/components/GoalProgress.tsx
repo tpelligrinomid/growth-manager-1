@@ -11,21 +11,25 @@ export const GoalProgress: React.FC<GoalProgressProps> = ({ goals, detailed = fa
   if (!goals || goals.length === 0) return <div>No goals</div>;
 
   // Filter goals to show:
-  // 1. Future goals (any status)
-  // 2. Past goals that are not closed
+  // 1. Hide goals if Complete/Closed regardless of progress
+  // 2. Hide if 100% complete and past due
   const activeGoals = goals.filter(goal => {
-    if (!goal.status) return true;
-    return goal.status.toLowerCase() !== 'closed';
+    // 1. Status check
+    const upperStatus = goal.status?.toUpperCase();
+    if (upperStatus === 'COMPLETE' || upperStatus === 'CLOSED') return false;
+    
+    // 2. Past due and complete check
+    const isDueInPast = new Date(goal.due_date) < new Date();
+    if (isDueInPast && (goal.progress ?? 0) === 100) return false;
+    
+    return true;
   });
 
   if (activeGoals.length === 0) return <div>No active goals</div>;
 
   // Calculate average progress of active goals
   const totalProgress = activeGoals.reduce((sum, goal) => {
-    // Convert progress to a number, handling both string and number inputs
-    const progressValue = goal.progress?.toString() || '0';
-    const progress = Number(progressValue.replace(/%/g, ''));
-    return sum + (isNaN(progress) ? 0 : progress);
+    return sum + (goal.progress ?? 0);
   }, 0);
   
   const averageProgress = Math.round(totalProgress / activeGoals.length);
