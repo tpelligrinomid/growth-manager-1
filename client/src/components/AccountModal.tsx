@@ -181,7 +181,11 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                       // 1. Status is Complete/Closed regardless of progress
                       if (goal.status === 'Complete' || goal.status === 'Closed') return false;
                       
-                      // 2. Show all other goals
+                      // 2. Hide if 100% complete and past due
+                      const isDueInPast = new Date(goal.due_date) < new Date();
+                      if (isDueInPast && (goal.progress ?? 0) === 100) return false;
+                      
+                      // 3. Show all other goals
                       return true;
                     })
                     .map((goal: Goal) => (
