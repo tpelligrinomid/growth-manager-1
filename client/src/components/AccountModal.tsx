@@ -177,13 +177,22 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                 <tbody>
                   {currentAccount.goals
                     ?.filter(goal => {
+                      // Debug logging
+                      console.log('Goal:', goal.task_name, 'Status:', goal.status, 'Progress:', goal.progress);
+                      
                       // Hide goals if:
                       // 1. Status is Complete/Closed regardless of progress
-                      if (goal.status === 'Complete' || goal.status === 'Closed') return false;
+                      if (goal.status === 'Complete' || goal.status === 'Closed') {
+                        console.log('Filtering out goal due to status:', goal.status);
+                        return false;
+                      }
                       
                       // 2. Hide if 100% complete and past due
                       const isDueInPast = new Date(goal.due_date) < new Date();
-                      if (isDueInPast && (goal.progress ?? 0) === 100) return false;
+                      if (isDueInPast && (goal.progress ?? 0) === 100) {
+                        console.log('Filtering out goal due to completion and due date');
+                        return false;
+                      }
                       
                       // 3. Show all other goals
                       return true;
