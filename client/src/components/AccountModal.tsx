@@ -177,8 +177,14 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
                 <tbody>
                   {currentAccount.goals
                     ?.filter(goal => {
-                      // Debug logging
-                      console.log('Goal:', goal.task_name, 'Status:', goal.status, 'Progress:', goal.progress);
+                      // More detailed debug logging
+                      console.log('Goal Details:', {
+                        name: goal.task_name,
+                        status: goal.status,
+                        statusLength: goal.status?.length,
+                        statusCharCodes: [...(goal.status || '')].map(c => c.charCodeAt(0)),
+                        progress: goal.progress
+                      });
                       
                       // Hide goals if:
                       // 1. Status is Complete/Closed regardless of progress
