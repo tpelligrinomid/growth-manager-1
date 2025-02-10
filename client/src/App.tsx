@@ -375,6 +375,11 @@ function App() {
     );
   };
 
+  const handleAccountDelete = () => {
+    // Refresh the accounts list after deletion
+    fetchAccounts();
+  };
+
   return (
     <div className="app-container">
       {isSyncing && <LoadingSpinner />}
@@ -756,6 +761,7 @@ function App() {
           onClose={() => setSelectedAccount(null)}
           onEdit={() => setIsEditModalOpen(true)}
           onUpdate={handleAccountUpdate}
+          onDelete={handleAccountDelete}
         />
       )}
       {isAddModalOpen && (
