@@ -29,7 +29,10 @@ const AccountModal: React.FC<Props> = ({ account, isOpen, onClose, onEdit, onUpd
   const [currentAccount, setCurrentAccount] = useState(account);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const userRole = localStorage.getItem('userRole');
+  const token = localStorage.getItem('token');
+  const userRole = token ? JSON.parse(atob(token.split('.')[1])).role : null;
+  
+  console.log('Current user role:', userRole); // Debug log
 
   useEffect(() => {
     setCurrentAccount(account);
