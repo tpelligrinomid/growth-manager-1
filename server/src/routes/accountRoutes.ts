@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticateToken, requireRole } from '../middleware/auth';
 import { Role } from '@prisma/client';
-import { getAccounts, createAccount, updateAccount } from '../controllers/accountController';
+import { getAccounts, createAccount, updateAccount, deleteAccount } from '../controllers/accountController';
 
 const router = Router();
 
@@ -16,5 +16,8 @@ router.post('/', requireRole([Role.ADMINISTRATOR, Role.GROWTH_MANAGER]), createA
 
 // Update account - only ADMINISTRATOR and GROWTH_MANAGER
 router.put('/:id', requireRole([Role.ADMINISTRATOR, Role.GROWTH_MANAGER]), updateAccount);
+
+// Delete account - only ADMINISTRATOR
+router.delete('/:id', requireRole([Role.ADMINISTRATOR]), deleteAccount);
 
 export default router; 
