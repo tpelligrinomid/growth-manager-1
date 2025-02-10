@@ -986,7 +986,6 @@ html, body, #root {
   border-radius: 0.375rem;
   border: none;
   background: transparent;
-  color: var(--nn-text);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -1484,6 +1483,11 @@ html, body, #root {
 
 .delete-button:hover {
   background-color: #fee2e2;
+}
+
+.delete-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 /* Confirmation modal styles */
