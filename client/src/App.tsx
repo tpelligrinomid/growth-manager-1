@@ -43,6 +43,7 @@ interface JwtPayload {
   email: string;
   role: UserRole;
   name?: string;
+  exp?: number;  // Add optional exp claim
 }
 
 function App() {
@@ -73,22 +74,55 @@ function App() {
   const [userId, setUserId] = useState<string>('');
   const [userName, setUserName] = useState<string>('');
 
+  // Add token expiration check
+  const checkTokenExpiration = (token: string) => {
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      // Check if token has exp claim and if it's expired
+      if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+        console.log('Token expired, logging out...');
+        handleLogout();
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      handleLogout();
+      return false;
+    }
+  };
+
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
-      try {
-        const decoded = jwtDecode<JwtPayload>(storedToken);
-        setUserRole(decoded.role);
-        setToken(storedToken);
-        setIsAuthenticated(true);
-        setUserId(decoded.userId);
-        setUserName(decoded.name || '');
-      } catch (error) {
-        console.error('Invalid token:', error);
-        handleLogout();
+      if (checkTokenExpiration(storedToken)) {
+        try {
+          const decoded = jwtDecode<JwtPayload>(storedToken);
+          setUserRole(decoded.role);
+          setToken(storedToken);
+          setIsAuthenticated(true);
+          setUserId(decoded.userId);
+          setUserName(decoded.name || '');
+        } catch (error) {
+          console.error('Invalid token:', error);
+          handleLogout();
+        }
       }
     }
   }, []);
+
+  // Add periodic token check
+  useEffect(() => {
+    if (!token) return;
+
+    const checkInterval = setInterval(() => {
+      if (!checkTokenExpiration(token)) {
+        clearInterval(checkInterval);
+      }
+    }, 60000); // Check every minute
+
+    return () => clearInterval(checkInterval);
+  }, [token]);
 
   // Add new effect for auto-syncing accounts
   useEffect(() => {
@@ -146,10 +180,19 @@ function App() {
     setToken(null);
     setIsAuthenticated(false);
     setAccounts([]);
+    setUserRole('GROWTH_ADVISOR');
+    setUserId('');
+    setUserName('');
+    // Force navigation to login
+    window.location.href = '/';
   };
 
   const fetchAccounts = async () => {
     try {
+      if (!token || !checkTokenExpiration(token)) {
+        throw new Error('Invalid or expired token');
+      }
+
       setIsLoading(true);
       setError(null);
       const response = await fetch(`${API_URL}/api/accounts`, {
@@ -157,13 +200,25 @@ function App() {
           'Authorization': `Bearer ${token}`
         }
       });
+      
+      if (response.status === 401) {
+        handleLogout();
+        throw new Error('Session expired');
+      }
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
       const { data } = await response.json();
       setAccounts(data);
-    } catch (err) {
-      setError(`Error fetching accounts: ${err}`);
+    } catch (error) {
+      console.error('Error fetching accounts:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch accounts');
+      if (error instanceof Error && 
+          (error.message.includes('expired') || error.message.includes('Invalid token'))) {
+        handleLogout();
+      }
     } finally {
       setIsLoading(false);
     }
