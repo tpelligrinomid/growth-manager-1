@@ -820,6 +820,10 @@ html, body, #root {
   border-left: 4px solid #dc2626;  /* Keep existing red border for warning metrics */
 }
 
+.metric-card.success {
+  border-left: 4px solid #059669;  /* Modern green color that matches the design */
+}
+
 .metric-card.priority {
   border-left: 4px solid #8b5cf6;  /* Keep existing purple border for priority metrics */
 }
