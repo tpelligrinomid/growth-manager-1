@@ -530,25 +530,25 @@ function App() {
                           </div>
                         </div>
 
-                        <div className="metric-card warning">
-                          <div className="metric-label">Accounts Off Track</div>
+                        <div className="metric-card success">
+                          <div className="metric-label">Accounts On Track</div>
                           <div className="metric-value">
-                            <div>{filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length}</div>
+                            <div>{filteredAccounts.filter(account => account.delivery === 'ON_TRACK').length}</div>
                           </div>
                         </div>
 
-                        <div className="metric-card warning">
-                          <div className="metric-label">% Off Track</div>
+                        <div className="metric-card success">
+                          <div className="metric-label">% On Track</div>
                           <div className="metric-value">
                             <PieChart 
                               percentage={calculatePercentage(
-                                filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length,
+                                filteredAccounts.filter(account => account.delivery === 'ON_TRACK').length,
                                 filteredAccounts.length
                               )} 
                             />
                             <span>
                               {calculatePercentage(
-                                filteredAccounts.filter(account => account.delivery === 'OFF_TRACK').length,
+                                filteredAccounts.filter(account => account.delivery === 'ON_TRACK').length,
                                 filteredAccounts.length
                               )}%
                             </span>
